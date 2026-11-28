@@ -1,13 +1,17 @@
 ---
 name: cratis-arc-spring-data-kotlin
-description: Use when wiring Spring Data JPA or MongoDB persistence, current-state injection or storage-backed observations in JVM Arc. Not for Chronicle projections, C# EF Core or query transport alone.
+description: Use when wiring Spring Data JPA or MongoDB persistence, current-state injection or storage-backed observations in an Arc Kotlin application (Kotlin only). Not for Chronicle projections, C# EF Core or query transport alone.
 license: MIT
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Use Spring Data with JVM Arc
+# Use Spring Data with Arc in Kotlin
+
+This is a Kotlin-only recipe.
+
+For Java MongoDB observations, subscribe to the `Flow.Publisher` returned by `MongoObservations.observe(queries, TaskView.class, criteria)` instead of using Kotlin flow extensions.
 
 Keep Spring Data responsible for persistence and Arc responsible for the
 model-bound command/query pipeline. Repository injection alone does not isolate
@@ -47,7 +51,7 @@ interface TaskViewRepository : JpaRepository<TaskView, String>
 ```
 
 The same injection pattern works with `MongoRepository`, fragments or an
-application query service. Java uses static query methods on its mapped type.
+application query service.
 Protect the query with the application's authorization policy; mapping does
 not make it safe to expose anonymously.
 
@@ -67,7 +71,7 @@ Equal-strength claims fail startup. Registry-owned model parameters resolve
 before ordinary services, using the generated command key and captured tenant.
 Keys must already match the persistence identifier type, not need coercion.
 Missing required rows or keys yield `dependencyUnavailable`; nullable Kotlin
-parameters/Java `Optional` observe absence. Resolver failures remain exceptions.
+parameters observe absence. Resolver failures remain exceptions.
 
 ## Stream storage snapshots
 
@@ -93,7 +97,6 @@ extensions on Arc's `MongoObservableQuery` or `JpaObservableQuery`, not foreign
 repositories or collections. Import the extensions from the store's package.
 Flows are cold and close their subscription on cancellation. `observeShared`
 explicitly shares one subscription and replays the latest complete snapshot.
-Java uses `observePublisher` or `MongoObservations`/`JpaObservations` helpers.
 
 MongoDB change streams require a replica set or sharded cluster; invalidations
 cause a fresh filtered snapshot so rows that stop matching disappear. JPA
@@ -113,10 +116,7 @@ first. Then select certified isolated stores:
   never fall back to a default database.
 - `TenantContextMongoAccess.operations()` resolves the ambient tenant on **each
   call**, not at construction. Establish `withTenant` explicitly; the command
-  pipeline does not create this ambient scope for you. Java on a plain thread
-  uses `operationsForCurrentTenant()` inside `TenantContextBridge.withTenant`;
-  a Java command handler uses the explicit-tenant overload instead of blocking
-  inside its coroutine. The auto-configured access has no fallback tenant.
+  pipeline does not create this ambient scope for you. The auto-configured access has no fallback tenant.
 
 Plain injected repositories are not automatically routed by tenant. Native
 collection access uses Arc's `NamingPolicy`, while Spring Data operations respect
@@ -153,4 +153,6 @@ indeterminate outcomes rather than claiming atomic cross-store success.
 - For JPA, verify committed notifications, rollback suppression and the intended
   in-process boundary; test thread affinity before enabling transactions.
 
-Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md). For the Chronicle JVM client, use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md); this skill covers Spring Data observation.
+Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/references/kotlin.md). For the Chronicle JVM client, use the `cratis-chronicle-select-client` skill (in `cratis/chronicle`); this skill covers Spring Data observation.
+
+For an existing projection, read [how to change collection names safely](references/read-model-naming.md).

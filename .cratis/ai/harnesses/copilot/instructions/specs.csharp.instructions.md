@@ -35,7 +35,7 @@ for_<TypeUnderTest>/
 ## Frameworks
 
 - [xUnit v3](https://xunit.net/docs/getting-started/v3/migration) is the house default for new and migrated spec projects, **run as the built executable**. Reference `Cratis.Specifications.XUnit.v3` **5.0** with `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`, and set `<OutputType>Exe</OutputType>` in the project. The package supplies the `Specification` base, convention lifecycle and `ShouldXxx` assertions; the namespace remains `Cratis.Specifications`. Its `Cratis.Specifications` dependency supplies `Catch` and `SpecificationMethods`.
-- 5.0 targets `net10.0` only. A spec project that must stay on net8.0/net9.0 stays on 4.x, and net48 on 3.x. A project that stays on xUnit v2 uses `Cratis.Specifications.XUnit`, with the same base and conventions.
+- Specifications 5.0–5.2 target `net10.0` only; 5.3.0 targets `net10.0` and `net11.0`. A spec project that must stay on net8.0/net9.0 stays on 4.x, and net48 on 3.x. A project that stays on xUnit v2 uses `Cratis.Specifications.XUnit`, with the same base and conventions.
 - `.NUnit`/`.NUnit5`, `.TUnit` and the experimental `.Runner` are alternatives for repositories already built on them.
 - [NSubstitute](https://nsubstitute.github.io/) for mocking collaborators.
 - Spec projects are named `<Source>.Specs`.
@@ -65,6 +65,11 @@ public class when_combining_parts : Specification
 | `void Destroy()` | teardown once per eligible class by default | after each fact when per-fact lifecycle is selected |
 
 The shared lifecycle is the default on xUnit v2 and v3 since 5.0; the package registers the framework, so delete any hand-written `[assembly: Xunit.TestFramework(...)]` (it fails with `CS0579`). Eligible classes derive from `Specification`, have one public constructor with no arguments or only framework-managed fixture arguments, and contain only plain facts. Construction, Establish/Because and Destroy run once; all facts share the instance and must not mutate it. `IDisposable` specifications also share the lifecycle since Cratis.Specifications 4.4.0: one construction and one `Dispose` after the last fact. Initialization failure fails every fact. Theories and `ITestOutputHelper` constructors keep per-fact execution. Keep shared lifecycle on; `[PerFactSpecificationLifecycle]` opts out only the class whose facts genuinely mutate shared state and cannot move the mutation into `Because`. `CRSPEC0008` (a fact modifies the shared context) is an error by default: move the change into `Establish` or `Because`.
+
+- `CRSPEC0008` catches provable mutation and `CRSPEC0012` warns on likely mutating calls. Inspect helpers and fixtures reachable from facts for indirect writes; passing analysis is not proof of isolation.
+- With the native runner, check the run summary for separate class teardown failures from `Destroy` or disposal. Completed facts can be green while teardown fails the run.
+- When moving from 4.x to 5.0 or upgrading an adapter, compare the discovered class and method inventory before and after; require no lost tests or new skips.
+- NUnit 4's `ShouldEqual(params)` ignored order; 5.0 compares in order. Use `ShouldEqualInAnyOrder` only for an unordered contract. For the native runner, change `async void` facts and phases to `Task` or `ValueTask` (`CRSPEC0010`).
 
 Run xUnit v3, TUnit and native-runner specifications as each project's built executable: restore and build once, then run its matching configuration/TFM output. Only identified VSTest projects use `dotnet test <project> --no-build`. Never default to solution-wide `dotnet test` in a mixed suite.
 
@@ -150,3 +155,5 @@ public decimal TotalCost => Items.Sum(i => i.Cost * i.Quantity * (1 + i.TaxRate)
 ```
 
 Also don't spec logging or trivial getters.
+
+For Chronicle integration specs, await the observer signal that proves the assertion’s precondition: `WaitTillActive`, `WaitTillSubscribed`, `WaitTillReachesEventSequenceNumber` or `WaitForState`. Readiness is not proof of processing a particular event.

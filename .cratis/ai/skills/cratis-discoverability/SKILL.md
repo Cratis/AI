@@ -18,7 +18,7 @@ the page worse to read, drop the fix and say so.
 4. For a built site, run the checker and fix errors; warnings are judgment calls to report.
 5. Report what was changed, what was left alone and why.
 
-Read `references/page-checklist.md` when checking a page, including docs lint baselines and LLM export budgets.
+Read [references/page-checklist.md](references/page-checklist.md) when checking a page, including docs lint baselines and LLM export budgets.
 
 ## Checks by content type
 
@@ -43,14 +43,14 @@ Read `references/page-checklist.md` when checking a page, including docs lint ba
   nouns, with no logo-only or metaphor opener. Links are absolute; link the docs page.
 - **Package metadata.** One sentence naming what the package is and which Cratis product it belongs
   to, identical to the README opener. `PackageProjectUrl` and `homepage` point at the docs page, not
-  only at GitHub. Read `references/package-metadata.md` when editing package fields, GitHub About,
+  only at GitHub. Read [references/package-metadata.md](references/package-metadata.md) when editing package fields, GitHub About,
   Docker Hub descriptions, analyzer help links, template messages or README footers. Check these
   surfaces together; Authors and Company are `Cratis`.
 
 ## Fact blocks and adoption claims
 
 For each entity page, assemble one sourced "at a glance" block from verifiable facts, with dates
-for counts. Read `references/facts-and-adoption.md` when selecting facts or calculating downloads:
+for counts. Read [references/facts-and-adoption.md](references/facts-and-adoption.md) when selecting facts or calculating downloads:
 identify entry packages and continuation predecessors, exclude sub-packages and overlapping
 shared dependencies, round down to a stated threshold, and publish the month and registries.
 Downloads are never users or customers. Omit unsupported claims instead of inventing customers,
@@ -60,13 +60,13 @@ generic; do not copy private integration names, legal entity details or factual 
 ## Names
 
 Use the canonical names, one per concept, and the first-mention rule. Read
-`references/entities.md` when naming a product, writing a definition sentence or filling `sameAs`.
+[references/entities.md](references/entities.md) when naming a product, writing a definition sentence or filling `sameAs`.
 Do not invent a name, URL, maturity word or claim that the references do not state.
 
 ## Structured data
 
 Describe only what is visible on the page, one `@graph` per page, stable `@id`s. Add no `HowTo` and
-no new `FAQPage`. Read `references/structured-data.md` for the patterns and what each page type
+no new `FAQPage`. Read [references/structured-data.md](references/structured-data.md) for the patterns and what each page type
 gets. Use only public, owner-approved founder/company facts. Do not name other people in
 structured data; never add personal data or `Person` entities for community members. Member
 profiles are `noindex`; check profile and CV routes, rendered robots directives and JSON-LD.

@@ -1,9 +1,10 @@
 ---
-applyTo: ".cratis/ai/skills/**,.cratis/ai/rules/**"
+applyTo: ".cratis/ai/skills/**,.cratis/ai/rules/**,.cratis/ai/agents/**,.cratis/ai/prompts/**"
 paths:
   - ".cratis/ai/skills/**"
   - ".cratis/ai/rules/**"
-profile: framework
+  - ".cratis/ai/agents/**"
+  - ".cratis/ai/prompts/**"
 ---
 
 # Authoring skills and rules
@@ -42,9 +43,20 @@ A version is kept only when it marks a prerequisite. Before deleting one, decide
 
 - Aim for under 750 words in `SKILL.md`. Verification fails a body above 500 lines or 20,000 characters.
 - Put conditional detail in `references/`, one level deep, and name every reference file from `SKILL.md` with the condition for reading it. A reference above 100 lines opens with a `## Contents` list.
-- Link to another skill at the actual handoff with a relative path, `../cratis-<name>/SKILL.md`. Every profile that installs the linking skill must also install the target, or the link leaves the selection.
+- At the actual handoff, use a relative link such as `../cratis-<name>/SKILL.md` only if every profile and language selection that installs the source also installs the target; otherwise name the target skill in backticks without linking to it.
 - A skill never links or refers to a path that exists only in the corpus repository, such as its documentation, evaluations or verification sources. Installed skills are read without them.
 - Refer to a rule by name, in backticks, with the profile that installs it. Do not link to a rule from a skill: the rule may not be installed where the skill is.
+
+## Tasks that several SDKs implement
+
+Cratis applications are written in C#, TypeScript (Node server and React), Kotlin, Java, Go and Elixir, and the SDK feature sets differ; Python has no released application SDK. Write one skill per task, not one per language. An existing shared skill whose `SKILL.md` carries a single language's code is converted: that code moves to its `references/<lang>.md`, and the other languages get a reference or a stated gap.
+
+- **`SKILL.md` stays implementation-neutral.** It states the decision, the default, the expected outcome and when to stop, and it contains no host-language code. It tells the reader which artifact selects which reference: `*.csproj` → C#, a Node server `package.json` → TypeScript, `*.kt` → Kotlin, `*.java` → Java, `go.mod` → Go, `mix.exs` → Elixir. A React `.tsx` consumer of generated proxies is a different task from a Node server.
+- **Each SDK gets its own reference:** `references/csharp.md`, `typescript.md`, `kotlin.md`, `java.md`, `go.md`, `elixir.md`. Java has its own file even where its annotations match Kotlin's. Each reference gives the native prerequisite, one worked example, the observable result and what to do when it is absent. Split a reference into `references/<lang>-<topic>.md` only when one file cannot hold the material usefully.
+- **State every gap.** For each SDK without the capability, `SKILL.md` names it as unsupported and gives the safe alternative. Never let the reader adapt another language's reference. Python gets `references/python.md` only for a verified boundary, such as contracts or an external worker, never for a guessed recipe.
+- **Split into a separate skill** only when the trigger, default, nearest exclusion or done-condition differs, or when only one implementation exists (EF Core migrations, MCP exposure, Spring Data, ESLint, React view models). Such a skill teaches its one implementation directly, with no router. Syntax differences alone never justify a second skill.
+
+Neutral modeling, Screenplay and operator skills may use topical references; that exception never covers language-specific material in a shared skill.
 
 ## One source of truth
 
@@ -61,6 +73,12 @@ Put a repeatable mechanical operation in `scripts/` when a script removes repeat
 `general.md` stays within one page and holds only what every session needs. Add a rule only for a constraint that applies regardless of task; anything task-shaped belongs in a skill. Every other rule declares `applyTo` and `paths` globs narrow enough that it loads only where it applies, and a `profile` when only some repositories need it.
 
 Prose does not enforce itself. A constraint that an analyzer, a lint, a hook or CI can check ships as that check, with at most a one-line pointer in a rule.
+
+## Evaluate behavior
+
+When authoring or materially changing a skill, keep at least three realistic requests that should select it and three near misses that name the sibling that should win in `Evaluations/corpus-v2/skills/<skill>/trigger.json`. Keep one to three output tasks with checkable assertions in `evals.json` in the same directory.
+
+In the shared corpus checkout, on request only, run the cases in `Evaluations/corpus-v2/skills/<skill>/trigger.json` and `evals.json` manually where supplied. `verify` checks inputs, not routing or improvement; if model runs are not run, report behavior as **unverified**. Use the same harness and model in two isolated runs: one with the skill installed normally, one clean control without that skill or cached skill context. Keep other settings and sibling skills identical. Do not preload the skill for a routing test. Grade the expected route (including `sibling` near-misses) and the output assertions separately; report pass rates against the control. Never run these cases in CI or incur model charges by default. Share only sanitized scores and failure categories, not secrets, local paths or transcripts.
 
 ## Change together, then verify
 

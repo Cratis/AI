@@ -131,6 +131,13 @@ not permission to float a production image or weaken a compatibility boundary.
 
 ## Know what the owning gate actually checks
 
+When the example or nearby prose names a packaged API, check the published
+artifact at the example's supported version as well as source. Use the package
+checks for [TypeScript](references/typescript-package-checks.md) or
+[C#](references/csharp-package-checks.md). A missing dependency means the package
+check was not run. An older local pin is not evidence that the supported version
+is wrong; check that version and state the minimum if it differs.
+
 Look for a snippet validator before designing another checker. The Arc and
 Chronicle .NET repositories use `validate-client-snippets.py`
 for supported **C#** fences in the client snippets under their documentation folders; Arc’s

@@ -2,7 +2,7 @@
 
 Use this when a release, package-publish or deploy workflow queues, loses runs,
 or rebuilds what a pull-request run already built and tested. Release method and
-assurance tiers belong to `cratis-governed-release-methodology`.
+assurance tiers belong to `cratis-governed-release-methodology` (in `cratis/methodology/governed-releases`).
 
 ## Concurrency for publishing
 
@@ -64,4 +64,4 @@ and pays the build twice.
 - Do not skip validation on the release path to save minutes; move other work off
   it instead (docs jobs, matrices already covered by schedule).
 - Canary before promotion and recovery disposition are release-method questions;
-  hand them to `cratis-governed-release-methodology`.
+  hand them to `cratis-governed-release-methodology` (in `cratis/methodology/governed-releases`).

@@ -1,4 +1,7 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
+
+Before running the commands, set `scratch` to an absolute path under the repository’s ignored `.ai-work` directory. Create it first and confirm it is ignored; never run the commands with `scratch` unset.
+
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
 # .NET and NuGet

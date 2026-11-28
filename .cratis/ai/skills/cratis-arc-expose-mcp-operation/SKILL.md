@@ -43,7 +43,7 @@ For a combined Library host, merge `options.EndpointGroups.Assign("capabilities"
 
 ## Add a tool
 
-For a list, annotate the **method** on the existing [Author projection](../cratis-chronicle-project-view/SKILL.md) in `Features/Authors/Listing/Author.cs` (`Library.Features.Authors.Listing`). Import `Cratis.Arc.Mcp` and `MongoDB.Driver`, then add this method to `Author`:
+For a list, annotate the **method** on the existing Author projection (`cratis-chronicle-project-view` skill in `cratis/chronicle`) in `Features/Authors/Listing/Author.cs` (`Library.Features.Authors.Listing`). Import `Cratis.Arc.Mcp` and `MongoDB.Driver`, then add this method to `Author`:
 
 ```csharp
 [ExposeOverMcp("list_authors", Description = "Lists the library's authors.")]
@@ -51,7 +51,7 @@ public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collectio
     collection.Find(_ => true).ToList();
 ```
 
-For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on [RegisterAuthor](../cratis-arc-declare-command/SKILL.md).
+For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on RegisterAuthor (`cratis-arc-declare-command` skill in `cratis/arc`).
 
 Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. For an argument description on a command record parameter, use `[property: System.ComponentModel.Description("The author's display name")] string Name`.
 
@@ -70,6 +70,7 @@ In the result, expect `list_authors` and no `register_author`.
 
 ## When it goes off the usual path
 
+- **An operation cannot be annotated, the tool needs custom behavior, or admission fails:** [configure custom exposure and inspect the call audit](references/custom-exposure-and-audit.md).
 - **A command marked `[RequiresApproval]` is exposed:** Arc rejects the catalog at startup. Remove its MCP exposure, not the approval requirement. Keep the command on the approved application path.
 
 ## Avoid
@@ -80,5 +81,11 @@ In the result, expect `list_authors` and no `register_author`.
 
 ## Related skills
 
-- [Declare the command](../cratis-arc-declare-command/SKILL.md)
+- Declare the command (`cratis-arc-declare-command` skill in `cratis/arc`)
 - [Protect the operation](../cratis-arc-authorize-request/SKILL.md)
+
+## Diagnose admission with the client credential
+
+Check startup first, then reachability of the capability listener and the mapped POST, then authentication, origin, tool listing and invocation. A public GET or a tool appearing under another profile proves none of these. Use `PatOnly` for a PAT, `OAuthOnly` for OAuth or `Combined` only when both are intended. Configure the public origin, resource and authorization servers from trusted deployment settings, never the incoming Host header. An absent Origin is not the same as a disallowed browser Origin.
+
+Publication installs no caller credential. Check the verified caller installation, allowed scopes and the PAT authority, issuance policy and recovery epoch separately. Development adapters do not bypass issuance. Use the [admission and audit checks](references/custom-exposure-and-audit.md) to distinguish a credential challenge from a scope or operation-policy refusal. Retest listing and calling by name with the actual client's profile and credential.

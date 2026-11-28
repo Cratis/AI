@@ -36,6 +36,8 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
 
 4. Run `screenplay test model --format json` from the application directory. Require each named scenario to pass; an unsupported outcome is unverified.
 
+If a fixture passes but the reported outcome is wrong, [choose the observable result](references/observable-result.md) before adding more givens.
+
 ## Arrange a stateful or authorized command
 
 Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run. This Lending example seeds stock directly. In a working app, acquisition supplies `LoanStockSet` and withdrawal supplies `BookWithdrawn`; those producers are omitted here. When composing it into Library, don't duplicate the root directive.
@@ -117,15 +119,19 @@ When a command records multiple facts, assert every new fact in the expected ord
 
 When only the input and expected values change across examples, [check one rule with named cases](references/named-cases.md).
 
+Before handing off, [account for every modeled command and view](references/coverage-worksheet.md).
+
 ## Carry the accepted examples into the application
 
-Reuse [backend specs](../cratis-specifications-exercise-backend/SKILL.md); commit a case only for an uncovered consequential decision. Model tests don't prove the [running slice](../cratis-platform-deliver-slice/SKILL.md).
+Reuse backend specs (`cratis-specifications-exercise-backend` skill in `cratis/application`); commit a case only for an uncovered consequential decision. Model tests don't prove the running slice (`cratis-platform-deliver-slice` skill in `cratis/application`).
 
 ## When it goes off the usual path
 
 - **Only a read is under test:** use the `ListingAster` specification in [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md): seed the fact, omit the action, and assert `then query AllAuthors exactly` with the expected row under `result`.
 - **The effect belongs to another slice:** move the effect assertion to the slice that owns it and seed the fact it reacts to. Verify the joined behavior in the running application.
-- **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass.
+- **A graph changes:** use [graph fixtures and assertions](references/graph-steps.md) for concrete node and edge identities.
+- **An invalid or unauthorized read is under test:** see [query rejection vs. absence](references/query-rejections.md).
+- **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass. For opaque bodies, [run with a host provider](references/host-body-execution.md) only if the host can enforce the execution limits.
 
 ## Avoid
 
@@ -135,4 +141,4 @@ Reuse [backend specs](../cratis-specifications-exercise-backend/SKILL.md); commi
 ## Related skills
 
 - [Accept the model](../cratis-screenplay-accept-model/SKILL.md) to review what changed in the running examples.
-- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) for the corresponding runtime assertions.
+- Exercise the backend (`cratis-specifications-exercise-backend` skill in `cratis/application`) for the corresponding runtime assertions.

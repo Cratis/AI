@@ -66,16 +66,16 @@ keep following this skill.
 8. **Record lessons:** what went well, what went poorly and where luck helped.
 9. **Run the public-safe pass** last, before anything is published or filed.
 
-Read `references/review-template.md` for the copy-ready document format, with
+Read [references/review-template.md](references/review-template.md) for the copy-ready document format, with
 every heading, table and a small synthetic example.
 
-Read `references/public-safe-wording.md` before publishing: what to remove or
+Read [references/public-safe-wording.md](references/public-safe-wording.md) before publishing: what to remove or
 generalize, before and after pairs, and a scan checklist.
 
-Read `references/examples/silent-backup-failure.md` when the incident is a long
+Read [references/examples/silent-backup-failure.md](references/examples/silent-backup-failure.md) when the incident is a long
 undetected failure or a monitoring gap.
 
-Read `references/examples/unintended-release-regression.md` when the incident
+Read [references/examples/unintended-release-regression.md](references/examples/unintended-release-regression.md) when the incident
 is a release or deploy that caused a regression and needs a UTC timeline with
 inferred and unverified claims.
 

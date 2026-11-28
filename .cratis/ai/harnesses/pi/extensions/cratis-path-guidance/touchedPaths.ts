@@ -18,10 +18,10 @@ export function commandOf(input: unknown): string | undefined {
 }
 
 /**
- * Extracts file paths a bash command refers to. `rtk.md` tells agents to run `rtk read`, `rtk grep`
- * and `rtk find` from the terminal for bulk reads, so file access frequently arrives as a bash
- * command rather than the read tool; without this, a session that follows that rule would never
- * receive a path-scoped rule. A token counts only when it resolves to a file that exists inside the
+ * Extracts file paths a bash command refers to. Agents often read in bulk from the terminal
+ * (`rtk read`, `rtk grep`, `rtk find`, `cat`), so file access frequently arrives as a bash
+ * command rather than the read tool; without this, such a session would never receive a
+ * path-scoped rule. A token counts only when it resolves to a file that exists inside the
  * working directory, which keeps a filename mentioned inside a commit message from matching.
  */
 function pathsFromCommand(command: string, cwd: string): string[] {

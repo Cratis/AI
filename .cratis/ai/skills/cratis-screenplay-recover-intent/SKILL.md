@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-recover-intent
-description: Use when a modeler needs to recover candidate intent for an inherited application from a recording without assuming the observed behavior was accepted. Not for deciding an unobserved business rule (use cratis-modeling-discover-timeline).
+description: Use when a modeler needs to recover candidate intent for an inherited application from a recording or a bounded walk of a running system without assuming the observed behavior was accepted. Not for deciding an unobserved business rule (use cratis-modeling-discover-timeline).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -8,8 +8,8 @@ compatibility: Requires the Screenplay CLI.
 
 1. Record the application, screen, caller and frame range. List the actions exercised; leave any other entry point outside the recording's coverage.
 2. Separate **observed** results, **inferred** explanations and **unresolved** decisions. A displayed result can support an inference about storage but does not prove it.
-3. In a separate comparison workspace, compile the existing Library [registration and listing model](../cratis-screenplay-declare-slice/SKILL.md) with `screenplay model`. Compare the screen behavior with `Library.Authors.ListAuthors`. Do not add another declaration of `AuthorId` or `ListAuthors` to the application model.
-4. Record the open branch, its evidence and the domain owner who can settle it. Run [model acceptance](../cratis-screenplay-accept-model/SKILL.md) only after that decision; a matching recording isn't approval. To check a storage inference in a Chronicle-backed system, record the store, namespace, first sequence number and event-source ID. With an authorized `IEventSequence` for that scope, use `await sequence.GetFromSequenceNumber(firstSequenceNumber, authorId)` and compare only events within the recording's time or sequence bounds.
+3. In a separate comparison workspace, compile the existing Library [registration and listing model](../cratis-screenplay-declare-slice/SKILL.md) with `screenplay model`. Compare the screen behavior with `Library.Authors.ListAuthors`. Do not add another declaration of `AuthorId` or `ListAuthors` to the application model. With captured requests or shipped artifacts, use [black-box intake and rebuild replay](../cratis-modeling-trace-existing-behavior/references/blackbox-intake.md). If comparing recovery runs against known truth, use the [recovery benchmark](references/ground-truth-benchmark.md).
+4. Record the open branch, its evidence and the domain owner who can settle it. Run [model acceptance](../cratis-screenplay-accept-model/SKILL.md) only after that decision; a matching recording isn't approval. To check a storage inference in a Chronicle-backed system, record the store, namespace, first sequence number and event-source ID. Have an authorized operator compare only the addressed history within the recording's time or sequence bounds. Report whether a matching fact exists, not its private payload. For recovery from a trusted project or captured traces rather than frames, [trace the existing behavior](../cratis-modeling-trace-existing-behavior/SKILL.md); do not treat a generated draft as owner acceptance.
 
 ## Example: the Authors screen after submission
 
@@ -18,6 +18,12 @@ compatibility: Requires the Screenplay CLI.
 | Observed | Frame 1: a librarian submits Aster. Frame 2: the Authors list contains Aster. |
 | Inferred | `RegisterAuthor` may have appended `AuthorRegistered` for the new author ID. Neither frame shows persistence or a history address. |
 | Unresolved | Neither frame shows a blank name. Ask what the librarian should see and whether the list changes. |
+
+For a draft generated from Arc source, [interpret C# generation losses](references/csharp.md) before replacing the original acceptance or privacy rules.
+
+## Recover from a running system
+
+For a live application rather than an existing recording, follow the [bounded walk and fidelity check](references/running-system.md). Obtain authority before collecting evidence; a matching draft does not authorize execution.
 
 ## When it goes off the usual path
 

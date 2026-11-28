@@ -5,9 +5,9 @@ description: Use when a platform maintainer needs a release-note PR body and int
 
 # Prepare the note a consumer will read
 
-Inspect the diff against the target branch and the repository's publishing workflow. Identify the affected caller and what changes for them. In a repository using Cratis release labels, choose **exactly one**: `major` for a breaking contract, `minor` for a compatible capability, `patch` for a compatible fix, or `no-release` when there is no consumer release. Do not combine a bump with `no-release`.
+Inspect the diff against the target branch and the repository's publishing workflow. Identify the affected caller and what changes for them. Choose the intent using the [release label policy](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md).
 
-Write the PR body as release notes, using the repository template and only applicable sections. For example:
+Write the PR body using the shared [description and issue-reference policy](../cratis-commits-and-pull-requests/references/pr-description.md). For example:
 
 ```markdown
 ## Fixed
@@ -15,7 +15,7 @@ Write the PR body as release notes, using the repository template and only appli
 - Empty author names now return a validation error instead of appearing to register successfully.
 ```
 
-State the migration for a breaking change. Reference only real issues: where the release action closes a trailing `(#n)`, reserve that form for authorized closure of a fully delivered issue; use `see #n` for related work. Keep check results and reviewer instructions out of the release note. Run the repository's PR policy check if supplied. Preparing a note or label does not authorize a push, merge, dispatch or release. Leave a major for explicit human approval and human merge.
+Preparing a note or label does not authorize a push, merge, dispatch or release. Leave a major for explicit human approval and human merge.
 
 ## A green Publish run did not publish the change
 
@@ -26,3 +26,5 @@ First check whether the workflow actually enables batching. With release-action 
 3. If waiting is not acceptable, request an authorized manual Publish. In batch mode an empty version or `0.0.0` releases **all pending changes**, not just this fix. Check the entire pending set and obtain explicit human approval for a pending major. A hotfix merge run can fail against a pending major while a scheduled or unrelated merge run warns and leaves it pending. Don't edit the window, relabel another PR or dispatch a workflow just to clear the queue.
 
 If batching isn't enabled, don't apply the empty-version batch procedure. Follow that repository's actual trigger and inspect its release outputs instead.
+
+For a failed Publish run, use release-action recovery in `cratis-release-notes` (in `cratis/engineering/core`), including what to do when another commit claims the calculated tag. After a hook change, remind installed consumers to run `cratis ai update`.

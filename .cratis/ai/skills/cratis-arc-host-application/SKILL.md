@@ -1,56 +1,19 @@
 ---
 name: cratis-arc-host-application
-description: Use when a developer needs to start an ASP.NET Core host and verify a model-bound Arc query without an event store. Not for an application that also needs Chronicle (use cratis-chronicle-connect-application).
-compatibility: Requires Microsoft.NET.Sdk.Web and the Cratis.Arc package.
+description: Use when starting an Arc application and verifying that its host serves a registered endpoint. Not for connecting a Chronicle kernel (use cratis-chronicle-connect-application).
 ---
 
-# Start an Arc host
+# Start and verify the registered host
 
-For an Arc-only ASP.NET Core host, pair `AddCratisArc()` with `UseCratisArc()`. For a host that also uses Chronicle, follow [Connect Chronicle](../cratis-chronicle-connect-application/SKILL.md) instead.
+Start with one finite query or command that needs no external store. Read the recipe for the module that serves requests, not the language of its client:
 
-In a `Microsoft.NET.Sdk.Web` project with `<ImplicitUsings>enable</ImplicitUsings>`, reference `Cratis.Arc`. Register Arc on the builder and activate it on the built application in `Program.cs` (top-level statements, no namespace).
+- For an ASP.NET Core web project, read [C#](references/csharp.md).
+- For a Node server package, read [TypeScript](references/typescript.md).
+- For Spring Boot with Kotlin sources, read [Kotlin](references/kotlin.md).
+- For Spring Boot with Java sources, read [Java](references/java.md).
+- For a Go service, read [Go](references/go.md).
+- For an OTP application, read [Elixir](references/elixir.md).
 
-```csharp
-using Microsoft.AspNetCore.Builder;
+For a Python caller, read [Python](references/python.md): no released Arc host recipe is verified, so call a supported service over HTTP instead.
 
-var builder = WebApplication.CreateBuilder(args);
-builder.AddCratisArc(options =>
-{
-    options.GeneratedApis.RoutePrefix = "api";
-    options.GeneratedApis.SegmentsToSkipForRoute = 1;
-});
-var app = builder.Build();
-app.UseCratisArc();
-await app.RunAsync();
-```
-
-Add a read model with a public static query when starting from an empty project. For a finite smoke query with no database, add this probe in `Features/Diagnostics/LibraryStatus.cs`:
-
-```csharp
-using Cratis.Arc.Queries.ModelBound;
-
-namespace Library.Features.Diagnostics;
-
-[ReadModel]
-public record LibraryStatus(string State)
-{
-    public static LibraryStatus CurrentStatus() => new("Open");
-}
-```
-
-Run `dotnet run` from the host project directory. With the options above, request `GET /api/features/diagnostics/current-status` at the listening address printed at startup. Expect HTTP 200, `isSuccess: true` and `data.state` equal to `Open`. When testing an existing query, use its route and required credentials. For an observable query, append `?waitForFirstResult=true` to request one result.
-
-## When it goes off the usual path
-
-- **The host probe passes but an append cannot connect:** check the configured endpoint and availability of the separate Chronicle kernel. `CurrentStatus` verifies Arc's HTTP route, not event appends or projection delivery.
-
-## Avoid
-
-- Do not omit either half of `AddCratisArc()` / `UseCratisArc()`.
-- Do not add a controller for a model-bound query; put the method on its read model.
-- When adding Chronicle, replace the Arc-only registration rather than registering Arc twice.
-
-## Related skills
-
-- [Expose an author query](../cratis-arc-expose-query/SKILL.md)
-- [Connect Chronicle](../cratis-chronicle-connect-application/SKILL.md)
+Call the registered route with its actual credentials and inputs. Stop when the response contains the expected application value: a listening port alone does not prove registration. If the route is missing, check registration and the configured prefix before changing business logic. This probe does not prove event delivery.

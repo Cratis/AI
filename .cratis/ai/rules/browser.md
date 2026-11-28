@@ -1,5 +1,5 @@
 ---
-profile: cratis/playwright
+applyTo: "**/*"
 ---
 
 # Browser use

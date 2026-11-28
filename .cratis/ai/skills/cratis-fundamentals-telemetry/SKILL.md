@@ -109,5 +109,6 @@ For HTTP/protobuf, the shared endpoint gains `/v1/traces`, `/v1/metrics` or `/v1
 
 - Fundamentals stopped bringing the OpenTelemetry SDK transitively; add the explicit telemetry package when migrating a consumer that relied on that dependency.
 - Regenerating after an upgrade from a Fundamentals older than 7.20.0 can rename exported Prometheus metrics: descriptions are HELP text, not units. Rebuild the consumer and update dashboards and alerts that used the old description-suffixed names.
+- For changes to generated instruments, follow “Published names are a contract” in `cratis-observability`.
 - Build with analyzers and warnings as errors. Inspect generated implementations for correct measurements/tags and scope disposal. Do not edit generated files.
 - Exercise one code path with a listener or the configured collector: observe the counter increment, histogram unit/measurement and completed span. A build or `skill-contains` assertion is not proof of export. Check namespace subscriptions, SDK disablement, sampler and endpoint independently before diagnosing the collector.

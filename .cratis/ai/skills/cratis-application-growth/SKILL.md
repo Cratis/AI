@@ -16,8 +16,8 @@ check passes; do not start the next one before.
 
 ## 1. Decide
 
-1. Name the current stage and the signal that justifies the next, in the rule's terms. No signal, no move.
-2. A new application starts at stage 2 or 3 only for a rule-listed reason; otherwise stage 1.
+1. Name the current stage and the signal that justifies the next, using the [stage guide](references/stages.md#stages-and-promotion). No signal, no move.
+2. A new application starts at stage 2 or 3 only for a reason in the stage guide; otherwise stage 1.
 3. Read the accepted decision records that describe the current structure. If the target contradicts one,
    write the superseding record first; a record binds until then. See
    `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
@@ -28,23 +28,19 @@ Done when: the target is written and no accepted record contradicts it.
 
 ## 2. Guard before moving
 
-1. Add the architecture gates from the rule's *Gates* section as specs, in a project of their own.
-2. Record the current numbers as committed baselines: seams, `InternalsVisibleTo` grants, references between
-   modules, platform-to-module references, folders without project or README, namespace/folder
-   mismatches, frontend boundary violations.
-3. Each gate fails when its baseline grows and asks for the baseline to shrink when coupling is removed.
+1. Add the [architecture gates](references/stages.md#architecture-gates) as specs in a project of their own.
+2. Commit current violation counts as baselines. Fail on an increase and shrink the baseline in the same change that removes a violation.
 
 Done when: the gates run in the normal spec pass and fail on a planted violation (add one grant, see red, remove it).
 
 ## 3. Move, and only move
 
-Keep namespaces and assembly names while moving; moving a file changes no identity, a namespace change
-does (rule, *What a rename changes*).
+Keep namespaces and assembly names while moving. A path-only move leaves name-based identities intact; changing the namespace can change them. Inventory [affected identities](references/stages.md#what-a-rename-changes-in-net), then see the [rename window](references/rename-window.md).
 
 | Move | Steps (each a separate commit; build and run specs after each) |
 | --- | --- |
 | **1 → 2** | Create the module folder, `git mv` the related feature folders under it, add its `README.md`. |
-| **2 → 3** | Create the module project and frontend package; `git mv` the module folder into them; reference only what the rule's layer table allows. Add the module declaration and register its routes, navigation and settings by convention. |
+| **2 → 3** | Create the module project and frontend package; `git mv` the module folder into them; reference only what the [layer table](references/stages.md#allowed-references) allows. Add the module declaration and register its routes, navigation and settings by convention. |
 | **3 → 4** | At the first cross-module need, create `<Module>.Contracts` in the owning module and point the consumer at it. Replace the direct reference; never keep both. |
 
 - `git mv` for files; no behavior change, rename or refactor in a move commit.
@@ -75,8 +71,7 @@ import from it, folder by folder. Each cluster that several modules use becomes 
 one purpose (shell and tenancy into the host or a `Tenancy.Contracts`, an engine into its own project
 with contracts); everything else moves into the module that owns it. Delete the project when it is empty.
 
-**Retiring a project that owns event types** removes those types: their stored events and registrations
-need an event-store plan before the project goes; use [cratis-chronicle-evolve-event](../cratis-chronicle-evolve-event/SKILL.md).
+**Before retiring a project that owns persisted events**, preserve the types and their replay path. If registrations or stored events need to change, plan that migration separately with `cratis-chronicle-evolve-event` (in `cratis/chronicle`).
 
 Done when: the seam baseline and the module-reference baseline reach zero.
 
@@ -109,7 +104,7 @@ name-scoped filters, which is where structural changes break. Say which phases w
 | Observers replay from the start, side effects repeat | A namespace or type name changed an observer identity | Pin the id, or repair stored identities before starting the new version |
 | `IFoo` not resolved, or the wrong implementation wins | Interface moved to `.Contracts`, so the same-namespace convention no longer binds; or extra bindings ran before explicit registrations | Register the pair explicitly; apply generated bindings once, after all explicit ones |
 | 404 from the frontend or a script after a rename | Arc routes follow the namespace | Regenerate proxies; replace hard-coded routes; update reverse-proxy rewrites |
-| A generated proxy lost members after a split | A project that only references a type emitted a copy over the owner’s proxy | Generate each project into its own package; map referenced assemblies with `AssemblyToPackageMapping`. See [cratis-arc-generate-proxies](../cratis-arc-generate-proxies/SKILL.md). |
+| A generated proxy lost members after a split | A project that only references a type emitted a copy over the owner’s proxy | Generate each project into its own package; map referenced assemblies with `AssemblyToPackageMapping`. See the `cratis-arc-generate-proxies` skill (in `cratis/arc/csharp`). |
 | API docs, authorization or Release stripping silently stopped applying | Code keyed on a namespace or path | Replace name keys with explicit declarations or one shared pattern |
 | Stored jobs fail to resume after a project rename or a move | Job type names are assembly-qualified | Keep `AssemblyName`; for a job type moved to another assembly, rewrite the stored names or leave a type forwarder |
 | Module B does not compile without module A's internals | Hidden coupling | Contract or lower project; never `InternalsVisibleTo` |
@@ -117,6 +112,8 @@ name-scoped filters, which is where structural changes break. Say which phases w
 
 ## Related
 
-- Modules deployed as separate services: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md) and [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md).
+- Modules deployed as separate services: the `cratis-platform-verify-service-handoff` skill (in `cratis/application/arc-chronicle`) and the `cratis-chronicle-publish-contract` skill (in `cratis/chronicle`).
 - Superseding the structure's accepted records: `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
-- Verifying a slice against its model after a move: [cratis-platform-deliver-slice](../cratis-platform-deliver-slice/SKILL.md).
+- Verifying a slice against its model after a move: the `cratis-platform-deliver-slice` skill (in `cratis/application`).
+
+The host composes modules; platform code knows none. For example, Billing owns invoicing; Orders consumes Billing.Contracts, not Billing implementation files through a compile include. Before moving namespaces, inventory persisted observer and model IDs; preserve identity or plan a verified migration before rollout.

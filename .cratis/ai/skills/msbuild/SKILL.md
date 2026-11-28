@@ -112,6 +112,6 @@ also needs comparable measurements and uncertainty. Keep the response proportion
 
 ## Reference navigation
 
-- Read references/antipatterns/additional-antipatterns.md when working on additional antipatterns.
-- Read references/antipatterns/incremental-build-inputs-outputs.md when working on incremental build inputs outputs.
-- Read references/antipatterns/private-assets.md when working on private assets.
+- Read [references/antipatterns/additional-antipatterns.md](references/antipatterns/additional-antipatterns.md) when working on additional antipatterns.
+- Read [references/antipatterns/incremental-build-inputs-outputs.md](references/antipatterns/incremental-build-inputs-outputs.md) when working on incremental build inputs outputs.
+- Read [references/antipatterns/private-assets.md](references/antipatterns/private-assets.md) when working on private assets.

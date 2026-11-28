@@ -3,7 +3,9 @@
 
 import { existsSync, mkdirSync, readFileSync, readlinkSync, readdirSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { checkCopilotInstructions, copilotInstructions, copilotInstructionsDirectory, copilotMarker, type CopilotInstruction } from './copilot-instructions.ts';
+import { checkOpenCodeAgents, generateOpenCodeAgents, generatedAgentMarkerPrefix, openCodeAgentsDirectory, type GeneratedAgent } from './opencode-agents.ts';
+import { checkPiAgents, generatePiAgents, piAgentMarkerPrefix, piAgentsDirectory } from './pi-agents.ts';
+import { checkCopilotInstructions, copilotInstructions, copilotInstructionsDirectory, copilotMarker } from './copilot-instructions.ts';
 import { SetupPath } from './SetupPath.ts';
 
 type Link = { path: string; target: string; type: 'file' | 'dir' };
@@ -17,7 +19,15 @@ if (!existsSync(corpus)) throw new Error(`No canonical corpus exists at ${corpus
 const rootPath = new SetupPath(root);
 const corpusPath = new SetupPath(corpus);
 
-type GeneratedFile = CopilotInstruction;
+type GeneratedFile = Pick<GeneratedAgent, 'path' | 'content'>;
+
+interface AgentAdapter {
+    name: string;
+    relativeDirectory: string;
+    files: GeneratedFile[];
+    marker: string;
+    drift: () => string[];
+}
 
 /** Expected file names plus every path to write or prune: the generated files and any other entries in the directory. */
 function plannedPaths(directory: SetupPath, files: GeneratedFile[]) {
@@ -27,8 +37,40 @@ function plannedPaths(directory: SetupPath, files: GeneratedFile[]) {
     return { expected, paths };
 }
 
+function needsAgentDriftCheck(adapter: AgentAdapter, plan: ReturnType<typeof plannedPaths> & { conflict: boolean }): boolean {
+    if (check) return true;
+    if (force) return false;
+    if (plan.conflict) return true;
+    return plan.paths.some(path => path.state() && !isGeneratedAgent(path, adapter.marker));
+}
+
+// Preflight every generated adapter before writing anything; markers identify owned stale output.
+function planAgents(adapter: AgentAdapter) {
+    const directory = new SetupPath(join(corpus, adapter.relativeDirectory));
+    directory.requireRealParents(corpusPath, rootPath);
+    const conflict = directory.directoryConflict();
+    const plan = { directory, ...plannedPaths(directory, adapter.files), conflict, files: adapter.files };
+    if (needsAgentDriftCheck(adapter, plan)) {
+        const stale = adapter.drift();
+        if (stale.length > 0) throw new Error(`${adapter.name} agent adapters are out of date:\n${stale.join('\n')}`);
+    }
+    return plan;
+}
+const agentPlans = [
+    planAgents({ name: 'OpenCode', relativeDirectory: openCodeAgentsDirectory, files: generateOpenCodeAgents(corpus), marker: generatedAgentMarkerPrefix, drift: () => checkOpenCodeAgents(corpus) }),
+    planAgents({ name: 'Pi', relativeDirectory: piAgentsDirectory, files: generatePiAgents(corpus), marker: piAgentMarkerPrefix, drift: () => checkPiAgents(corpus) }),
+];
+
 function ownedCopilot(path: SetupPath): boolean {
     return !!path.state()?.isFile() && readFileSync(path.path, 'utf8').includes(copilotMarker);
+}
+
+function isGeneratedAgent(path: SetupPath, marker: string): boolean {
+    try {
+        return !!path.state()?.isFile() && readFileSync(path.path, 'utf8').includes(`\n${marker}`);
+    } catch {
+        return false;
+    }
 }
 
 const copilot = copilotInstructions(corpus);
@@ -47,22 +89,32 @@ function add(path: string, target: string, type: Link['type']): void {
     if (existing && (existing.target !== target || existing.type !== type)) throw new Error(`Conflicting integration plan for ${path}.`);
     links.set(path, { path, target, type });
 }
+function agents(directory: string, suffix = '.md'): void {
+    for (const agent of readdirSync(join(corpus, 'agents')).filter(name => name.endsWith('.md')).sort()) {
+        add(`${directory}/${agent.slice(0, -3)}${suffix}`, `../../.cratis/ai/agents/${agent}`, 'file');
+    }
+}
 
 add('AGENTS.md', '.cratis/ai/rules/general.md', 'file');
 add('CLAUDE.md', '.cratis/ai/rules/general.md', 'file');
 add('.agents/skills', '../.cratis/ai/skills', 'dir');
 add('.claude/CLAUDE.md', '../.cratis/ai/rules/general.md', 'file');
+add('.claude/agents', '../.cratis/ai/agents', 'dir');
 add('.claude/hooks', '../.cratis/ai/hooks', 'dir');
 add('.claude/rules', '../.cratis/ai/rules', 'dir');
 add('.claude/skills', '../.cratis/ai/skills', 'dir');
 add('.github/copilot-instructions.md', '../.cratis/ai/rules/general.md', 'file');
 add('.github/instructions', `../.cratis/ai/${copilotInstructionsDirectory}`, 'dir');
 add('.github/skills', '../.cratis/ai/skills', 'dir');
+agents('.github/agents', '.agent.md');
+add('.pi/agents', `../.cratis/ai/${piAgentsDirectory}`, 'dir');
 add('.pi/extensions', '../.cratis/ai/harnesses/pi/extensions', 'dir');
 add('.pi/skills', '../.cratis/ai/skills', 'dir');
 add('.codex/hooks.json', '../.cratis/ai/harnesses/codex/hooks.json', 'file');
+add('.cursor/agents', '../.cratis/ai/agents', 'dir');
 add('.cursor/rules', '../.cratis/ai/harnesses/cursor/rules', 'dir');
 add('.cursor/skills', '../.cratis/ai/skills', 'dir');
+add('.opencode/agents', `../.cratis/ai/${openCodeAgentsDirectory}`, 'dir');
 add('.opencode/skills', '../.cratis/ai/skills', 'dir');
 
 /** A link that exists but may not be replaced: foreign content, with the migration and forced-overwrite exceptions. */
@@ -121,6 +173,12 @@ if (!check) {
     mkdirSync(copilotDirectory.path, { recursive: true });
     pruneUnexpected(copilotPaths, copilotNames);
     writeGenerated(copilot);
+    for (const plan of agentPlans) {
+        if (plan.conflict) plan.directory.remove(force);
+        mkdirSync(plan.directory.path, { recursive: true });
+        pruneUnexpected(plan.paths, plan.expected);
+        writeGenerated(plan.files);
+    }
     for (const link of links.values()) {
         const path = new SetupPath(join(root, link.path));
         if (path.state()?.isSymbolicLink() && readlinkSync(path.path) === link.target) continue;

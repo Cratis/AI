@@ -26,7 +26,7 @@ with `given`), and `node:test` works too.
 | Stored events or an aggregate | `ChronicleKernelScenario` against a running kernel | n/a |
 
 Cover decision branches with fast direct specs and add scenario specs for the
-rules Arc enforces. Use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md) for Chronicle client setup.
+rules Arc enforces. Use the `cratis-chronicle-select-client` skill (in `cratis/chronicle`) for Chronicle client setup.
 
 ## CommandScenario
 
@@ -146,5 +146,5 @@ does not transform decorators.
 
 ## Route near misses
 
-- Writing the command or query itself: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md). The rule vocabulary is in [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
-- Specification naming and fixtures in general: `cratis-specifications-isolate-behavior` in `cratis/application`.
+- Writing the command or query itself: [declare the command](../cratis-arc-declare-command/references/typescript.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/references/typescript.md). The rule vocabulary is in [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
+- Specification naming and fixtures in general: `cratis-specifications-isolate-behavior` in `cratis/specifications/dotnet`.

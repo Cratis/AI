@@ -1,0 +1,79 @@
+# C#: return a command operation with compensation
+
+Prerequisite: `Cratis.Arc`; add the Chronicle integration only when the command also records an event.
+
+In `Features/Books/Reservations/`, put `ReservationId` in `ReservationId.cs` and `BookId` in `BookId.cs`. Both files use `namespace Library.Features.Books.Reservations;` and the `Cratis` global usings:
+
+```csharp
+public record ReservationId(Guid Value) : ConceptAs<Guid>(Value);
+public record BookId(Guid Value) : ConceptAs<Guid>(Value);
+```
+
+Place the provider interface, command and operation in `Features/Books/Reservations/ReserveBook.cs`:
+
+```csharp
+namespace Library.Features.Books.Reservations;
+
+public interface IBookReservations
+{
+    Task Reserve(ReservationId id, BookId book, CancellationToken cancellationToken);
+    Task Cancel(ReservationId id, CancellationToken cancellationToken);
+}
+
+[Command]
+public record ReserveBook(ReservationId Id, BookId Book)
+{
+    public ReserveBookOperation Handle() => new(Id, Book);
+}
+
+public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOperation
+{
+    public Task Execute(IBookReservations reservations, CancellationToken cancellationToken) =>
+        reservations.Reserve(Id, Book, cancellationToken);
+
+    public Task Compensate(IBookReservations reservations, CancellationToken cancellationToken) =>
+        reservations.Cancel(Id, cancellationToken);
+}
+```
+
+Implement `IBookReservations` in `Features/Books/Reservations/BookReservations.cs` as `BookReservations` and register it before `Build()` in `Program.cs`: `builder.Services.AddScoped<IBookReservations, BookReservations>();`. The caller chooses one `ReservationId` per booking attempt. For the same owner, tenant, book and ID, a repeated `Reserve` must not create a second booking. Reject reuse for a different request. `Cancel` removes only this attempt's pending reservation; it succeeds without removing anything if that reservation is absent or already confirmed. This also covers a lost provider acknowledgement: Arc can compensate an attempted `Execute` even when it threw before returning.
+
+Use one operation for one provider action. Choose an ordered batch when several actions must run in order: if the command holds `Id, Book` and `SecondId, SecondBook`, use `public CommandOperations Handle() => [new ReserveBookOperation(Id, Book), new ReserveBookOperation(SecondId, SecondBook)];`. A plain array does not declare an operation batch. Import `Cratis.Arc.Commands` for `ICommandOperation` and `CommandOperations` if needed.
+
+When a successful booking also needs a durable fact, mark `ReserveBook`'s `Id` parameter with `[Key]` (`Cratis.Chronicle.Keys`) so the reservation ID identifies the event source. Return a tuple containing the `BookReserved` event and the `ReserveBookOperation`. Arc enrolls the event, runs the reservation, then completes the event transaction. Send the confirmation from a reactor on the committed fact, using the booking ID to deduplicate delivery. Do not send mail in `Execute`: canceling a reservation cannot unsend a message.
+
+## Verify recovery through the pipeline
+
+In the test, use `await using var scenario = new CommandScenario<ReserveBook>();` from `Cratis.Arc.Testing.Commands`. Register a test double `reservations` with `scenario.Services.AddSingleton<IBookReservations>(reservations);` (`Microsoft.Extensions.DependencyInjection`). Configure `Reserve` to fail after the provider may have accepted it, then run `var result = await scenario.Execute(new ReserveBook(id, book));`. Assert that `Cancel` receives the same reservation ID and the result still reports the original failure. For a batch, fail a later `Execute` and verify reverse-order recovery with the failed attempt first. Make one compensator fail and verify that Arc keeps the original failure and attempts the earlier compensators while the recovery budget remains.
+
+## When the commit outcome is unclear
+
+- **Commit is unknown or mixed:** reconcile the event and provider state before reversing anything. A failed response is not proof that nothing committed.
+- **A committed outcome is wrong:** use a corrective fact instead of calling `Compensate`.
+
+## Avoid
+
+- Do not generate the reservation ID or call the provider in `Handle`.
+- Do not put the provider in the operation constructor; declare it on the methods.
+- Do not return response data from `Execute`; use `void`, `Task` or `ValueTask`.
+- Do not track success with a mutable flag or undo in a catch block. Let Arc decide recovery from the commit outcome.
+
+## How Arc runs and recovers operations
+
+Arc checks every declared operation and the dependencies of both `Execute` and `Compensate` before any of them runs. It then handles the response and returned events, runs the operations one at a time in declaration order and completes the transaction. A failure during the dependency check has started nothing and compensates nothing.
+
+When the command fails, the observed commit outcome decides recovery:
+
+| `CommandCommitDisposition` | Recovery |
+| --- | --- |
+| `NoCommit`, `NotCommitted` | Compensate the started operations in reverse order, including the one that threw. |
+| `Committed` | No automatic reversal. |
+| `Unknown`, `Mixed` | No automatic reversal; reconcile first. |
+
+Compensation has its own budget, `CommandOperationOptions.CompensationTimeout`, 30 seconds by default. An expired budget, a missing compensator and a failed compensator are each reported separately and never replace the original failure. Read them from `Recovery` and `OperationOutcomes` on the server-side result; neither is in the HTTP response.
+
+Nothing is journaled: a process crash loses the recovery. Don't start a nested batch from inside an operation, and don't assume a MongoDB or EF Core write made elsewhere is coordinated with the Chronicle append.
+
+## Custom commit participants
+
+Implement `ICommandOperationExecutionScope` for a scope that participates in this boundary. Keep `IsCommitParticipant` stable: it identifies the deferred committer, not whether a particular commit succeeded. Arc supports at most one such participant. `Begin` must not commit and must leave resources safe to clean up if initialization fails partway through. Arc reads `GetCommitDisposition` before operations start and after completion. Report `NotCommitted` (or `NoCommit` when there is no commit) while work is deferred; `Committed`, `Unknown` or `Mixed` describes actual early or uncertain commitment and can prevent operations from starting. After completion, including a failed `Complete`, report provider facts: unknown is not uncommitted, and a later scope failure cannot undo a known commit. Verify with the real provider that operations start while commit is deferred and that pre-commit failure and post-commit failure yield the right storage and recovery outcomes.

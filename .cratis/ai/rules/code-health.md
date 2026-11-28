@@ -10,7 +10,6 @@ paths:
   - "**/*.java"
   - "**/*.ex"
   - "**/*.exs"
-profile: framework
 ---
 
 # Code Health floor

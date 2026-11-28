@@ -1,11 +1,9 @@
-# Load the TypeScript service definition
+# Select the Node application client
 
-In a disposable Node project, install the generated wire package, not the decorator-based application SDK:
+In the Node server, depend on `@cratis/chronicle`. For example, with the 6.77.0 client the application import is:
 
-```sh
-npm init -y
-npm install --save-exact @cratis/chronicle.contracts@19.184.3
-node --input-type=module -e "import { ConnectionServiceDefinition, chronicleDescriptorSet } from '@cratis/chronicle.contracts'; if (!ConnectionServiceDefinition || !chronicleDescriptorSet.length) throw Error('missing wire contracts'); console.log(chronicleDescriptorSet.length)"
+```ts
+import { ChronicleClient } from '@cratis/chronicle';
 ```
 
-Expect a positive descriptor byte count. If the named import fails, inspect the resolved package and version with `npm ls @cratis/chronicle.contracts`. A service definition isn't a connected client. For RPCs the caller must supply a trusted channel and authentication metadata; for an application choose `@cratis/chronicle` rather than rebuilding its session handling.
+Build the server and inspect its resolved dependencies. That client requires `@cratis/chronicle.contracts` **19.188.0**, not 6.77.0. If the import fails and only the contracts package is installed, fix the direct application dependency. Loading a generated service definition is a protocol check, not evidence that the application client can register observers.

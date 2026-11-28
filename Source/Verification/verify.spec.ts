@@ -6,6 +6,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
+import { packageProblems, retiredSkills } from './corpus-shape.ts';
 import { verifyCorpus } from './verify.ts';
 
 const marketplace = { plugins: [{ name: 'cratis', version: '1.0.0', source: { path: '.cratis/ai' }, skills: './skills' }] };
@@ -49,6 +50,30 @@ describe('verify corpus', () => {
         assert.deepEqual(await failuresFor(() => undefined), []);
     });
 
+    const handoffs = [
+        { name: 'is present in every selection', composed: true, supported: undefined, filters: ['csharp', 'go'], failures: 0 },
+        { name: 'is present in the only supported language', composed: true, supported: ['csharp'], filters: ['csharp'], failures: 0 },
+        { name: 'exists only in another profile', composed: false, supported: undefined, filters: ['csharp', 'go'], failures: 1 },
+        { name: 'is filtered out under Go', composed: true, supported: ['csharp'], filters: ['csharp', 'go'], failures: 1 },
+        { name: 'is composed by Pi but not by the CLI', composed: true, supported: [], filters: ['csharp', 'go'], failures: 1 },
+    ];
+
+    for (const { name, composed, supported, filters, failures: expected } of handoffs) {
+        it(`checks a cross-skill link whose target ${name}`, async () => {
+            const failures = await failuresFor(files => {
+                const ids = ['cratis/application', 'cratis/follow-up'];
+                files['.cratis/ai/manifest.json'] = JSON.stringify({ profiles: ids, languages: filters });
+                files['.cratis/ai/profile-catalog.json'] = JSON.stringify({ publicProfiles: [
+                    { id: ids[0], composes: composed ? [ids[1]] : [], availableTargets: ['demo-skill'] },
+                    { id: ids[1], languages: supported, availableTargets: ['follow-up'] },
+                ] });
+                files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'Read [the follow-up](../follow-up/SKILL.md).');
+                files['.cratis/ai/skills/follow-up/SKILL.md'] = skill('follow-up', 'Use when completing a follow-up.');
+            });
+            assert.equal(failures.length, expected, failures.join('\n'));
+        });
+    }
+
     it('should accept a module version pin and unlabelled authoring cases', async () => {
         assert.deepEqual(await failuresFor(files => {
             files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'Run `go get github.com/cratis/arc.go@v0.1.4`.');
@@ -58,6 +83,12 @@ describe('verify corpus', () => {
 
     it('should fail when the corpus directory is missing', async () => {
         assert.match((await verifyCorpus(root)).failures[0], /\.cratis\/ai is missing/);
+    });
+
+    it('measures the general cap in UTF-8 bytes', async () => {
+        const general = '.cratis/ai/rules/general.md';
+        assert.deepEqual(await failuresFor(files => { files[general] = 'é'.repeat(2150); }), []);
+        assert.equal((await failuresFor(files => { files[general] = 'é'.repeat(2150) + '!'; })).length, 1);
     });
 
     const catalog = (profile: object) => JSON.stringify({ publicProfiles: [{ id: 'cratis/application', availableTargets: ['demo-skill'], ...profile }] });
@@ -91,4 +122,12 @@ describe('verify corpus', () => {
             assert.ok(failures.some(failure => expected.test(failure)), failures.join('\n') || 'no failures');
         });
     }
+});
+
+it('rejects an installed retired skill and an otherwise valid competing description', () => {
+    const files = new Map([['skills/demo/SKILL.md', skill('demo')]]);
+    assert.deepEqual(packageProblems(files, retiredSkills), []);
+    const retired = retiredSkills.values().next().value!;
+    assert.equal(packageProblems(new Map([...files, [`skills/${retired}/LICENSE`, 'text']]), retiredSkills).length, 1);
+    assert.equal(packageProblems(new Map([...files, ['skills/another/SKILL.md', skill('another')]]), retiredSkills).length, 1);
 });

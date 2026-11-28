@@ -298,10 +298,10 @@ exception result; it is not silently skipped.
 
 ## Route near misses
 
-- Defining the command or query: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md).
+- Defining the command or query: [declare the command](../cratis-arc-declare-command/references/kotlin.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/references/kotlin.md).
 - In-process rule assertions and dependency pins: `cratis-arc-testing-kotlin`.
 - Authentication, identity and tenancy: `cratis-arc-identity-and-tenancy-kotlin`.
-- Append-time Chronicle uniqueness/concurrency: [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md).
+- Append-time Chronicle uniqueness/concurrency: the `cratis-chronicle-constrain-append` skill (in `cratis/chronicle`).
 - The C# Arc validation shape (`ConceptValidator<T>`, `CommandValidator<T>`,
   Provide short-circuiting): [cratis-arc-validate-command](../cratis-arc-validate-command/SKILL.md).
 

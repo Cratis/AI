@@ -14,9 +14,11 @@ compatibility: Requires the Screenplay CLI.
    screenplay export model --scope Library.Authors.RegisterAuthor --output registration.json
    ```
 
-3. For a slice-only handoff, give the reader `registration.json`, the accepted full-model revision, the excerpt revision and the accepted example addresses and outcomes. Check the excerpt for the definitions it references. An export keeps application-level declarations but does not bring in other slices; supply any needed definitions from separate scoped exports. Name cross-slice checks such as `Library.Authors.ListAuthors` separately from the registration contract. A renderer that takes `.play` source needs the accepted model folder and identity state, plus `screenplay.lock` and its restored contracts when extensions are used. An excerpt alone is not that input.
+3. For a slice-only handoff, give the reader `registration.json`, the accepted full-model revision, the excerpt revision and the accepted example addresses and outcomes. Check the excerpt for the definitions it references. An export keeps application-level declarations but does not bring in other slices; supply any needed definitions from separate scoped exports. Name cross-slice checks such as `Library.Authors.ListAuthors` separately from the registration contract. A renderer that takes `.play` source needs the accepted model folder and identity state, plus `screenplay.lock` and its restored contracts when extensions are used. An excerpt alone is not that input. For extensions, restore from the reviewed lock before rendering (see `cratis-screenplay-author-extension` in `cratis/screenplay`). For consumers that preserve unfamiliar semantic-model additions without executing them, use [unknown-preserving admission](references/unknown-preserving-reader.md).
 4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
 5. List the target checks for the implementer: Aster appears in the open list under the agreed ID; a blank name produces `Name is required` and no new row. Map each check to its accepted example. Leave execution pending.
+
+Order implementation by [dependency waves](references/ordering.md). Where an upstream change crosses services, include the receiver's local acceptance witness, not just a producer trace.
 
 ## Hand off to an HTTP client
 
@@ -42,5 +44,5 @@ The model's `x-screenplay-observable` marks a live query; the plain `GET` and st
 ## Related skills
 
 - [Declare the model slice](../cratis-screenplay-declare-slice/SKILL.md) for its qualified name.
-- [Render the accepted slice](../cratis-stage-render-slice/SKILL.md) to preview generated changes and assign target gaps before publication.
-- [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) for the running application check.
+- Render the accepted slice (`cratis-stage-render-slice` skill in `cratis/stage`) to preview generated changes and assign target gaps before publication.
+- Deliver the slice (`cratis-platform-deliver-slice` skill in `cratis/application`) for the running application check.

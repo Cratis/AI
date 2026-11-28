@@ -13,7 +13,6 @@ paths:
   - "**/*.play"
   - "**/Documentation/**/*.md"
   - "**/Documentation/**/*.mdx"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
@@ -54,7 +53,7 @@ One precise line per load-bearing term, so the same word means the same thing ev
 - **Provide()** — acquires inputs after validation/authorization and before `Handle()`; only short-circuits with a `ValidationResult` when acquisition yields nothing usable. Validators own refusals, including read-model existence.
 - **Causation chain** — the ordered links saying how an append came about (root process → command → …), each carrying properties. A command records its **name and its property values** there, so an event says what the command was asked to do; the chain lives in the event log and is as permanent as the events.
 - **Observation command** — a command whose input comes from outside the model's own decisions (webhook, poll, sweep, retry, classifier). It compares with current state and appends nothing when nothing changed; looking is not a fact.
-- **Signal event** — an event appended only to make a reactor do something (`…Requested`, `…Started`, `…Skipped`). Not a domain fact; use a job, state machine, command operation or `ICommandPipeline`.
+- **Signal event** — an event appended only to make a reactor do something (`…Requested`, `…Started`, `…Skipped`). Not a domain fact; use a job, state machine or command operation. Execute a command through the pipeline from a service; for a reactor follow-up, return the command invocation instead.
 - **Constraint** — `IConstraint`; an **append-time** invariant (uniqueness / concurrency) enforced at the event-store level.
 - **DCB (Dynamic Consistency Boundary)** — enforcing a state-dependent rule under concurrency over explicitly enrolled event-state reads: read-model parameters under Arc read protection `On`, stream decisions/exact scopes, or protected, admitted projection decision reads. Plain injected models under `Off` (set explicitly, or the Arc 22 behavior) and `Result<TEvent, ValidationResult>` alone are advisory, not a guard.
 - **Consistency boundary** — the scope within which an invariant holds atomically (an event source, a routed stream, or the event state enrolled by an admitted protected read).

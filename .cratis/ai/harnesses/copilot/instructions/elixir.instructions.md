@@ -88,3 +88,5 @@ Every `.ex` and `.exs` source file starts with:
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 ```
+
+Name modules by behavior, not generic layers. Keep secrets and credential derivatives out of persistent facts. Deliver external effects after append in a reactor. When another fact requires a decision, dispatch the authorized follow-up command through `Cratis.Arc.execute/3`; do not manufacture authority from the triggering event.

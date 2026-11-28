@@ -52,6 +52,10 @@ module Library
 
 Run `screenplay test model --format json` on the composed model. Require both capture specifications to execute and pass; they supply observations without polling the actual directory.
 
+Check the configured source adapter's actual options; a non-event source can accept an unrecognized setting at parse time. The capture's root key identifies remembered state, while a payload selector reads incoming values. For a public event, check the producer's exported schema and the receiver's declared origin independently. Compiling a local declaration of a foreign event does not verify that producer's deployment. Decide how corrections, lost ordering and repeated delivery change local state before choosing mappings.
+
+Distinguish a fresh snapshot from a foreign event's partial update. In a `source events` capture the first observation is added; later observations overlay remembered state for that key. An unchanged overlay produces nothing. Absence from a single event is not evidence that the root disappeared. For a collection in a snapshot, compare children by their declared identity, not their position. Test a reorder separately from a deletion. Keep the raw payload and private fields out of the local fact unless its consumer needs them.
+
 ## Receive a public event instead of polling
 
 Declare the public event's origin and name it under `source events`. Key the append from the incoming payload; it need not be the incoming event's own history address. Use `when append`, not `when capture`, to stimulate an event capture.
@@ -108,9 +112,9 @@ module Library
           name = "Aster"
 ```
 
-[Transport the public event](../cratis-chronicle-publish-contract/SKILL.md) through the outbox and inbox. Test delivery separately; these model specifications don't run polling or transport.
+Transport the public event (`cratis-chronicle-publish-contract` skill in `cratis/chronicle`) through the outbox and inbox. Test delivery separately; these model specifications don't run polling or transport.
 
-If the outside system needs a new reusable provider package rather than just a boundary mapping, [author the extension](../cratis-screenplay-author-extension/SKILL.md) separately. Declaring a translation does not install or activate a backend.
+If the outside system needs a new reusable provider package rather than just a boundary mapping, author the extension (`cratis-screenplay-author-extension` skill in `cratis/v2/application`) separately. Declaring a translation does not install or activate a backend.
 
 ## When it goes off the usual path
 

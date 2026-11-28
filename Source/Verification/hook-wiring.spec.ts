@@ -9,7 +9,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { chmodSync, copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -109,5 +109,75 @@ test('a wired guard still blocks when its script has lost the execute bit', () =
         assert.equal(run.status, 2, `expected a block (exit 2), got ${run.status}: ${run.stderr}`);
     } finally {
         rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the scanner returns fixed advice only for small regular project sources', t => {
+    const dir = realpathSync(mkdtempSync(join(tmpdir(), 'scanner-')));
+    t.after(() => rmSync(dir, { recursive: true, force: true }));
+    const script = join(root, '.cratis/ai/hooks/scripts/cratis-pattern-scan.sh');
+    const scan = (name: string, pad = '') => {
+        const input = JSON.stringify({ pad, tool_input: { file_path: join(dir, name) } });
+        const result = spawnSync('bash', [script], { input, env: { ...process.env, CLAUDE_PROJECT_DIR: dir }, encoding: 'utf8' });
+        assert.equal(result.status, 0);
+        return result.stdout;
+    };
+    for (const name of ['untrusted.cs', 'tls.pem.cs', 'generated.g.cs']) writeFileSync(join(dir, name), 'untrusted.AutoMap ()');
+    const advice = scan('untrusted.cs');
+    assert.match(advice, /AutoMap/);
+    assert.doesNotMatch(advice, /untrusted/);
+    symlinkSync('untrusted.cs', join(dir, 'linked.cs'));
+    for (const path of ['missing.cs', 'linked.cs', 'tls.pem.cs', 'generated.g.cs']) assert.equal(scan(path), '');
+    assert.equal(scan('untrusted.cs', 'x'.repeat(16385)), '');
+    writeFileSync(join(dir, 'untrusted.cs'), '.AutoMap()' + ' '.repeat(65536));
+    assert.equal(scan('untrusted.cs'), '');
+});
+
+const advisoryFixtures = [
+    ['cratis-ieventlog-in-handle', 'Operation.cs', '[Command] void Handle(IEventLog log) {}', 'void Handle(IEventLog log) {}'],
+    ['cratis-controller-base', 'Operation.cs', 'using Microsoft.AspNetCore.Mvc;\nclass Demo : ControllerBase {}', 'class Demo : ControllerBase {}'],
+    ['cratis-route-on-readmodel', 'Operation.cs', '[ReadModel]\n[Route("demo")]\nrecord Demo;', '[Route("demo")]\nrecord Demo;'],
+    ['cratis-primereact-dialog-import', 'Operation.tsx', "import { Dialog } from 'primereact/dialog';", "import { Dialog } from '@cratis/components';"],
+    ['cratis-automap-call', 'Operation.cs', 'model.AutoMap();', '[NoAutoMap]\nclass Demo { void Map() { model.AutoMap(); } }'],
+];
+
+test('Claude advises on changed patterns without blocking edits', () => {
+    const { hooks } = JSON.parse(readFileSync(templatePath, 'utf8')) as { hooks: Record<string, Entry[]> };
+    const entry = hooks.PostToolUse?.find(e => e.hooks.some(h => h.command.includes('cratis-pattern-scan.sh')));
+    assert.ok(entry?.matcher);
+    const matcher = new RegExp(`^(?:${entry.matcher})$`);
+    for (const tool of ['Write', 'Edit', 'MultiEdit', 'NotebookEdit']) assert.match(tool, matcher);
+    assert.doesNotMatch('Read', matcher);
+    const command = entry.hooks.find(h => h.command.includes('cratis-pattern-scan.sh'))!.command;
+    const scripts = '.cratis/ai/hooks/scripts';
+    const base = join(root, '.ai-work');
+    mkdirSync(base, { recursive: true });
+    const cwd = mkdtempSync(join(base, 'patterns-'));
+    try {
+        mkdirSync(join(cwd, scripts), { recursive: true });
+        for (const name of ['cratis-pattern-scan.sh', 'cratis-guard-secrets.sh', 'hook-lib.sh']) copyFileSync(join(root, scripts, name), join(cwd, scripts, name));
+        for (const [id, file, changed, benign] of advisoryFixtures) for (const content of [changed, benign]) {
+            const path = join(cwd, file);
+            writeFileSync(path, content + '\n');
+            const result = spawnSync('bash', ['-c', command], { cwd, encoding: 'utf8',
+                input: JSON.stringify({ cwd, session_id: `${id}-${content === changed}`, tool_name: 'Edit', tool_input: { file_path: path } }),
+                env: { ...process.env, CLAUDE_PROJECT_DIR: cwd, TMPDIR: cwd },
+            });
+            assert.equal(result.status, 0, result.stderr);
+            const decision = result.stdout.trim() ? JSON.parse(result.stdout).hookSpecificOutput?.additionalContext : undefined;
+            assert.equal(Boolean(decision), content === changed, id);
+        }
+    } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+test('native reviewer allowlists grant only read and search', async () => {
+    const { generatePiAgents } = await import('../Harness.Setup/pi-agents.ts');
+    const { generateOpenCodeAgents } = await import('../Harness.Setup/opencode-agents.ts');
+    const corpus = join(root, '.cratis/ai');
+    for (const adapter of generatePiAgents(corpus).filter(a => a.source.endsWith('-reviewer.md'))) {
+        assert.match(adapter.content, /^tools: read, grep, find$/m);
+    }
+    for (const adapter of generateOpenCodeAgents(corpus).filter(a => a.source.endsWith('-reviewer.md'))) {
+        assert.deepEqual(adapter.content.split('permission:\n')[1].split('---')[0].trim().split('\n').map(s => s.trim()), ['"*": deny', 'read: allow', 'grep: allow', 'glob: allow']);
     }
 });

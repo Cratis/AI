@@ -9,7 +9,7 @@ compatibility: Requires React Storybook with @storybook/react-vite, the Library 
 Start with a Storybook preview for the application and a working dialog. In this Library example the trigger and dialog are both named “Add author”, with a single name field. Put `AddAuthor.stories.tsx` beside the application's `AddAuthorButton` and `AddAuthor` components. Check that focus enters the dialog without configuring a different focus target for the test. Omit the decorator if the preview already supplies the Arc and Components providers.
 
 ```tsx
-import 'reflect-metadata';
+import '@cratis/fundamentals/reflection';
 import { Arc } from '@cratis/arc.react';
 import { CratisComponentsProvider } from '@cratis/components';
 import type { Meta, StoryObj } from '@storybook/react-vite';
@@ -54,4 +54,6 @@ export async function verifyKeyboardRegistration(page, name) {
 }
 ```
 
-If the dialog cannot be found after Enter, inspect the trigger's accessible name and check the document body for a portal before changing the component. The story does not submit a command. For server refusal, [exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) with the same invalid input.
+If the dialog cannot be found after Enter, inspect the trigger's accessible name and check the document body for a portal before changing the component. The story does not submit a command. For server refusal, exercise the backend (`cratis-specifications-exercise-backend` skill in `cratis/application`) with the same invalid input.
+
+A Storybook build compiles a play function; only an interaction runner that executes it proves the behavior. Use its instrumented assertions. Keep command refusal and draft-retention tests in the application runner; reserve the browser interaction for a consequence that needs a browser, such as focus return.

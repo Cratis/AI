@@ -47,7 +47,7 @@ const hasLanguage = (language: string) => (selected: AiConfiguration) => (select
 
 const scopeKinds: ScopeKind[] = [
     { named: scope => scope.includes('.cs'), satisfied: hasLanguage('csharp') },
-    { named: (scope, name) => scope.includes('.ts') || name === 'rtk.md' || name.endsWith('/rtk.md'), satisfied: hasLanguage('typescript') },
+    { named: scope => scope.includes('.ts'), satisfied: hasLanguage('typescript') },
     { named: scope => scope.includes('.go') || scope.includes('go.mod') || scope.includes('go.sum'), satisfied: hasLanguage('go') },
     { named: scope => scope.includes('.kt'), satisfied: hasLanguage('kotlin') },
     { named: scope => scope.includes('.java'), satisfied: hasLanguage('java') },

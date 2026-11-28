@@ -26,4 +26,4 @@ Use a package when several applications need the same integration contract. Keep
    cratis extension verify dist/extension -o json
    ```
 
-   Verify `contract`, `manifest` and `contents` passed. `EXTV020` means the declared backend is missing: compare its path and filename with the packaged assembly, not the source tree. Verification doesn't execute the backend; a skipped handshake (`EXTV070`) is not a pass and fails `--strict`. Before using the package, load it in a compatible Stage host and exercise the named ability against its returned message. Packaging and verification don't publish anything.
+   Verify `contract`, `manifest` and `contents` passed. `EXTV020` means the declared backend is missing: compare its path and filename with the packaged assembly, not the source tree. Verification doesn't execute the backend; a skipped handshake (`EXTV070`) is not a pass and fails `--strict`. Before using the package, load it in a compatible Stage host and exercise the named ability against its returned message. Packaging and verification don't publish anything. For adding a released package to a model, [consume it from a reviewed lock](references/consume.md).

@@ -38,7 +38,7 @@ Shop/
   except contracts projects.
 - One model folder per service (`<Service>/Screenplay/`), never one folder above all
   services: a folder of `.play` files is one application. Read
-  `cratis-screenplay-streams-and-consistency` (multi-service models) before modeling.
+  `cratis-screenplay-streams-and-consistency` (in `cratis/screenplay`) for multi-service models before modeling.
 
 ## Choose the orchestrator
 
@@ -138,7 +138,7 @@ cratis chronicle subscriptions list
 
 `-e <store>` on a single command overrides the context. Under Aspire without a
 pinned port, use the host port the dashboard shows for the `grpc` endpoint.
-`cratis-chronicle-cli-operations` owns the rest of the CLI.
+`cratis-chronicle-cli-operations` (in `cratis/cli`) owns the rest of the CLI.
 
 ## Frontends
 
@@ -170,7 +170,7 @@ pinned port, use the host port the dashboard shows for the `grpc` endpoint.
 
 ## Route near misses
 
-- Contracts and subscriptions: [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md). Verifying delivery: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md).
+- Contracts and subscriptions: the `cratis-chronicle-publish-contract` skill (in `cratis/chronicle`). Verifying delivery: the `cratis-platform-verify-service-handoff` skill (in `cratis/application/arc-chronicle`).
 - Kernel storage, TLS, certificates, clustering and production images: [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).
-- Bootstrapping one Arc service: [cratis-arc-host-application](../cratis-arc-host-application/SKILL.md); with Chronicle, use [cratis-chronicle-connect-application](../cratis-chronicle-connect-application/SKILL.md).
-- Rendering a service from its model: [cratis-stage-render-slice](../cratis-stage-render-slice/SKILL.md).
+- Bootstrapping one Arc service: the `cratis-arc-host-application` skill (in `cratis/arc`); with Chronicle, use the `cratis-chronicle-connect-application` skill (in `cratis/chronicle/client-dotnet`).
+- Rendering a service from its model: the `cratis-stage-render-slice` skill (in `cratis/stage`).

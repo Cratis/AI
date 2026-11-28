@@ -9,7 +9,6 @@ paths:
   - "**/src/pages/**/*.html"
   - "**/src/content/**/*.md"
   - "**/src/content/**/*.mdx"
-profile: cratis/content
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

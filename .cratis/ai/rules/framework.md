@@ -1,11 +1,18 @@
 ---
-applyTo: "Source/**/*.cs, Source/**/*.ts, Source/**/*.tsx, Source/**/*.csproj, Source/**/package.json"
+applyTo: "**/*.cs,**/*.ts,**/*.tsx,**/*.go,**/*.kt,**/*.kts,**/*.java,**/*.ex,**/*.exs,**/*.csproj,**/package.json,**/go.mod"
 paths:
-  - "Source/**/*.cs"
-  - "Source/**/*.ts"
-  - "Source/**/*.tsx"
-  - "Source/**/*.csproj"
-  - "Source/**/package.json"
+  - "**/*.cs"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/*.kt"
+  - "**/*.kts"
+  - "**/*.java"
+  - "**/*.ex"
+  - "**/*.exs"
+  - "**/*.csproj"
+  - "**/package.json"
+  - "**/go.mod"
 profile: framework
 ---
 
@@ -18,7 +25,7 @@ This repository is a Cratis library or tool, not an application built on one.
 - Run the existing focused check that covers the change. Add or extend a spec only for uncovered public behavior.
 - Generators and analyzers ship their output as public surface. Change the generator, not the generated file.
 
-Use the `cratis-platform-contribute-change` skill to locate the contract and its focused check, and `cratis-platform-prepare-release-pr` for the release note and label.
+Use the `cratis-platform-contribute-change` skill (in `cratis/engineering/core`) to locate the contract and its focused check, and `cratis-platform-prepare-release-pr` (in `cratis/engineering/core`) for the release note and label.
 
 ## Platform .NET conventions
 
@@ -29,3 +36,5 @@ Cratis .NET repositories build with SDK 11 (C# 15) and set `LangVersion` to `lat
 - Use `closed` only for new internal class hierarchies in .NET 11 code; adding it to an existing public type is breaking. Do not introduce `union` types, runtime-async or the memory-safety preview features.
 - SDK 11 reports IDE0001/IDE0002 (simplify names and member access) in the IDE and `dotnet format --verify-no-changes`, not in builds. IDE0370 (unnecessary `!`) also runs in builds when explicitly enabled, for example by `EnforceCodeStyleInBuild` with `dotnet_analyzer_diagnostic.severity = warning`. Keep existing warning-level enforcement and fix its findings.
 - IDE0370 analyzes each target separately. Remove each `!` unnecessary on every target. If another target still needs a flagged `!`, a multi-target library may set `dotnet_diagnostic.IDE0370.severity = suggestion` in its own `.editorconfig`, with a tracking issue and a build of all targets. Never use `none` or a shared or global setting; the exception does not apply to net11-only executables.
+
+Design the ordinary call so a consumer can use it correctly without knowing implementation details. Treat generated proxy signatures and serialized output shapes as published contracts.

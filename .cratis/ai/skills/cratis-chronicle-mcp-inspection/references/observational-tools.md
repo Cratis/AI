@@ -3,11 +3,7 @@
 
 # Observational Chronicle MCP tools
 
-Hand-maintained classification of `Cratis/Chronicle.Mcp`.
-Disposition: `passive-allowed` only for an authorized, bounded read with an
-appropriate output/redaction review. Read-only does not mean public data.
-All 24 tools below declare `ReadOnly=true`, `OpenWorld=false`; their bodies read
-Chronicle or transform the returned data without writing store state.
+Use `tools/list` to discover the installed surface. The examples below help choose a narrow read; they are not a complete inventory or an allowlist. Confirm the installed implementation, bound its inputs and review its output before sharing it. Read-only does not mean public data.
 
 | Tool | Output and narrowing |
 | --- | --- |

@@ -150,7 +150,7 @@ language. Include commands that emit no event.
    the behavior commits in the module's folders since then
    (`git log --reverse <baseline>..HEAD -- <module folders>`), oldest first, and check each against
    the diagram. When an accepted model is the authority, report code that disagrees with it through
-   [cratis-screenplay-handoff-slice](../cratis-screenplay-handoff-slice/SKILL.md) (hand-written changes), not in the diagram.
+   the `cratis-screenplay-handoff-slice` skill (in `cratis/screenplay`) for hand-written changes, not in the diagram.
 
 ## Common mistakes
 
@@ -181,4 +181,4 @@ language. Include commands that emit no event.
 - An accepted model covers the scope (or the repository is opted in): it is the source for this
   diagram; do not redraw from code and never change the model to match a
   diagram. The diagram is a view of it.
-- Deciding the model rather than drawing one: [cratis-modeling-design-event-model](../cratis-modeling-design-event-model/SKILL.md). For declaring the resulting Screenplay slice, use [cratis-screenplay-declare-slice](../cratis-screenplay-declare-slice/SKILL.md).
+- Deciding the model rather than drawing one: the `cratis-modeling-design-event-model` skill (installed by the `cratis/screenplay` profile). Use the same profile’s `cratis-screenplay-declare-slice` skill to declare the resulting slice.

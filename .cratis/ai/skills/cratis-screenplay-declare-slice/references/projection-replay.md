@@ -1,0 +1,31 @@
+# Trace the projection by occurrence
+
+For each incoming fact, write down its stream address, payload, available metadata, the row the handler targets and which properties it writes. When the projection and target share a name, inspect the resolved read model within the containing feature before relying on an unqualified application-wide name. If a second same-named model is introduced, qualify the target explicitly rather than renaming a persisted view on a guess. The stream address belongs to the occurrence, not necessarily to the person who caused it. Use an example in which those values differ. Check the first occurrence against empty state and the next against existing state.
+
+- **Routing:** an ordinary `from` without an explicit key routes by event source. A property key on a different handler does not carry over. Don't subscribe to the same event twice at one scope just to split assignments; keep the mappings together. A mapping whose source has no value can write null, so it does not preserve the prior target. If `AuthorRenamed` routes to an author but `BookAttributed` comes from a book, the latter needs a route to the author from its payload. Test removal against the same row. For a total spanning many histories, model a keyed projection; changing a query cannot move the accumulated state to another address.
+- **Joining:** decide which event creates the root row. A join enriches existing matching instances; it does not create rows for unmatched events or collect every joined occurrence. At the root, `on` matches the joined event's source. A later root event setting that property can look up the latest joined occurrence. In a child scope it is the child's identity that must match the join key. An explicit joined-event automap overrides the enclosing setting. Check both arrival orders, including creation of a root after a matching joined event. Assert the fields owned by each side so a broad automatic mapping cannot silently replace an unrelated value.
+- **Variants:** use `enters on` for the event that establishes membership. An entering event places that identity in its variant and removes it from siblings. Other handlers, including common updates, must not create a variant. Send the same update before entry, while active and after entry into a sibling; expect only the active instance to change. Do not fix a missing entry by letting every update recreate the row.
+
+- **Shared mappings:** `every` runs for subscribed events (including child events by default); root `all` subscribes across event types. Send an unrelated fact and check whether the row should change. Neither block has one implicit payload type. Read chronology or source identity from the relevant occurrence context, not an invented payload field.
+- **Partial updates:** `set once` fills a missing or null value, not every later revision. Child `sort by` orders on insertion; updating a child's sort field does not move it. Model removing one child separately from clearing a collection or deleting the root. If a reference evaluator cannot realize the required context or removal, test on the selected target and report the evaluator limit.
+
+- **Disclosure:** trace each property back to its classification, including fields copied automatically, under child/nested scopes or from a reducer. Keep secret values out of stored and queryable views. Removing a column from one screen does not remove the query result or stored copy.
+
+Use a reducer when computing the next state needs the prior state at the event-source address. An attachment still needs a provider; it does not make the query responsible for computing the state. If a projection produces events rather than rows, it is a producer: broadening its subscription can make the source type ambiguous. Check every consumer of the produced event before changing it.
+
+If the question is about a path through relationships rather than the latest keyed document, start from the consumer's traversal. For example, “which authors can this librarian reach through a shared branch?” needs nodes with stable keys and directed edges with named endpoints. Project facts that add or remove the relevant nodes and edges; use `match` and `return` in the graph query to populate the ordinary result model. Test graph state separately from the returned rows. Do not apply document `children` or `join` syntax to a graph projection. Read models and graphs have separate default sinks. Declare a named sink at application scope only for intentional placement, use the correct kind, and verify the host has bound it. A sink name is not a connection string or proof of deployment.
+
+A passing final snapshot alone can hide a spurious intermediate row. Assert the first incorrect transition and its key, then inspect the mapping that selected it before changing the query.
+
+## Dynamic dictionary keys
+
+For a dictionary on an application-code read model, put the dynamic key at the end of the target. For example, use `slot` on both events so the second fact removes the entry the first one wrote:
+
+```play
+from SlotAssigned key $eventSourceId
+  slots.$eventContent.slot = series
+from SlotDropped key $eventSourceId
+  remove slots.$eventContent.slot
+```
+
+A missing entry is a no-op. Use `remove`, not `clear`, for dynamic keys. Event content, event context and `$causedBy.subject` can supply the key; prefer subject to mutable display names for identity. Screenplay has no dictionary type: a dynamic key on a modeled read-model property warns (`PLAY0962`), and the reference evaluator does not execute these lines (`PLAY0268`). Verify support in the target and prove update and removal there.

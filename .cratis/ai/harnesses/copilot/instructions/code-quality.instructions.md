@@ -10,7 +10,6 @@ paths:
   - "**/*.java"
   - "**/*.ex"
   - "**/*.exs"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

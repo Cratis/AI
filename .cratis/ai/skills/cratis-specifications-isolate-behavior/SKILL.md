@@ -15,7 +15,7 @@ public record BorrowBook(DateOnly BorrowedOn, bool ShortLoan)
 }
 ```
 
-Here `BookBorrowed` carries a `DateOnly DueOn`. Use the actual rule in the feature; don't introduce a rule just to test a handler. If `Handle` only copies input into the event, write no direct spec. If binding or commitment is itself a consequential promise, one [pipeline spec](../cratis-specifications-exercise-backend/SKILL.md) covers it.
+Here `BookBorrowed` carries a `DateOnly DueOn`. Use the actual rule in the feature; don't introduce a rule just to test a handler. If `Handle` only copies input into the event, write no direct spec. If binding or commitment is itself a consequential promise, one pipeline spec (`cratis-specifications-exercise-backend` skill in `cratis/application`) covers it.
 
 ## Commit the spec at the decision
 
@@ -44,3 +44,9 @@ public class when_borrowing_on_a_short_loan : Specification
 ```
 
 Facts observe the arranged instance and the result of `Because`; don't run a second action in a fact. If the decision depends on a pipeline-supplied value, configure it in a pipeline scenario instead. Don't duplicate the rule at both layers.
+
+For the xUnit v3 executable setup (`<OutputType>Exe</OutputType>` and `xunit.v3.mtp-off`), build once and run the built spec executable. Do not substitute a solution-wide `dotnet test` across mixed runner projects. Facts share setup by default: keep them read-only. Move mutation to the act; if isolation is essential use `[PerFactSpecificationLifecycle]` on the class. See the upstream guide *Upgrading to Cratis Specifications 5.0*: keep adapter and core versions aligned, remove a hand-written framework assembly attribute to avoid CS0579, and keep net8/net9 projects on 4.x.
+
+## Diagnose slow specs
+
+[Measure Cratis specification phases](references/csharp-phase-timings.md) before changing the harness.

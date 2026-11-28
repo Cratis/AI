@@ -2,7 +2,6 @@
 applyTo: "**/.cratis/**"
 paths:
   - "**/.cratis/**"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
@@ -17,7 +16,7 @@ A profile selects which skills, rules and MCP server declarations `cratis ai ins
 | `cratis/application` | The repository builds an application on Cratis. |
 | `cratis/engineering` | The repository is a Cratis library or tool. |
 
-The default `cratis ai profiles list` table shows these two featured profiles. `cratis ai profiles list --all` and `cratis ai profiles list --output json` list every ID, including single products (`cratis/arc`, `cratis/chronicle`, `cratis/screenplay`), language stacks (`cratis/application/csharp`, `cratis/engineering/go`), and the additional profiles below. A repository records its selection in `.cratis/ai.json`:
+Plain and JSON profile listings show all profiles; none is featured. The mixed `cratis/v2/application` walkthrough is opt-in and does not by itself match the `application` rule alias. A repository records its selection in `.cratis/ai.json`:
 
 ```json
 {

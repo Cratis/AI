@@ -1,9 +1,9 @@
 # Node: register and list a task
 
-Use Node 22.19 or later, Corepack and curl. The server package is `@cratis/arc.core@1.0.0`, not the browser client. For a configured project with decorators, metadata and validation, run the Tasks sample from the Arc.TypeScript `v1.0.0` checkout:
+Use Node 22.19 or later, Corepack and curl. The server package is `@cratis/arc.core@1.0.0`, not the browser packages `@cratis/arc` or `@cratis/arc.react`. Use an ESM server project with standard decorators (`ESNext.Decorators`), as in the sample. For a configured project with decorators, metadata and validation, run the Tasks sample from the Arc.TypeScript `v1.0.2` checkout:
 
 ```sh
-git clone --branch v1.0.0 --depth 1 https://github.com/Cratis/Arc.TypeScript.git
+git clone --branch v1.0.2 --depth 1 https://github.com/Cratis/Arc.TypeScript.git
 cd Arc.TypeScript
 corepack enable
 yarn install

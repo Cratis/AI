@@ -45,10 +45,10 @@ Start with the profile that matches the repository:
 
 | Profile | For |
 | --- | --- |
-| `cratis/application` | Build an application on Cratis with the v2 platform skills: model a business flow, implement its backend and UI slices, run and diagnose them. |
+| `cratis/application` | Build an application on Cratis: model a business flow, choose SDK guidance, implement a slice, and verify its behavior. |
 | `cratis/engineering` | Change a Cratis platform repository with the platform skills and internal engineering guidance, including .NET build and diagnostic skills for C#. |
 
-Specialist profiles add skills and scoped rules for documentation, content, review, CodeScene, languages, CLI and Workbench, and orchestration. Managed installs include this material only when its profile and language conditions are met.
+The table recommends starting points; `cratis ai profiles list` lists every profile in this catalog. Select specialist profiles by ID, including `cratis/v2/application` for the mixed .NET and React walkthrough.
 
 ```bash
 cratis ai install \
@@ -65,8 +65,8 @@ managed content was edited unless `--force` is used. For Copilot, use the CLI re
 
 [Installing and using the corpus](./Documentation/corpus-installation.md) covers
 status, update, uninstall and what a session sees.
-[Migration](./Documentation/corpus-migration.md) lists what changed and what
-each profile installs now.
+[Migration](./Documentation/corpus-migration.md) explains what changed and how
+profile composition works.
 
 ## Native plugins
 

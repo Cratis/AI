@@ -140,7 +140,7 @@ volumes:
 | `Cratis__MongoDB__Server`, `Cratis__MongoDB__Database` | The replica set, and the service's event-store name as the database |
 | Host port | A distinct port per service, bound to `127.0.0.1` |
 
-For the .NET client connection, use [cratis-chronicle-connect-application](../../cratis-chronicle-connect-application/SKILL.md).
+For the .NET client connection, use the `cratis-chronicle-connect-application` skill (in `cratis/chronicle/client-dotnet`).
 
 ## Checks
 

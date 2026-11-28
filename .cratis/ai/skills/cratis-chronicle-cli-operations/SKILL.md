@@ -256,7 +256,7 @@ authorization.
 
 ## Related
 
-- `cratis-chronicle-mcp-inspection` offers read-mostly inspection/design-time
+- `cratis-chronicle-mcp-inspection` (in `cratis/chronicle/mcp`) offers read-mostly inspection/design-time
   tools and job control only; replay, retry and observer recovery are CLI work.
 - The terminal Workbench (`cratis chronicle workbench`) presents the same data
   with mutating keys; a human at a terminal uses it, not an agent harness.

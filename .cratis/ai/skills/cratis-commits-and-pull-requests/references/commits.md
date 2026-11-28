@@ -10,6 +10,7 @@
 - Commit messages
 - When to commit
 - Staging discipline
+- Before an authorized commit
 
 Commits are the permanent record of how the codebase evolved. Each commit should tell a clear story: *what* changed and *why*. A reviewer reading `git log --oneline` should understand the arc of the work without opening any diffs.
 
@@ -108,3 +109,11 @@ Add integration specs for observer replay on redaction
 - Use `git add <specific files>` rather than `git add .` or `git add -A`. Only stage files that belong to the current logical unit.
 - Review `git diff --cached` before committing to verify nothing unrelated was staged.
 - If you realize mid-commit that unrelated changes are mixed in, unstage them and commit only the related subset.
+
+Use separate worktrees for parallel changes. Merge related history; undo a delivered change with revert rather than reset or rewrite.
+
+## Before an authorized commit
+
+Run `git diff --name-only --cached`. Map staged C# files to their nearest `.csproj`, and staged TypeScript files to the nearest `package.json` with a test script. Run only the owning projects' specs using the repository's local verification procedure. Reuse a passing check only when it covered the exact, unchanged staged inputs. If the owner is unclear, report the gap rather than running the whole repository. For rule-only or documentation-only commits, run only the applicable content, link or corpus checks.
+
+Claude’s `Stop` gate checks the working tree at turn end, not the staged set at commit time.

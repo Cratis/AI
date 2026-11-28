@@ -94,7 +94,7 @@ Then extract the clash signals:
 
 **Then identify clashes:** normalize paths to absolute, group evaluations by `OutputPath` and by `IntermediateOutputPath`, and exclude only instances proven by their targets and writes to be metadata-only queries, not merely marked `BuildProjectReferences=false` — plus, for `OutputPath` only, `MSBuildRestoreSessionId` restore evaluations. Any group with more than one remaining evaluation is a clash.
 
-Read references/common-causes-and-fixes.md when selecting the relevant diagnostic workflow.
+Read [references/common-causes-and-fixes.md](references/common-causes-and-fixes.md) when selecting the relevant diagnostic workflow.
 
 ## Tips
 

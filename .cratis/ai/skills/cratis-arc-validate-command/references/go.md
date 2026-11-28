@@ -1,0 +1,3 @@
+# Reject invalid input before the write
+
+Attach custom rules with `commands.WithValidator` in the command's registration; model tags supply declarative field rules. For a string, `validate:"required"` rejects both the empty string and whitespace-only input without a custom validator. Do not assume a validator function is discovered just because its parameter has the command type. Return findings that identify the input member. Call the pipeline with a bad value and inspect both the Go error and the result: ordinary validation can refuse with no Go error. Assert the field and zero writes; let a valid value reach the handler.

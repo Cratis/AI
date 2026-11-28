@@ -53,9 +53,9 @@ the current directory or a supplied report is sufficient.
 |-------------|---------------|-----------|
 | Explain a supplied excerpt, condition, or summary | Answer directly from the supplied evidence | Tools, CRAP, discovery, report files |
 | Interpret a supplied Cobertura path or diagnose a plateau | Read that report, reconcile totals, name all material gaps, answer directly | Rerun tests, install tools, compute CRAP, or generate files unless explicitly requested |
-| Rank risk hotspots, compute project-wide CRAP, or assess refactoring safety | Use the supplied/existing report, read `references/guidelines.md`, and compute CRAP before ranking | Coverage-only ranking or a full report template unless requested |
+| Rank risk hotspots, compute project-wide CRAP, or assess refactoring safety | Use the supplied/existing report, read [references/guidelines.md](references/guidelines.md), and compute CRAP before ranking | Coverage-only ranking or a full report template unless requested |
 | Analyze coverage when no report exists | Invoke `run-tests` to collect coverage with the repository-compatible runner, then analyze the generated report | Choose or execute a test command independently; CRAP unless risk was requested |
-| Produce a full markdown/HTML/CSV report | First deliver the direct answer; then read `references/output-format.md` or `references/report-generation.md` | Report generation before the answer |
+| Produce a full markdown/HTML/CSV report | First deliver the direct answer; then read [references/output-format.md](references/output-format.md) or [references/report-generation.md](references/report-generation.md) | Report generation before the answer |
 
 Words such as **analyze coverage**, **what is blocking coverage**, or **why is
 coverage stuck** do not by themselves request CRAP. Explicit signals include
@@ -69,7 +69,7 @@ When the user supplies a coverage excerpt, summary, or valid Cobertura path:
 - Treat it as authoritative input and start there.
 - Do not discover the solution or test projects unless source mapping is necessary.
 - Do not run `dotnet test`, install ReportGenerator, add a coverage package, or
-  read `references/setup-discovery.md` or `references/report-generation.md`.
+  read [references/setup-discovery.md](references/setup-discovery.md) or `references/report-generation.md`.
 - Do not write `coverage-analysis.md` or create a report directory unless the user
   requested a saved/full report.
 - For interpretation and plateau questions, parse only the evidence needed to

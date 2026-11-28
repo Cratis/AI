@@ -69,7 +69,7 @@ block. The diagnostics for each rule are in that reference. The rules that decid
   `signup open creates tenant` makes a signup create a tenant, `signup open joins tenant` asks to join an existing one.
 - Every persona in `as`, `by` and `grant` must be declared with `persona`; there are no free-text roles.
 - `emails` names only `invitation`, `welcome` and `signupDeclined`. The sender and mail server are not in the model.
-- `file` paths are repository-relative, like handler files. `offering` is the name of an offer the operator publishes in Box Office; a rendered application starts each new tenant on it. `signupDeclined` is sent when the host declines a held sign-up (review is not modeled; see `cratis-onboarding-runtime`).
+- `file` paths are repository-relative, like handler files. `offering` is the name of an offer the operator publishes in Box Office; a rendered application starts each new tenant on it. `signupDeclined` is sent when the host declines a held sign-up (review is not modeled; see `cratis-onboarding-runtime` in `cratis/modeling/screenplay-stage`).
 
 ## Environment keys
 
@@ -106,5 +106,5 @@ keys using `cratis config --missing <path>`, which exits `5` when any key is abs
 
 - Modeling persona access and policy: [cratis-screenplay-model-interaction](../cratis-screenplay-model-interaction/SKILL.md).
 - Setting up the compiler: [cratis-screenplay-onboard-workspace](../cratis-screenplay-onboard-workspace/SKILL.md). Reviewing a revision: [cratis-screenplay-accept-model](../cratis-screenplay-accept-model/SKILL.md).
-- How AuthProxy, Ante and Herald consume the contract at runtime: `cratis-onboarding-runtime`.
-- Applying the HTTP authorization boundary in Arc: [cratis-arc-authorize-request](../cratis-arc-authorize-request/SKILL.md).
+- How AuthProxy, Ante and Herald consume the contract at runtime: `cratis-onboarding-runtime` (in `cratis/modeling/screenplay-stage`).
+- Applying the HTTP authorization boundary in Arc: the `cratis-arc-authorize-request` skill (in `cratis/arc/identity`).

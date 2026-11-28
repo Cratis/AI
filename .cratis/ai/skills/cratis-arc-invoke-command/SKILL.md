@@ -1,45 +1,28 @@
 ---
 name: cratis-arc-invoke-command
-description: Use when a developer needs to execute a command from a service, job or reactor and distinguish success from rejection. Not for implementing Handle (use cratis-arc-declare-command).
-compatibility: Requires the Cratis package and a configured Arc command pipeline.
+description: Use when a developer needs to execute an existing Arc command from backend code, such as a service, job or import. Not for declaring the command (use cratis-arc-declare-command) or calling it from React (use cratis-arc-react-bind-slice for non-form actions, or cratis-components-submit-form for forms).
+compatibility: Requires an Arc backend with the command already declared.
 ---
 
-# Dispatch a command from a service
+# Dispatch a command from backend code
 
-Inject `ICommandPipeline` into the service that initiates registration. `Execute(command)` creates its own service scope. Await the result before recording the import as successful.
+Execute the declared command (`cratis-arc-declare-command` skill in `cratis/arc`) through the command pipeline, never by calling its handler: the pipeline runs authorization, validation and the append. Let the pipeline own its scope unless the caller must share dependencies it already holds. Wait for the result before recording the work as done.
 
-`RegisterAuthor` and `AuthorId` come from [Declare a command](../cratis-arc-declare-command/SKILL.md). In `Features/Authors/Registration/AuthorImporter.cs`, using the `Cratis` global usings:
+A result is not an exception. Inspect it and tell apart a refused caller, invalid input, a temporary refusal and a fault before reading the response. Validation alone is early feedback, not a dry run: it runs no handler and does not replace checking the final result.
 
-```csharp
-namespace Library.Features.Authors.Registration;
+## Read the reference for the host
 
-public class AuthorImporter(ICommandPipeline commandPipeline)
-{
-    public async Task Import(AuthorId id, string name)
-    {
-        var result = await commandPipeline.Execute(new RegisterAuthor(id, name));
-        if (!result.IsSuccess)
-        {
-            throw new InvalidOperationException($"Could not register author {id}. Correlation: {result.CorrelationId}");
-        }
-    }
-}
-```
+The artifact being changed selects the one reference to read: `*.csproj` → [C#](references/csharp.md); a Node server `package.json` → [TypeScript](references/typescript.md); `*.kt` → [Kotlin](references/kotlin.md); `*.java` → [Java](references/java.md); `go.mod` → [Go](references/go.md); `mix.exs` → [Elixir](references/elixir.md). Another language's reference is not a template. [Python](references/python.md) has no released Arc SDK: call the owning service over HTTP.
 
-Inspect the final result: `!IsAuthorized` means access was denied, `!IsValid` points to `ValidationResults`, and `HasExceptions` means execution failed. `IsRetryable` identifies a retryable result. Use `var preflight = await commandPipeline.Validate(command);` only for early feedback: it does not run `Provide()` or `Handle()` and does not replace checking the final result.
+## Expected outcome
 
-## When it goes off the usual path
+A valid command succeeds and its effect is visible once. An invalid or unauthorized one returns a failed result, changes nothing, and the calling code reports it rather than continuing.
 
-- **The command must use scoped dependencies the caller already owns:** use `var result = await commandPipeline.Execute(command, services);` with the caller's scoped `IServiceProvider services`. The caller owns disposal. Otherwise let the pipeline create a scope.
-- **An import spans several commands:** decide whether a failed item stops the job, gets retried, or is recorded while other items continue. One successful execution does not mean the batch committed.
+## Stop when
 
-## Avoid
-
-- Do not call `Handle()` directly; the pipeline runs validation, authorization and the append.
-- Do not pass the root provider or an unrelated scope to `Execute`.
-- If using the server-generated ID variant of `RegisterAuthor`, execute `var result = await commandPipeline.Execute<AuthorId>(new RegisterAuthor(name));`. Check `result.IsSuccess` before reading `result.Response`.
+Several commands form one job: decide first whether a failed item stops the job, is retried or is recorded while the rest continue. One successful execution does not mean the batch committed.
 
 ## Related skills
 
-- [Declare a command](../cratis-arc-declare-command/SKILL.md)
+- Declare a command (`cratis-arc-declare-command` skill in `cratis/arc`)
 - [Validate its inputs](../cratis-arc-validate-command/SKILL.md)

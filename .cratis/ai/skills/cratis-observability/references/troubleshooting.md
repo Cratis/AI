@@ -20,3 +20,7 @@ Check in this order for any missing signal: SDK not disabled, source subscribed,
 | Personal ids or payloads in spans | Event source id mode is `Raw` (client default): choose `Hashed` or `Omitted`; remove the offending custom attribute; logs are not covered by these options, redact before formatting |
 | Hashed ids do not match between client and kernel | Different keys, or the kernel generated a per-process key; configure the same 32-plus character key in both |
 | Startup fails on telemetry configuration | Invalid OTLP endpoint, or `Hashed` chosen without a long enough key |
+
+## Renaming signals
+
+Published span, metric and attribute names and units are a contract. Document additive changes and release them as minor. When replacing a published signal or unit, emit both forms for at least one minor release, document the old form as deprecated and have dashboard and alert owners verify their migration before removing it in a major release. Do not sum the old and new series; they describe the same measurements.

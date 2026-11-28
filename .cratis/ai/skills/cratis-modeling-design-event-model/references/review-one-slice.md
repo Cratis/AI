@@ -16,6 +16,8 @@ Let A stand for `11111111-1111-4111-8111-111111111111`. Start with A unused. The
 
 Trace inputs **to the decision** as well as outputs. Ask “which decision would fail if this input changed?” If blank names are refused, the command needs the submitted name before deciding; the visible list cannot tell whether the command refused or the projection lagged. If an outcome depends on prior history, name the facts and how to select the right instance. A fresh ID in the request is not evidence that no facts exist at that address. A missing origin blocks acceptance of the result that relies on it, not unrelated slices.
 
+Trace in the other direction too: who uses each proposed fact? If several facts contribute to a display-only “ready” badge, derive the badge in the view. Ask for a new fact only if the domain recognizes a transition and can name a decision, historical question or outside consumer that needs it. If an observer polls an unchanged author twice, do not count two registrations. Describe what changed, for whom, rather than recording that the poll ran.
+
 ## Read back the examples
 
 Give the rule, concrete setup, action (if any) and expected result. Ask the owner what changes when one significant value differs:
@@ -24,6 +26,8 @@ Give the rule, concrete setup, action (if any) and expected result. Ask the owne
 - **Successful no-op, for an import that records first sight:** Directory has already supplied A with name Aster. Seeing that same record again succeeds without a second `DirectoryAuthorSeen`. Whether the welcome reaction can receive the first fact twice is a different question: should a second welcome be requested?
 
 Ask about missing, duplicate or out-of-order observations when the answer changes a decision. For example, if Directory sends two different names for A out of order, which observation counts as current, and what evidence establishes that? Leave the answer open if the source supplies no ordering information.
+
+On a representative stream, count adjacent identical payloads of the same event type and compare the measured volume with the expected event-volume budget. Investigate unexplained repeats before adding a counter or reaction.
 
 ## Bound a change
 

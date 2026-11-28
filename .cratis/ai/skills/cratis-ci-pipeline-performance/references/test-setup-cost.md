@@ -1,8 +1,5 @@
 # Test setup cost and where to test a guarantee
 
-Use this when a test lane is slow but the runner's per-test times look small, when
-a suite re-tests a dependency, or when compile errors surface late.
-
 ## Contents
 
 - Time hidden outside per-test timing
@@ -55,8 +52,11 @@ A fix belongs in the library that owns the setup, not in each consuming reposito
 
 ## Test each guarantee where it can break
 
-- A suite that tests a dependency's semantics belongs in that dependency's own
-  repository. In a consumer, run it only when the dependency pin changes, or nightly.
+Follow the consumer-owned PR coverage, upstream case mapping and timing requirements
+in `verification-discipline.md` before relocating any check.
+
+- A suite that tests only a dependency's semantics belongs in that dependency's own
+  repository. In a consumer, run that duplicate coverage only when the dependency pin changes, or nightly.
 - Check a wire or API shape with a committed snapshot and a diff, not a live
   integration run.
 - Mixed-version or upgrade matrices run nightly or before a release, not on every
@@ -64,8 +64,7 @@ A fix belongs in the library that owns the setup, not in each consuming reposito
 - Where a behavior is only meaningful in a deployed environment, prefer a
   post-deploy synthetic check plus unit specifications and contract snapshots over
   a pull-request integration environment.
-- Never remove the only check of a required guarantee; relocate it and say where it
-  now runs.
+- Never remove the only check of a required guarantee; report where any relocated check now runs.
 
 ## Surface compile errors early
 
@@ -84,14 +83,17 @@ strictest configuration that consumers enforce somewhere on the required path.
 
 ## Analyzer cost
 
+For new C# generators, implement `IIncrementalGenerator`. In analyzers and
+generators, prefilter syntactically before semantic binding and compute shared
+evidence once per compilation instead of rebinding it at every call site. Give
+each expensive analyzer a performance spec so downstream build cost cannot regress
+unnoticed.
+
 Analyzers that run in the spec path stall every build. Take per-analyzer timings
 from a binlog of the slow project, with the same inputs and concurrency before and
-after. Rank by cumulative time per rule, not by assembly. Three results are
-typical: rules that cannot apply to the repository (switch them off; a bulk
-severity setting can run an analyzer whose own rules are `none`), an analyzer that
-rebinds the whole compilation (fix it upstream: syntactic prefilter, evidence
-computed once per compilation, touched only after cheap relevance checks), and
-generators, which are rarely the cost. In one measured application, compiling with
-analyzers took 395 s, 180 s after removing inapplicable rules, and 90 s with
-analyzers off. Pass means the spec-path build skips analyzers, the parallel
+after. Rank by cumulative time per rule, not by assembly. Fix repeated binding
+upstream and switch off rules that cannot apply to the repository; a bulk
+severity setting can run an analyzer whose own rules are `none`. In one measured
+application, compiling with analyzers took 395 s, 180 s after removing inapplicable
+rules, and 90 s with analyzers off. Pass means the spec-path build skips analyzers, the parallel
 required job still fails on any analyzer warning, and both timings are recorded.

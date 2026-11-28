@@ -1,17 +1,19 @@
 ---
 name: cratis-chronicle-select-client
-description: Use when a maintainer needs to choose a Chronicle client or consume its gRPC contracts in Go, Kotlin, TypeScript, Elixir or Python. Not for HTTP commands and queries (use cratis-arc-select-backend-sdk).
+description: Use when choosing a Chronicle dependency for an application or a protocol inspection tool. Not for choosing an HTTP command or query host (use cratis-arc-select-backend-sdk).
 compatibility: The chosen language toolchain and a versioned Chronicle release.
 ---
 
-# Choose a Chronicle client for a non-.NET service
+# Choose the client that will run the workload
 
-**Application or wire tool?** For an application, choose the idiomatic client only if its tagged support and integration tests cover the operation against the intended kernel. Look for `github.com/cratis/chronicle.go`, `io.cratis:chronicle`, `@cratis/chronicle` or `:cratis_chronicle`. Don't override a client's transitive contracts to make versions appear to match. If a required observer isn't supported, host it in a [.NET worker](../cratis-chronicle-react-to-fact/SKILL.md).
+For application work, choose the client for the process that will append or observe events, not the language of its caller. For example, when a React screen submits an order to a Node service, the service owns the Chronicle dependency; the screen calls the service. Start with that service's manifest:
 
-For protocol inspection or building tooling, use the wire contracts instead. Start in a disposable project with the recipe for the language below. These offline checks do not register an event, start a client session or demonstrate that an application can append. Verify the exact client/kernel pair separately against a disposable namespace before choosing it.
+- `.csproj`: [select the C# client](references/csharp.md).
+- Node server `package.json`: [select the TypeScript client](references/typescript.md).
+- `.kt`: [select the Kotlin application artifact](references/kotlin.md).
+- `.java`: [select the Java-facing JVM client](references/java.md).
+- `go.mod`: [distinguish standalone Go from an integrated host](references/go.md).
+- `mix.exs`: [select the Elixir client for supervised application work](references/elixir.md).
+- Python: there is no released application client. Call a service that owns the operation. For offline protocol tooling only, [build and check the matching contracts package](references/python.md).
 
-- [Go: inspect an event type](references/go.md)
-- [Kotlin/JVM: load the protocol descriptor](references/kotlin.md)
-- [TypeScript: load the gRPC service definition](references/typescript.md)
-- [Elixir: check the bundled protocol](references/elixir.md)
-- [Python: round-trip a generated message](references/python.md)
+Use generated contracts alone only when inspecting or encoding wire messages. A message round trip proves the wire type loads; it does not start an observer. Before committing to an application client, exercise the required operation against the intended kernel in a disposable namespace. If it fails, resolve the client/kernel mismatch or delegate to a supported host; do not force an unrelated contracts version.

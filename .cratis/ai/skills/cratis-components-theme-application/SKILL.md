@@ -24,8 +24,14 @@ Use a theme token for a color change, scoped to the smallest wrapper that should
 }
 ```
 
-3. Put `className="author-admin"` on the authors section. Controls inside inherit the override; sibling sections keep the default.
-4. For an app-wide palette instead, put these rules after the three imports, outside `@layer`. Match the baseline selectors so the later value wins on the root and in themed subtrees. Wrap all three rules in `@media (forced-colors: none)` to preserve system colors in forced-colors mode.
+3. If the host uses cascade layers, declare the order before any stylesheet is parsed (for example in a `<style>` in the host document). Put Cratis above the product reset and below product utilities. The first declaration fixes the order; later imports cannot change it.
+
+```css
+@layer properties, theme, base, cratis-theme, cratis-components, cratis-utilities, components, utilities;
+```
+
+4. Put `className="author-admin"` on the authors section. Controls inside inherit the override; sibling sections keep the default.
+5. For an app-wide palette instead, put these rules after the three imports, outside `@layer`. Match the baseline selectors so the later value wins on the root and in themed subtrees. Wrap all three rules in `@media (forced-colors: none)` to preserve system colors in forced-colors mode.
 
 ```css
 @media (forced-colors: none) {
@@ -85,3 +91,9 @@ Use `.author-admin [data-cratis-part='header-content'] { font-weight: 600; }` fo
 ## Related skills
 
 - For the complete host setup, use `cratis-arc-react-bind-slice` from the Arc React profile.
+
+For a renderer-specific requirement rather than a color change, read [Select an adapter](references/renderer-adapters.md).
+
+If controls have no layout, check CSS before changing JSX: import tokens, then structural styles (or base plus the area sheets, including DataPage for split details), then the baseline theme or product CSS. JS imports do not load those styles. Target documented parts, not guessed DOM class names; a typed `pt` key is not necessarily the DOM marker. Normal unlayered CSS overrides layered rules. The provider configures messages and icons, not CSS themes.
+
+Tailwind is optional, not the default for new apps. Keep static styling in CSS and reserve inline `style` for runtime-computed values.

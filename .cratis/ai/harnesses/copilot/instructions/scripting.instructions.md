@@ -10,7 +10,6 @@ paths:
   - "**/tools/**"
   - "**/.github/workflows/**"
   - "**/.cratis/ai/hooks/**"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

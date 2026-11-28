@@ -11,7 +11,7 @@ repository. They are **conventions**, not framework contracts: nothing here is
 enforced by an analyzer unless this skill says so. Follow them for consistency;
 do not claim the framework requires them.
 
-## Verified product sources
+## Packages covered
 
 | Package | Purpose |
 | --- | --- |

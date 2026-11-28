@@ -16,6 +16,8 @@ For example, Library owns author registration. A separate catalog promises to li
 
 If Library promises a confirmation back to its caller, Catalog receiving the registration proves only the outward hop. For example, trace Catalog's `AuthorListed` reply for the same registration key to Library's input, then query Library as the original caller. Require that registration to change from pending to listed by the deadline; a reply in Library's inbox with the registration still pending is a failed handoff.
 
+Record which installation enables consumption and who can see the public fields. Identify the person the data concerns independently of the producer's stream ID and the receiver's key. Agree how the receiver should handle replay, a duplicate or an out-of-order correction. Verify those guarantees separately if they are part of the contract; the happy path proves none of them.
+
 If the fact exists but the public message is absent, investigate the publisher. If published but not received, inspect the subscription, route and receiver scope. If received but absent from the ready query, inspect the receiver's mapping and read model. Stop at the first missing observation; don't replay shared streams or resend the command to manufacture a pass.
 
 For a [pure translation rule](../cratis-chronicle-publish-contract/SKILL.md), supply one example input and check the output without hosting the services. Reserve this live check for the delivery promise.

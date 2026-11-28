@@ -2,7 +2,6 @@
 applyTo: ".github/workflows/**"
 paths:
   - ".github/workflows/**"
-profile: framework
 ---
 
 # GitHub Actions workflows: capacity, cost, and release discipline
@@ -65,7 +64,7 @@ profile: framework
   `permissions:` on each job. Run `zizmor` locally on edited workflows: its `unpinned-uses`
   and `excessive-permissions` audits check exactly this. `actionlint` checks syntax,
   expressions and embedded shell, not pinning. Do not assume CI runs either tool.
-- To make a workflow faster, use the `cratis-ci-pipeline-performance` skill.
+- To make a workflow faster, use the `cratis-ci-pipeline-performance` skill (in `cratis/engineering/core`).
 
 ## Matrices and operating systems
 
@@ -90,7 +89,7 @@ capacity numbers into workflows or guidance.
   A repository runner variable can make routing configurable.
 - Compare job memory and in-job parallelism with the documented limits before
   increasing fan-out. Both sets share nodes; pod ceilings and node cold starts can
-  make extra jobs wait. Use the `cratis-ci-pipeline-performance` skill for sizing.
+  make extra jobs wait. Use the `cratis-ci-pipeline-performance` skill (in `cratis/engineering/core`) for sizing.
 - Runner pods are ephemeral: workspaces, Docker data and local package downloads do
   not persist between jobs. Use the shared Cratis cache actions, `actions/cache` or
   `setup-*` caching keyed on lockfiles; never assume a warm local package cache.
@@ -127,7 +126,7 @@ capacity numbers into workflows or guidance.
   repository. Package-update bots, and any commit touching another file, keep normal CI.
 - Never put a skip token in a pull request title or an ordinary commit message: a
   merge commit inherits the pull request title, so GitHub then runs nothing on the
-  default branch. See `cratis-engineering-release-trains`.
+  default branch. See `cratis-engineering-release-trains` (in `cratis/engineering/core`).
 - Comment-triggered agent workflows must gate on the trigger phrase in the job's `if:`
   (for example `contains(github.event.comment.body, '@claude')`) so a runner only
   starts when the agent is actually addressed.

@@ -16,7 +16,7 @@ entire history** — a cost that is invisible at development volumes and fatal a
 production ones. And **an event is permanent**, so an oversized event is a
 storage and replay cost that never goes away.
 
-## Verified product sources
+## Packages covered
 
 | Package | Purpose |
 | --- | --- |
@@ -35,7 +35,7 @@ behavior this file does not already state.
 - General correctness and maintainability: use `cratis-code-review`. Its
   performance section is the pass-by list; this skill is the focused one. When
   both have run, do not restate the same finding twice.
-- Adding paging rather than judging it: use `cratis-arc-page-query` from
+- Adding paging rather than judging it: use `cratis-arc-page-query` (in `cratis/arc`) from
   `cratis/application`.
 - Security or data exposure: use `cratis-security-review`. An over-fetching
   payload is a finding for both — say which lens produced it.
@@ -157,3 +157,5 @@ The build and specifications are green before the report is written; each
 finding cites the file and line and states the scale at which it bites; and the
 report says plainly that it reviewed code shape rather than measured behavior,
 naming anything that would need a benchmark to settle.
+
+For MongoDB snapshots, prefer native driver filters. Provider-backed `AsQueryable()` is the exception for Arc-composed finite paging. Check that filtering and paging reach the provider before materialization; wrapping an already materialized list cannot restore translation. Use `Observe` for an observable query.

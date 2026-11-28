@@ -24,19 +24,19 @@ lives only in code, or only in a description, is a finding, not a solution.
 ## Interview phase
 Read [interview prompts](references/interview-batch.md) when identity, competition,
 retry, ownership, growth or stored-event history is unsettled. Ask only missing
-questions, one at a time; ownership options are in `references/boundaries.md`.
+questions, one at a time; ownership options are in [references/boundaries.md](references/boundaries.md).
 Unattended work takes the conservative option and marks it `ASSUMED` in model
 `documentation` and the model’s `STATE.md` in the ignored scratch folder.
 
 ## Procedure
 1. **Establish identity and membership.** For every `concept XId` used as an `identifier`, write
    one sentence: "one business identity per stream: one stream per <business thing>; it answers
-   <question>". Run the event-by-event check in `references/stream-patterns.md`: inspect every
+   <question>". Run the event-by-event check in [references/stream-patterns.md](references/stream-patterns.md): inspect every
    producer and destination that can write its history (commands, reactions, captures), say why
    each event belongs, and decide retain, split, view instead, or unresolved, by lifecycle and
    invariant consequences, not names or length. For Chronicle keep event-source identity,
    namespace, process-stream routing and concurrency scope apart
-   (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
+   ([references/chronicle-boundaries.md](references/chronicle-boundaries.md)). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8.
    The CLI’s bundled compiler must admit the model before Stage checks route support; keep the routing
    contract when target admission requires gap-fill. A `generated identifier` (ESM v7; Stage renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038)
@@ -60,7 +60,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
      (`confirmsX == true`) standing in for a rule, and rules hidden in `handler` or
      implementation-hint prose. An unguarded materialized read is unsafe for a protected
      decision; that is not "read models never drive decisions". See
-     [cratis-chronicle-protect-decision](../cratis-chronicle-protect-decision/SKILL.md).
+     the `cratis-chronicle-protect-decision` skill (in `cratis/chronicle`).
 3. **Play the races and retries.** For each enforced or recorded rule write the concurrent case
    (two commands at once), the retry case (same request again after a lost reply) and the
    duplicate case (same intent, new id). State the outcome and which construct produces it.
@@ -75,7 +75,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
    and protected payload. A stream identity and an event's data subject may differ:
    trailing event-property `subject` records that lineage but is report-only
    (PLAY0270), not runtime propagation or generated C# `[Subject]`. Without a
-   supplied subject, the runtime defaults to the event source. For stored personal data, use [cratis-chronicle-protect-personal-data](../cratis-chronicle-protect-personal-data/SKILL.md).
+   supplied subject, the runtime defaults to the event source. For stored personal data, use the `cratis-chronicle-protect-personal-data` skill (in `cratis/chronicle`).
 5. **Plan evolution.** Read [event evolution](references/evolution.md) before editing stored
    contracts, for change classification, compatibility scenarios and enum-number safety.
    After release-baseline admission, revisions need `newGeneration`. The owning session handles identity-affecting edits using [cratis-screenplay-edit-workspace](../cratis-screenplay-edit-workspace/SKILL.md).
@@ -173,7 +173,7 @@ Do not report done until all hold; otherwise report what is open:
   fixed message with `then error`. Report target-side concurrency evidence separately.
 - Retry answers cover a lost acknowledgement, reuse of the operation identity, conflicting
   payloads and duplicate intent under a new identity, where applicable.
-- Read `references/streams-example.md` when designing stream membership, constraints or a recorded state-dependent rule; read `references/evolution-example.md` when planning a generation, identity-preserving rename or change of event meaning. Examples that compile (`references/streams-example.md`, `references/evolution-example.md`):
+- Read [references/streams-example.md](references/streams-example.md) when designing stream membership, constraints or a recorded state-dependent rule; read [references/evolution-example.md](references/evolution-example.md) when planning a generation, identity-preserving rename or change of event meaning. Examples that compile (`references/streams-example.md`, `references/evolution-example.md`):
   `bash` the repository's compile check over this skill folder.
 
 ## Route near misses

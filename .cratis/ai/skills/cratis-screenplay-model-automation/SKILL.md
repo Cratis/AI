@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-automation
-description: Use when a modeler needs a Screenplay Automation reaction to a local fact, schedule or host signal. Not for importing external observations (use cratis-screenplay-model-translation).
+description: Use when a modeler needs a Screenplay Automation reaction to a local fact, schedule or host signal, or needs to model an entity lifecycle or durable workflow. Not for importing external observations (use cratis-screenplay-model-translation).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -99,11 +99,15 @@ module Library
           for "directory-welcomes"
 ```
 
-Run `screenplay test model --format json` on the composed model. Require the command, invocation, redelivery and clock specifications to pass. `then invokes` compares only the invocations and the stated input values. `then no events` separately checks that redelivery records nothing. The command's own examples check the recorded fact and duplicate refusal. [Implement the runtime reaction](../cratis-chronicle-react-to-fact/SKILL.md) with a reactor after commit; verify target support and test any external delivery separately.
+Run `screenplay test model --format json` on the composed model. Require the command, invocation, redelivery and clock specifications to pass. `then invokes` compares only the invocations and the stated input values. `then no events` separately checks that redelivery records nothing. The command's own examples check the recorded fact and duplicate refusal. Implement the runtime reaction (`cratis-chronicle-react-to-fact` skill in `cratis/chronicle`) with a reactor after commit; verify target support and test any external delivery separately.
 
 For work requested by a host rather than a calendar, [replace the schedule with a host trigger](references/host-trigger.md).
+
+Read [reaction boundaries](references/reaction-boundaries.md) if a decision depends on current state, an invocation can refuse, or a batch spans several effects. For a provider call, [choose the retry contract](references/external-effects.md) before modeling the result.
+
+If the decision is about [entity state or a durable process](references/statemachines-and-workflows.md), use a state machine or workflow instead of chaining reactions.
 
 ## When it goes off the usual path
 
 - **The command lives in another slice:** assert the handoff with `then invokes` here, and assert the command's events in its own slice. A specification runs only its own slice's follow-up behavior.
-- **A provider may have performed the effect before losing its reply:** retry with the same provider idempotency key and verify provider behavior separately. A unique request fact doesn't make an external effect exactly once.
+- **A provider may have performed the effect before losing its reply:** retry only if the provider contract permits it. Reuse the original key for an idempotent call; reconcile an uncertain non-repeatable call instead. A unique request fact doesn't make an external effect exactly once.

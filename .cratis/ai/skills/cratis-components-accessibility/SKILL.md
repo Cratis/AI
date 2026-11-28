@@ -217,3 +217,5 @@ nothing.
 
 For a screenshot-grounded critique of a rendered screen, which reports
 accessibility risks without claiming conformance, use `cratis-ux-review`.
+
+Check the actual render boundary: where does keyboard focus go after refusal, and who returns it after dismissal? Make the invalid field discoverable without color. A correctly updated view model alone proves neither behavior.

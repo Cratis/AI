@@ -1,4 +1,5 @@
 ---
+applyTo: "**/*"
 profile: framework
 ---
 

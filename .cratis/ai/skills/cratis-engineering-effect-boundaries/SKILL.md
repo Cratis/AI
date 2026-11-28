@@ -71,9 +71,9 @@ before deciding that your case is different.
    classify is `indeterminate`. Report it as its own state; never roll it up
    into the success count.
 6. **Check the sibling implementations of the same interface.** When a real
-   store enforces a constraint, its in-memory and SQL siblings must enforce the
-   same one or throw `NotSupported`. A sibling that silently accepts what the
-   real one rejects makes every specification that uses it pass vacuously.
+   store enforces a constraint, its siblings must match its behavior or throw
+   when the operation is unsupported. Never stub an operation with a successful
+   completion or empty result; that can make the caller's specs pass vacuously.
 7. **Make the process state follow the work.** If startup threw, the host is not
    `Running`. A liveness or readiness state that survives a failed start is a
    lie the orchestrator will believe.

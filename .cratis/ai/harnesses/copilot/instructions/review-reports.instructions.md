@@ -1,10 +1,11 @@
 ---
-applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**"
+applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**,.cratis/ai/agents/**,.cratis/ai/prompts/**"
 paths:
   - ".cratis/ai/skills/cratis-code-review/**"
   - ".cratis/ai/skills/cratis-security-review/**"
   - ".cratis/ai/skills/cratis-performance-review/**"
-profile: cratis/review
+  - ".cratis/ai/agents/**"
+  - ".cratis/ai/prompts/**"
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
@@ -17,9 +18,9 @@ Disposable or advisory work (Tier C in the `criticality-tiers` rule, where insta
 needs no review or review document. The following governs requested
 or required reviews.
 
-Use this report shape for code, security, performance, and repository-investigation
-reviews. Domain-specific risk labels refine findings, not the report or verdict
-vocabulary. Review the change within the declared scope, not unrelated existing debt.
+Use this report shape for code, security and performance reviews. Domain-specific risk
+labels refine findings, not the report or verdict vocabulary. Review the change within
+the declared scope, not unrelated existing debt.
 
 ## Report shape
 

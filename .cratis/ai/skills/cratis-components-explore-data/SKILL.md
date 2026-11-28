@@ -8,7 +8,7 @@ compatibility: Requires react, @cratis/components and pixi.js for PivotViewer.
 
 Use `PivotViewer` to group current, already loaded records. Choose `TimeMachine` when comparing supplied snapshots over time of one record. Neither fetches history.
 
-1. Put `BookExplorer.tsx` in `Features/Books` inside `CratisComponentsProvider` from `@cratis/components`. For `PivotViewer`, install its Pixi peer (`npm install pixi.js@8.20.0` for Components 4.63.1). Filter and bound a large catalog at the query before passing the loaded books to the viewer; the viewer is not a paging mechanism.
+1. In the Library example, put `BookExplorer.tsx` in `Features/Books` inside `CratisComponentsProvider` from `@cratis/components`. For `PivotViewer`, install its Pixi peer (`npm install pixi.js@8.20.0` for Components 4.63.1). Filter and bound a large catalog at the query before passing the loaded books to the viewer; the viewer is not a paging mechanism.
 2. Use a unique dimension `key` to identify the grouping choice. `getValue` returns the grouping value for each book. The dimension key does not have to be a book property.
 3. Keep the book ID independent of its genre. Two books in one group still have distinct cards.
 
@@ -57,3 +57,5 @@ Selecting a card should open that book even when another shares its genre. Selec
 ## Related skills
 
 - [List authors in a table](../cratis-components-display-list/SKILL.md)
+
+Do not invent a controlled selection prop for PivotViewer. The viewer owns grouping and selection; use the close callback given to the detail renderer. For a host-controlled detail surface elsewhere, clear its selection when closing it.

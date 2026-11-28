@@ -91,5 +91,5 @@ specs. A pass shows no `arc-core/*` findings; a deliberately broken artifact
 
 ## Route near misses
 
-- Writing the artifacts: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md), [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md) and [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
+- Writing the artifacts: [declare the command](../cratis-arc-declare-command/references/typescript.md), [cratis-arc-expose-query](../cratis-arc-expose-query/references/typescript.md) and [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
 - The Roslyn analyzers for C# Arc: the C# command skills.

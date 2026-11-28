@@ -14,7 +14,7 @@ other worktrees, unanswered questions, the user's exact words) lives only in
 the session's context, so it is written down while the session is healthy, not
 reconstructed after it degrades. This skill covers one agent continuing its own
 task in a later session. Parallel lanes with claims, leases and inboxes use
-`cratis-orchestration-lanes`, which reuses the template here.
+`cratis-orchestration-lanes` (in `cratis/orchestration`), which reuses the template here.
 
 Keep work records in the ignored scratch folder (`.ai-work`). Open each handoff
 with the repository, branch, expected `HEAD`, named worktree paths and date.
@@ -62,11 +62,13 @@ When the context is nearly full:
 3. Write the handoff from it. Read
    [references/handoff-template.md](references/handoff-template.md) for the
    fixed structure, the rules for filling it and a worked example.
-4. If the repository supplies a handoff checker, run it on the draft. Fix every
-   error and either fix or acknowledge each warning (a moved HEAD means update
-   the table). Otherwise, check by hand:
-   preconditions against `git`, each section present, every running job with a
-   full watch row.
+4. Check the draft against Git: each named worktree exists, belongs to the
+   stated repository, and has the stated branch and expected commit. A moved
+   `HEAD` is a warning: reconcile it before updating the table; never reset to
+   match the draft. Confirm every template section is present and every read
+   path exists. For every running job, check that the watch row has an immutable
+   target and an explicit completion action. Fix missing paths and incomplete
+   watch rows before handing off.
 5. End the session, or reset it with your harness's compaction or new-session
    command, starting from the handoff.
 

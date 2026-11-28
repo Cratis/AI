@@ -77,7 +77,7 @@ tests run serially or several jobs each rebuild. Default: one job builds in
 each built spec executable; only VSTest projects use `dotnet test <project> --no-build`. Pitfall: a shard whose filter matches nothing still
 passes, so assert that every shard ran tests. Each build tuple has one analyzer
 owner (section "One analyzer owner per build tuple"). Read
-`references/build-once-and-shard.md` when applying or reviewing this.
+[references/build-once-and-shard.md](references/build-once-and-shard.md) when applying or reviewing this.
 
 **Fewer, bigger jobs.** Fits queue-bound workflows: every job pays a scheduler
 start, checkout and toolchain setup. Default: merge small sibling jobs that share
@@ -89,7 +89,7 @@ Default: the shared `Cratis/Workflows` composite actions `dotnet-cache` and
 `yarn-cache` (restore on pull requests, save on the default branch), NuGet lock files and
 `yarn install --immutable`. Pitfall: a cache key that changes every run, or a
 different path list per workflow, which creates separate caches. Read
-`references/caching.md`.
+[references/caching.md](references/caching.md).
 
 **Docker layer cache.** Fits image builds that repeat unchanged layers. Default:
 `docker/build-push-action` with `cache-from`/`cache-to` of type `gha` and a custom
@@ -100,7 +100,7 @@ overwrite each other's cache. Read `references/caching.md`.
 documentation-only changes. Default: filter heavy jobs by changed paths, and make
 a single aggregator job with `if: always()` check every `needs.*.result`; require
 only the aggregator. Pitfall: a required check skipped by `paths:` never reports
-and the pull request hangs. Read `references/required-checks-and-path-filters.md`.
+and the pull request hangs. Read [references/required-checks-and-path-filters.md](references/required-checks-and-path-filters.md).
 
 **Concurrency.** Pull-request verification uses `cancel-in-progress: true` keyed
 by workflow and ref. Publish never cancels; where releases share one group, `queue:
@@ -109,12 +109,12 @@ one. Pitfall: leaving the single pending slot where a replaced merge's run alone
 would have released something (merges into the default branch share a group, also
 when keyed on `github.ref` for merged `pull_request` `closed` events). A workflow
 whose release tooling aggregates since the last release may keep one pending slot,
-documented. Read `references/publish-pipelines.md`.
+documented. Read [references/publish-pipelines.md](references/publish-pipelines.md).
 
 **Runner routing.** Fits queue-bound workflows. Consult the Infrastructure
 repository's GitHub runners guide for the `cratis-arc` and `cratis-arc-small`
 scale sets; do not copy its capacity numbers. Read
-`references/runner-sizing-and-images.md` when choosing hosted versus self-hosted
+[references/runner-sizing-and-images.md](references/runner-sizing-and-images.md) when choosing hosted versus self-hosted
 runners, sizing in-job parallelism or weighing fan-out against cold starts.
 
 **Publish from tested artifacts.** Fits release workflows that rebuild what the
@@ -135,7 +135,7 @@ rule states this). Pitfall: the full matrix needs an owner who reads its failure
 **Flaky and hung jobs.** Fits failure-bound workflows. Default: a
 `timeout-minutes` on every job, `--blame-hang` with a mini dump, retry only a diagnosed flake, and
 quarantine a test with an issue. Pitfall: a blanket rerun hides the defect and
-doubles minutes. Read `references/flaky-and-hung-jobs.md`.
+doubles minutes. Read [references/flaky-and-hung-jobs.md](references/flaky-and-hung-jobs.md).
 
 **Merge queue.** Fits repositories where passing pull requests break each other
 after merge. Default: add the `merge_group` trigger, and make the aggregator
@@ -153,7 +153,7 @@ errors, while the local fast loop may skip analyzers and the pre-push gate runs 
 Pitfall: dropping analyzers from the only build that consumers enforce, or leaving
 the analyzer job out of the required checks. Measure analyzer cost per rule before
 and after (binlog analyzer timings), and fix a slow analyzer at its source rather
-than switching it off. Read `references/test-setup-cost.md`.
+than switching it off. Read [references/test-setup-cost.md](references/test-setup-cost.md).
 
 **Cores per job before job count.** Fits uniformly slow jobs. Default: check `nproc`
 and the runner's resources before sharding; undersized runners make every job slow.
@@ -175,7 +175,7 @@ image; content-addressed caches before warm volumes, publish stays cold. Read
 `references/runner-sizing-and-images.md`.
 
 Speed work must not weaken supply-chain hygiene. Read
-`references/security-and-pinning.md` when a change adds or updates an action,
+[references/security-and-pinning.md](references/security-and-pinning.md) when a change adds or updates an action,
 touches `permissions:`, uses `pull_request_target`, or adds a cache.
 
 ## 4. Verify

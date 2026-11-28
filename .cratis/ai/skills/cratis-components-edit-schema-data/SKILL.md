@@ -6,6 +6,8 @@ compatibility: Requires react and @cratis/components.
 
 # Edit a schema or a document
 
+These paths are for the Library example; in other apps, put the components in the owning slices.
+
 1. Use `SchemaEditor` to change which properties exist. Put `SchemaDraft.tsx` in `Features/Schemas`, inside `CratisComponentsProvider` from `@cratis/components`. Pass the existing schema and the application's save operation.
 
 ```tsx
@@ -32,19 +34,28 @@ export function SchemaDraft({ initial, save }: { initial: JsonSchema; save: (sch
 }
 ```
 
-2. Choose `ObjectContentEditor` instead when the user edits one document's values without changing its shape. Put `AuthorDocument.tsx` in `Features/Authors`. Keep the schema fixed and set `editMode` on `ObjectContentEditor`. Treat `onValidationChange(true)` as `hasErrors`, not as validity.
+2. Choose `ObjectContentEditor` instead when the user edits one document's values without changing its shape. Put `AuthorDocument.tsx` in `Features/Authors`. Keep the authoritative schema fixed. `ObjectContentEditor` reports a missing top-level optional field as an error if that field is included in its editor schema. For a surface that edits only existing optional values, omit absent optional fields from the editor schema, not from the authoritative validator. Here `penName` is optional and a document without it can still be saved.
 
 ```tsx
 import { useState } from 'react';
 import type { Json, JsonSchema } from '@cratis/components/SchemaEditor';
 import { ObjectContentEditor } from '@cratis/components/ObjectContentEditor';
 
-export function AuthorDocument({ initial, schema, save }: { initial: Json; schema: JsonSchema; save: (doc: Json) => void }) {
-    const [author, setAuthor] = useState(initial);
+const authorSchema: JsonSchema = {
+    type: 'object', required: ['name'],
+    properties: { name: { type: 'string' }, penName: { type: 'string' } },
+};
+
+export function AuthorDocument({ validate, save }: { validate: (doc: Json, schema: JsonSchema) => boolean; save: (doc: Json) => void }) {
+    const [author, setAuthor] = useState<Json>({ name: 'Aster' });
     const [hasErrors, setHasErrors] = useState(false);
-    return <><ObjectContentEditor object={author} schema={schema} editMode
+    const editorSchema: JsonSchema = {
+        type: 'object', properties: { name: { type: 'string' } },
+    };
+    const canSave = !hasErrors && validate(author, authorSchema);
+    return <><ObjectContentEditor object={author} schema={editorSchema} editMode
         onChange={setAuthor} onValidationChange={setHasErrors} />
-        <button disabled={hasErrors} onClick={() => save(author)}>Save</button></>;
+        <button type="button" disabled={!canSave} onClick={() => save(author)}>Save</button></>;
 }
 ```
 
@@ -62,3 +73,5 @@ export function AuthorDocument({ initial, schema, save }: { initial: Json; schem
 ## Related skills
 
 - [Bind a known command field](../cratis-components-submit-form/SKILL.md)
+
+For controlled schema changes and object validation, read [controlled-editor.md](references/controlled-editor.md).

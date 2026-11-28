@@ -125,7 +125,7 @@ For each changed event, answer in the slice `documentation` or `STATE.md`:
 
 ## Identity owner
 The owning session, or an agent explicitly assigned the rename, applies identity changes with [cratis-screenplay-edit-workspace](../../cratis-screenplay-edit-workspace/SKILL.md). A subagent without MCP returns the catalog-changing request to the owner; never leave a requested change silently unapplied.
-- Several generations select ESM v4. Stage admits v4 but refuses evolved events and their dependent scope with `STAGE-ESM-026`; its runtime also refuses evolved events. Those events are gap-fill. Use [cratis-chronicle-evolve-event](../../cratis-chronicle-evolve-event/SKILL.md) for hand-written migrations.
+- Several generations select ESM v4. Stage admits v4 but refuses evolved events and their dependent scope with `STAGE-ESM-026`; its runtime also refuses evolved events. Those events are gap-fill. Use the `cratis-chronicle-evolve-event` skill (in `cratis/chronicle`) for hand-written migrations.
 
 Complete compiled example: `evolution-example.md` (generation, rename pin, meaning change).
 
