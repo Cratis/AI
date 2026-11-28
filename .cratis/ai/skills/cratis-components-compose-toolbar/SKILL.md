@@ -39,3 +39,5 @@ For a one-off check in the existing story, Tab into the toolbar and use the arro
 - [Place board items](../cratis-components-build-canvas/SKILL.md)
 
 For tools contributed outside the toolbar subtree, put contributor and consumer under the same `ToolbarSlotProvider`, publish a named `ToolbarSlot`, and set order explicitly if it matters. Unmounting withdraws the contribution. Group related tools; reserve `active` for toggles. Use a folder for a catalog: `onActivate(item)` reports the item, but the host inserts it. A cancelled drag must not insert anything or close the drawer.
+
+For a contributed command, label `ToolbarButton` with `title` and `ToolbarFanOutItem` with `tooltip`. Consume the named contribution in the layout or with `useToolbarSlot` under the same provider.

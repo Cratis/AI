@@ -49,7 +49,7 @@ Run the spec project; all three facts pass. If `should_explain_the_refusal` fail
 
 If the handler decides which author receives the event, exercise that accepted case once with the requested `id` and `"Aster"`. Check `result.ShouldBeSuccessful()` and await `scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")`.
 
-Assertions on a scenario or an event sequence return `Task`. Chronicle's analyzer reports one that is not awaited as build error `CHR0039`; without the analyzer such an assertion never fails.
+Await the event assertions that return `Task`. Chronicle’s analyzer treats an unawaited async assertion as error `CHR0039`; without it, a faulted task can go unobserved.
 
 ## Check the projected row instead
 

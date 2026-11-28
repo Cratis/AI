@@ -47,7 +47,7 @@ Cover these cases once each where they are meaningful, asserting concrete values
 
 - Register fakes in `scenario.Services` before the first event.
 - `await scenario.Given.ForEventSource(id).Events(...)` delivers the events. It does **not** build read models.
-- A reactor method that takes a read model needs it declared: `scenario.Given.ForEventSourceId(id).ReadModel(instance)` or `.NoReadModel<T>()` for a deliberate `null`. Neither declared throws `ReadModelNotSeededForReactorScenario`.
+- A reactor method that takes a read model needs it declared: `scenario.Given.ForEventSourceId(id).ReadModel(instance)` or `.NoReadModel<T>()` for a deliberate `null`. Omitting both throws `ReadModelNotSeededForReactorScenario`.
 - Assert returned events with `scenario.ShouldHaveProduced<T>(e => ...)` and `scenario.ShouldNotHaveProduced<T>()`. `ShouldHaveProduced` checks presence, not a count.
 - To prove a repeated delivery is harmless, record without delivering and deliver twice:
 
@@ -71,7 +71,7 @@ Use the fixtures from `Cratis.Chronicle.XUnit.Integration.v3` for xUnit v3 (`Cra
 - `ChronicleOutOfProcessFixture` runs the kernel in a separate container. Use it when the promise depends on the kernel being a separate process.
 - The kernel is shared across specs. Override `UsesPerContextMongoDBHost` to return `true` on an in-process fixture when a context needs its own isolated storage.
 
-Derive the context from the integration `Specification(fixture)`, override `EventTypes` and `Reactors` to name what the context registers, and capture appends around the act:
+Derive the context from the integration `Specification<TFixture>(fixture)`, override `EventTypes` and `Reactors` to name what the context registers, and capture appends around the act:
 
 ```csharp
 async Task Because()

@@ -22,7 +22,7 @@ Commit one spec per uncovered consequential rule, and add the accepted case only
 2. Act once.
 3. On refusal, assert the specific reason (the rule, member, constraint or authorization) and that nothing was appended. A refusal alone passes when the caller was unauthorized or a required read model was missing, so the rule under test may never have run.
 4. On acceptance, assert the appended event with its source and values. A returned object alone misses a write addressed to the wrong source.
-5. Await every assertion that returns a task, future or promise. An assertion that was never awaited cannot fail.
+5. Await every assertion that returns a task, future or promise. Otherwise the runner can finish before a failing assertion completes.
 6. For delivery, wait on the completion signal the SDK returns, never on a fixed sleep: a sleep cannot tell a slow observer from a failed one.
 
 The spec is done when it fails after the rule is removed and passes when the rule is restored.
