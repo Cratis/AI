@@ -1,6 +1,6 @@
 ---
 name: cratis-observability
-description: Use when an application or kernel must export traces, metrics and logs so an operation can be followed across services. Not for inspecting a Chronicle observer checkpoint (use cratis-chronicle-inspect-observer).
+description: Use when an application or kernel must export traces, metrics and logs across services or migrate a signal name without breaking dashboards and alerts. Not for inspecting a Chronicle observer checkpoint (use cratis-chronicle-inspect-observer).
 compatibility: An OpenTelemetry-compatible collector and access to the application's runtime configuration.
 ---
 
@@ -13,4 +13,4 @@ Give each logical service a stable name, configure the intended exporter and sta
 - Kernel deployment: [configure kernel export and observer alerts](references/chronicle-kernel-export.md).
 - Node, Kotlin, Java, Go and Python: no shared application setup helper is verified here. Use the host's supported OpenTelemetry SDK and an explicit exporter; do not translate .NET configuration calls.
 
-If no span arrives, [check the source, propagation and exporter](references/troubleshooting.md) before changing sampling. A root span from each process is not a connected trace. Stop if a synthetic source identifier or protected content appears where the selected redaction policy forbids it.
+If no span arrives, [check the source, propagation and exporter](references/troubleshooting.md) before changing sampling. A root span from each process is not a connected trace. When changing a signal name, follow the [rename procedure](references/troubleshooting.md#renaming-signals). Stop if a synthetic source identifier or protected content appears where the selected redaction policy forbids it.
