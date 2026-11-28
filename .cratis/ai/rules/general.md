@@ -38,6 +38,7 @@ Use Screenplay when `.cratis/ai.json` sets `mcpServers.screenplay.root`, the app
 - Verify consequential decisions, transformations and failures. Do not verify passthrough, getters or the framework itself.
 - Call the decision directly unless framework behavior such as binding, validation, authorization or projection is in question; then exercise it through the framework. Never do both for the same decision.
 - As a planning default, a behavior-neutral change needs no new case, a fix usually needs one regression case, and a small change needs one to three. Explain more than five cases or any new hosted test. These defaults never limit coverage of security, migration or replay, deterministic failure, redaction or resource limits.
+
 ## Report what actually ran
 
 State each command and its outcome. Distinguish source inspection, compilation, model acceptance and execution. Name the checks that did not run.
