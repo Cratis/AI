@@ -40,14 +40,6 @@ module Library
       event AuthorRegistered
         name String
 
-    slice StateChange RemoveAuthor
-      command RemoveAuthor
-        id AuthorId identifier
-        produces AuthorRemoved
-          for id
-
-      event AuthorRemoved
-
     slice StateView ListAuthors
       readmodel Author
         id AuthorId key
@@ -57,8 +49,6 @@ module Library
         from AuthorRegistered
           id = $eventSourceId
           name = name
-
-        remove with AuthorRemoved
 
       query AllAuthors => observable Author[]
 
@@ -74,9 +64,36 @@ module Library
 
 From the Library directory run `screenplay model` to compile the folder. Expect `PLAY0533` for a command with no invocation yet; the [Add author screen](../cratis-screenplay-model-interaction/SKILL.md) supplies the registration action. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
 
+## Optional follow-up: remove a selected author
+
+Keep removal out of the registration walkthrough. If removal is an agreed outcome, add this sibling slice under `feature Authors` after binding the Authors screen:
+
+```play
+slice StateChange RemoveAuthor
+  command RemoveAuthor
+    id AuthorId identifier
+    produces AuthorRemoved
+      for id
+
+  event AuthorRemoved
+```
+
+Under `projection AuthorProjection => Author`, add this clause at the same indentation as `from AuthorRegistered`:
+
+```play
+remove with AuthorRemoved
+```
+
+Under `screen Authors`, add the action alongside `data` and `toolbar`. It sends the selected row's ID to the command, so `AuthorRemoved` addresses the same event source as `AuthorRegistered` and removes that row.
+
+```play
+action RemoveAuthor for item
+  label "Remove author"
+  with id from item.id
+```
+
 ## When it goes off the usual path
 
-- **Removal leaves the author in the list:** check that `AuthorRemoved` addresses the same author ID as `AuthorRegistered`; `remove with AuthorRemoved` matches the event source in this projection.
 - **The source key differs from a payload ID:** use `$eventSourceId` if the row identifies that history. Use the payload ID only if it identifies the row by design. Don't duplicate the source ID in the payload just to display it.
 
 For optional values write the type followed by `optional`. The `?` spelling diagnostic `PLAY0479` is informational, so a warnings-as-errors pass alone will not detect it. Do not bulk-rewrite `query Q => observable?`; there `observable` is the result type name, not a live-query marker.

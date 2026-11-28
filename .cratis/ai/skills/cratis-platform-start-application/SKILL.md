@@ -5,11 +5,11 @@ description: Use when scaffolding a new Cratis application in .NET, Kotlin, or J
 
 # Scaffold and run a local Cratis application
 
-This is the code-first path. If the repository has `.play` files under `model/` or the user asks for Screenplay or Stage, do not scaffold with `cratis new`. [Discover the timeline](../cratis-modeling-discover-timeline/SKILL.md) and [design the event model](../cratis-modeling-design-event-model/SKILL.md) first. For Stage generation, the initial render supplies the scaffold. If those skills are missing, select `cratis/screenplay`.
+Use this code-first path when you will implement the application by hand, including when an accepted Screenplay model supplies the design. Keep the `.play` files and scaffold into a new application directory. If you don't yet have an agreed design, [discover the timeline](../cratis-modeling-discover-timeline/SKILL.md) and [design the event model](../cratis-modeling-design-event-model/SKILL.md) first. If Stage will generate the application, do not run `cratis new`; the initial render supplies the scaffold. Use the `cratis-stage-render-slice` skill (installed by the `cratis/stage` profile) instead.
 
 ## Choose the backend
 
-Use Cratis CLI 3.154.2 for the commands below. Start in an empty parent directory with Docker running and access to the package feeds. Compose-based recipes also need the Docker Compose plugin. `Library` is the example application name.
+Use Cratis CLI 3.154.2 for the commands below. Run them from the parent of the new application directory with Docker running and access to the package feeds. Compose-based recipes also need the Docker Compose plugin. The examples create a new `Library` directory.
 
 - Default: for .NET, use [C# with React](references/csharp.md). Choose its Aspire variant for app-host orchestration, or a Chronicle-only template when no Arc or React stack is needed.
 - For a Kotlin Spring Boot backend with React, use [Kotlin](references/kotlin.md).

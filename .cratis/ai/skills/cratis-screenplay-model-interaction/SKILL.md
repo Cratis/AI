@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-interaction
-description: Use when a modeler needs to bind a Screenplay form or screen to an operation, navigation destination or performer-specific action. Not for React bindings (use cratis-arc-react-bind-slice).
+description: Use when a modeler needs to bind a Screenplay form or screen to an operation, navigation destination or performer-specific action. Not for React bindings; use the `cratis-arc-react-bind-slice` skill (installed by the `cratis/arc/react` profile) for those.
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -47,7 +47,9 @@ screen Authors
 
 Keep Add as `action RegisterAuthor for screen`: it needs no selected row. The inspection gesture above passes `item.id` directly rather than making the user enter it in a form.
 
-For an action `for item`, explicit bindings win, then compatible case-sensitive field names. A required non-generated scalar identifier may use a single key of the same nominal concept. Two UUIDs are not interchangeable just because they share a primitive. Where several collections could supply the subject, narrow to one displayed table or bind explicitly. Never choose the first row to resolve ambiguity. For a dialog that returns a newly assigned identifier, use `$response.<field>` in the successful command continuation that owns it; a failed submission has no such response. Do not read an old selection as a substitute.
+For an action `for item`, explicit bindings win, then compatible case-sensitive field names. A required non-generated scalar identifier may use a single key of the same nominal concept. Two UUIDs are not interchangeable just because they share a primitive. Where several collections could supply the subject, narrow to one displayed table or bind explicitly. Never choose the first row to resolve ambiguity.
+
+If the command returns `registeredAuthorId`, pass it to the destination with `with authorId from registeredAuthorId` under the `navigate to AuthorDetails` action. Put the navigation in the form's `on submit` block. If the interaction issues the command directly with `execute <Command>`, put the navigation in its `on success` block. Use the bare returned name, not `$response.registeredAuthorId`, and check that the target renderer binds it. A failed submission has no returned value; do not read an old selection as a substitute.
 
 For conditional actions, the first matching `when` wins. An `otherwise` branch is not a way to run a row action with no row. A change handler should act on the changed item, not the previous selection. A visibility guard is never the command's authorization policy.
 
@@ -55,20 +57,25 @@ A template with typed slots describes the repeated structure: the implementing s
 
 For a decision that generates an identifier, attaches code, or compares time-sensitive inputs, [choose the command contract](references/decision-inputs.md) before you bind the form.
 
-## Gate an interaction
+## Optional variant: gate Library as a preview
 
-If Add author is a preview feature, declare this audience at the model root. Add the gate under `screen AddAuthor` and `command RegisterAuthor`. The top-level form remains ungated: `screenplay model` can report warning `PLAY1139`. Accept this warning only if the form is reachable solely from the gated screen and the caller handles a not-available command result.
-
-```play
-audience AuthorRegistrationPreview
-  description "Callers with the author registration preview"
-```
+Leave the [acceptance walkthrough](../cratis-screenplay-accept-model/SKILL.md) ungated. If the entire Library module is a preview, declare this audience at the model root:
 
 ```play
-available for AuthorRegistrationPreview
+audience LibraryPreview
+  description "Callers with the Library preview"
 ```
 
-Hide Add when the gate is closed, including when it cannot be resolved. Keep any existing command permission check; availability doesn't grant permission. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add or run the command, and that a caller inside the audience without permission is still denied.
+Add the shared gate under the existing `module Library`, alongside `form AddAuthorForm`:
+
+```play
+module Library
+  available for LibraryPreview
+```
+
+The form inherits the module gate, not a screen gate. Gating only `AddAuthor` and `RegisterAuthor` leaves the form able to invoke an unavailable command (`PLAY1139`). The module gate also covers the Authors screen, `AllAuthors`, and other screens, commands and queries in Library; it does not stop events or projections.
+
+Hide gated screens and actions when the gate is closed or unresolved. Keep any existing command permission check; availability doesn't grant permission. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add, run the command or read the list, and that a caller inside the audience without permission is still denied.
 
 If the same screen renders differently across profiles, [trace the shell and data provision](references/shell-and-data.md) before editing the component or adding a second command.
 
@@ -84,4 +91,4 @@ For an opt-in Scene web form that collects query arguments, [wire the TypeScript
 - [Model automation](../cratis-screenplay-model-automation/SKILL.md) for system-triggered work on a local fact rather than a librarian's action.
 - [Model translation](../cratis-screenplay-model-translation/SKILL.md) when an outside observation must first become a local fact.
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to define the operation inputs and results.
-- Bind the React slice (`cratis-arc-react-bind-slice` skill in `cratis/arc/react`) to implement the accepted interaction.
+- Use the `cratis-arc-react-bind-slice` skill (installed by the `cratis/arc/react` profile) to implement the accepted interaction.
