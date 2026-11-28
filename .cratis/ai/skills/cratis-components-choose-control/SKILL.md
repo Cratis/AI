@@ -39,3 +39,7 @@ Put the accessible name on the control itself, not its surrounding panel. For th
 ## Related skills
 
 - [Bind command fields](../cratis-components-submit-form/SKILL.md)
+
+For remote search, duplicate labels or removable entries, read [Collection selection](references/collections.md).
+
+For ordered navigation rather than a selection field, read [Breadcrumb navigation](references/inputs.md).

@@ -64,3 +64,5 @@ When the model decides when to submit, call `const [command] = RegisterAuthor.us
 ## Related skills
 
 - [Render a generated live query](../cratis-arc-react-bind-slice/SKILL.md)
+
+`withViewModel` already supplies observation; do not call `makeAutoObservable` a second time. Read observable values during the tracked render. Construction is not a props-change callback: respond in `handleProps`, `handleParams` or `handleQueryParams` as appropriate, and release subscriptions in `detached()`.

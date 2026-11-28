@@ -57,3 +57,5 @@ Selecting a card should open that book even when another shares its genre. Selec
 ## Related skills
 
 - [List authors in a table](../cratis-components-display-list/SKILL.md)
+
+Do not invent a controlled selection prop for PivotViewer. The viewer owns grouping and selection; use the close callback given to the detail renderer. For a host-controlled detail surface elsewhere, clear its selection when closing it.

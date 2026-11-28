@@ -44,3 +44,5 @@ describe('when lending a book in the catalog', () => {
 - `given(Context, context => ...)` from `@cratis/arc.testing` creates one context for the whole `describe`. Act once in `beforeAll` and keep each `it` read-only.
 - `EventScenario`'s `when.forEventSource(id).events(a, b)` appends one atomic batch. The C# scenario appends sequentially, so do not port a partial-failure spec between them.
 - `ReactorScenario` rejects `replay()` and `redeliver()`; a repeated-delivery spec needs a running kernel.
+
+For a plain service command, use `CommandScenario.for(Command, Validator)`, register the service instance on `scenario.services`, await `execute(values)`, assert the result and dispose the scenario. For an observable query collect a bounded number of emissions with a timeout; an unbounded subscription is not a completed test.
