@@ -20,3 +20,7 @@ repository-required checks before pushing. Never replace history for a tidier PR
 
 cratis-platform-prepare-release-pr (`cratis/engineering/core`) owns PR bodies and
 release labels.
+
+## When asked to ship
+
+An explicit ship or land request authorizes the delivery chain only as repository policy permits. A commit-only or PR-only request stops there. Review holds, release trains and explicit no-merge instructions win. A release label grants no authority: secure human confirmation or human merge for major releases where required. Before opening the PR, check its [description](references/pr-description.md) and [release label](references/pr-labels-and-release.md).

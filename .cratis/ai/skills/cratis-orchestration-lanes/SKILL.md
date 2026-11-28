@@ -128,3 +128,5 @@ reports "done" from recollection.
 - A handoff states branch, HEAD and date, and the next session compared them
   with `git` before acting.
 - No lane edited a file outside its brief's owned list.
+
+Build the backend and synchronize generated proxies before starting dependent frontend checks. Cap concurrent builds and test jobs to the machine budget.
