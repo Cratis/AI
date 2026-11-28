@@ -18,6 +18,7 @@
         "cratis/specifications/typescript"
       ],
       "availableTargets": [
+        "cratis-application-growth",
         "cratis-arc-authorize-request",
         "cratis-arc-connect-storage",
         "cratis-arc-declare-command",
@@ -48,6 +49,7 @@
         "cratis-modeling-discover-timeline",
         "cratis-modeling-review-event-model",
         "cratis-modeling-trace-existing-behavior",
+        "cratis-observability",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
         "cratis-platform-verify-service-handoff",
@@ -196,6 +198,7 @@
         "cratis-arc-diagnose-live-query",
         "cratis-arc-expose-mcp-operation",
         "cratis-arc-expose-query",
+        "cratis-arc-generate-proxies",
         "cratis-arc-host-application",
         "cratis-arc-invoke-command",
         "cratis-arc-isolate-tenant",
@@ -215,6 +218,7 @@
         "cratis-multi-service-local-orchestration",
         "cratis-observability",
         "cratis-platform-configure-environment",
+        "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
         "cratis-platform-verify-service-handoff",
         "cratis-showrunner-herald",
@@ -236,9 +240,11 @@
         "cratis-application-growth",
         "cratis-arc-authorize-request",
         "cratis-arc-connect-storage",
+        "cratis-arc-declare-command",
         "cratis-arc-declare-operation",
         "cratis-arc-expose-mcp-operation",
         "cratis-arc-expose-query",
+        "cratis-arc-generate-proxies",
         "cratis-arc-host-application",
         "cratis-arc-invoke-command",
         "cratis-arc-isolate-tenant",
@@ -284,6 +290,7 @@
         "cratis/specifications/typescript"
       ],
       "availableTargets": [
+        "cratis-application-growth",
         "cratis-arc-authorize-request",
         "cratis-arc-connect-storage",
         "cratis-arc-declare-command",
@@ -306,6 +313,8 @@
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
         "cratis-fundamentals-name-value",
+        "cratis-observability",
+        "cratis-platform-deliver-slice",
         "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
@@ -349,6 +358,7 @@
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
         "cratis-observability",
+        "cratis-platform-deliver-slice",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [
@@ -388,6 +398,8 @@
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
+        "cratis-observability",
+        "cratis-platform-deliver-slice",
         "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
@@ -428,6 +440,8 @@
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
+        "cratis-observability",
+        "cratis-platform-deliver-slice",
         "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
@@ -446,7 +460,12 @@
         "cratis/specifications/typescript"
       ],
       "availableTargets": [
+        "cratis-application-growth",
         "cratis-arc-generate-proxies",
+        "cratis-code-review",
+        "cratis-observability",
+        "cratis-performance-review",
+        "cratis-security-review",
         "cratis-specifications-observe-ui",
         "cratis-specifications-test-application-ui",
         "cratis-ux-review"
@@ -469,6 +488,7 @@
         "cratis-arc-authorize-request",
         "cratis-arc-connect-storage",
         "cratis-arc-declare-command",
+        "cratis-arc-declare-operation",
         "cratis-arc-diagnose-live-query",
         "cratis-arc-expose-query",
         "cratis-arc-generate-proxies",
@@ -490,6 +510,8 @@
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
+        "cratis-observability",
+        "cratis-platform-deliver-slice",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [
@@ -508,6 +530,7 @@
         "cratis-arc-authorize-request",
         "cratis-arc-connect-storage",
         "cratis-arc-declare-command",
+        "cratis-arc-declare-operation",
         "cratis-arc-diagnose-live-query",
         "cratis-arc-expose-query",
         "cratis-arc-generate-proxies",
@@ -516,7 +539,10 @@
         "cratis-arc-isolate-tenant",
         "cratis-arc-page-query",
         "cratis-arc-select-backend-sdk",
-        "cratis-arc-validate-command"
+        "cratis-arc-validate-command",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -546,8 +572,11 @@
         "cratis-arc-testing-kotlin",
         "cratis-arc-validate-command",
         "cratis-arc-validation-kotlin",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "java",
@@ -558,9 +587,23 @@
       "id": "cratis/arc/core",
       "composes": [],
       "availableTargets": [
+        "cratis-arc-authorize-request",
+        "cratis-arc-connect-storage",
+        "cratis-arc-declare-command",
+        "cratis-arc-declare-operation",
         "cratis-arc-diagnose-live-query",
+        "cratis-arc-expose-mcp-operation",
+        "cratis-arc-expose-query",
+        "cratis-arc-generate-proxies",
+        "cratis-arc-host-application",
+        "cratis-arc-invoke-command",
+        "cratis-arc-page-query",
+        "cratis-arc-validate-command",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -587,7 +630,10 @@
         "cratis-arc-invoke-command",
         "cratis-arc-isolate-tenant",
         "cratis-arc-page-query",
-        "cratis-arc-validate-command"
+        "cratis-arc-validate-command",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -602,7 +648,10 @@
       ],
       "availableTargets": [
         "cratis-arc-connect-storage",
-        "cratis-arc-migrate-relational-schema"
+        "cratis-arc-migrate-relational-schema",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp"
@@ -626,7 +675,10 @@
         "cratis-arc-isolate-tenant",
         "cratis-arc-page-query",
         "cratis-arc-select-backend-sdk",
-        "cratis-arc-validate-command"
+        "cratis-arc-validate-command",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "elixir"
@@ -651,7 +703,10 @@
         "cratis-arc-isolate-tenant",
         "cratis-arc-page-query",
         "cratis-arc-select-backend-sdk",
-        "cratis-arc-validate-command"
+        "cratis-arc-validate-command",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "go"
@@ -663,7 +718,11 @@
         "cratis/arc/core"
       ],
       "availableTargets": [
-        "cratis-arc-authorize-request"
+        "cratis-arc-authorize-request",
+        "cratis-arc-isolate-tenant",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -677,6 +736,11 @@
         "cratis/arc/client-kotlin",
         "cratis/language/java"
       ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
       "languages": [
         "java"
       ]
@@ -686,6 +750,11 @@
       "composes": [
         "cratis/arc/client-kotlin",
         "cratis/language/kotlin"
+      ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "kotlin"
@@ -700,6 +769,17 @@
         "cratis-arc-diagnose-live-query",
         "cratis-arc-react-bind-slice",
         "cratis-arc-react-separate-view-model",
+        "cratis-code-review",
+        "cratis-components-choose-control",
+        "cratis-components-coordinate-feedback",
+        "cratis-components-display-list",
+        "cratis-components-edit-schema-data",
+        "cratis-components-explore-data",
+        "cratis-components-submit-form",
+        "cratis-performance-review",
+        "cratis-security-review",
+        "cratis-specifications-observe-ui",
+        "cratis-specifications-test-application-ui",
         "cratis-ux-review"
       ],
       "languages": [
@@ -729,8 +809,12 @@
         "cratis-arc-testing-typescript",
         "cratis-arc-validate-command",
         "cratis-arc-validation-typescript",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-observability",
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "typescript"
@@ -741,6 +825,11 @@
       "composes": [
         "cratis/arc/server-typescript",
         "cratis/language/typescript"
+      ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "typescript"
@@ -795,8 +884,11 @@
         "cratis-chronicle-react-to-fact",
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp"
@@ -809,6 +901,7 @@
         "cratis-chronicle-connect-application",
         "cratis-chronicle-constrain-append",
         "cratis-chronicle-evolve-event",
+        "cratis-chronicle-inspect-observer",
         "cratis-chronicle-project-view",
         "cratis-chronicle-protect-decision",
         "cratis-chronicle-protect-personal-data",
@@ -817,8 +910,12 @@
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review",
+        "cratis-specifications-exercise-backend"
       ],
       "languages": [
         "elixir"
@@ -841,7 +938,10 @@
         "cratis-chronicle-react-to-fact",
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
-        "cratis-chronicle-select-client"
+        "cratis-chronicle-select-client",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "go"
@@ -851,6 +951,11 @@
       "id": "cratis/chronicle/client-java",
       "composes": [
         "cratis/chronicle/client-kotlin"
+      ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "java"
@@ -871,8 +976,11 @@
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "java",
@@ -884,8 +992,11 @@
       "composes": [],
       "availableTargets": [
         "cratis-chronicle-select-client",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "python"
@@ -906,8 +1017,12 @@
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review",
+        "cratis-specifications-exercise-backend"
       ],
       "languages": [
         "typescript"
@@ -917,6 +1032,15 @@
       "id": "cratis/chronicle/compliance",
       "composes": [
         "cratis/chronicle/core"
+      ],
+      "availableTargets": [
+        "cratis-chronicle-constrain-append",
+        "cratis-chronicle-evolve-event",
+        "cratis-chronicle-project-view",
+        "cratis-chronicle-protect-decision",
+        "cratis-chronicle-protect-personal-data",
+        "cratis-chronicle-record-event",
+        "cratis-chronicle-reduce-state"
       ],
       "languages": [
         "csharp",
@@ -928,10 +1052,17 @@
       "composes": [],
       "availableTargets": [
         "cratis-chronicle-deploy-kernel",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-event-model-diagram",
+        "cratis-modeling-design-event-model",
+        "cratis-modeling-discover-timeline",
+        "cratis-modeling-review-event-model",
+        "cratis-modeling-trace-existing-behavior",
         "cratis-multi-service-local-orchestration",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -957,6 +1088,11 @@
         "cratis/chronicle/client-elixir",
         "cratis/language/elixir"
       ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
       "languages": [
         "elixir"
       ]
@@ -966,6 +1102,11 @@
       "composes": [
         "cratis/chronicle/client-java",
         "cratis/language/java"
+      ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "java"
@@ -977,6 +1118,11 @@
         "cratis/chronicle/client-kotlin",
         "cratis/language/kotlin"
       ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
       "languages": [
         "kotlin"
       ]
@@ -986,8 +1132,11 @@
       "composes": [],
       "availableTargets": [
         "cratis-chronicle-mcp-inspection",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "language-agnostic"
@@ -996,7 +1145,11 @@
     {
       "id": "cratis/chronicle/multi-tenancy",
       "composes": [
+        "cratis/chronicle/compliance",
         "cratis/chronicle/core"
+      ],
+      "availableTargets": [
+        "cratis-chronicle-connect-application"
       ],
       "languages": [
         "csharp",
@@ -1008,6 +1161,11 @@
       "composes": [
         "cratis/chronicle/client-typescript",
         "cratis/language/typescript"
+      ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "typescript"
@@ -1030,9 +1188,12 @@
       "composes": [],
       "availableTargets": [
         "cratis-chronicle-cli-operations",
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-environments-and-secrets",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "shell"
@@ -1044,7 +1205,10 @@
         "cratis/cli"
       ],
       "availableTargets": [
-        "cratis-cli-terminal-workbench"
+        "cratis-cli-terminal-workbench",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "shell"
@@ -1054,8 +1218,11 @@
       "id": "cratis/codescene",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
         "cratis-rtk",
+        "cratis-security-review",
         "guiding-refactoring-with-code-health",
         "prioritizing-technical-debt",
         "risk-based-testing-with-code-health",
@@ -1069,8 +1236,11 @@
       "id": "cratis/playwright",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "language-agnostic"
@@ -1080,6 +1250,7 @@
       "id": "cratis/components",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-components-accessibility",
         "cratis-components-build-canvas",
@@ -1092,7 +1263,9 @@
         "cratis-components-host-chat",
         "cratis-components-submit-form",
         "cratis-components-theme-application",
+        "cratis-performance-review",
         "cratis-rtk",
+        "cratis-security-review",
         "cratis-specifications-observe-ui",
         "cratis-specifications-test-application-ui",
         "cratis-ux-review"
@@ -1106,12 +1279,15 @@
       "id": "cratis/content",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
         "cratis-rtk",
         "cratis-content-length",
         "cratis-developer-marketing",
         "cratis-discoverability",
         "cratis-release-notes",
+        "cratis-security-review",
         "cratis-social-feed-post",
         "cratis-technical-examples",
         "cratis-writing-voice-and-cadence"
@@ -1125,13 +1301,16 @@
       "id": "cratis/documentation",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-discoverability",
         "cratis-documentation-writing",
         "cratis-engineering-docs-authoring",
         "cratis-llm-friendly-documentation",
+        "cratis-performance-review",
         "cratis-release-notes",
         "cratis-rtk",
+        "cratis-security-review",
         "cratis-technical-examples",
         "cratis-writing-voice-and-cadence"
       ],
@@ -1258,10 +1437,13 @@
       "id": "cratis/fundamentals",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-fundamentals-name-value",
         "cratis-fundamentals-telemetry",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp"
@@ -1273,7 +1455,10 @@
         "cratis/language/go"
       ],
       "availableTargets": [
-        "cratis-fundamentals-concept-go"
+        "cratis-code-review",
+        "cratis-fundamentals-concept-go",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "go"
@@ -1285,7 +1470,10 @@
         "cratis/fundamentals"
       ],
       "availableTargets": [
-        "cratis-fundamentals-type-discovery"
+        "cratis-code-review",
+        "cratis-fundamentals-type-discovery",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp"
@@ -1295,8 +1483,11 @@
       "id": "cratis/language/csharp",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp"
@@ -1306,8 +1497,11 @@
       "id": "cratis/language/elixir",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "elixir"
@@ -1317,8 +1511,11 @@
       "id": "cratis/language/go",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "go"
@@ -1328,8 +1525,11 @@
       "id": "cratis/language/java",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "java"
@@ -1339,8 +1539,11 @@
       "id": "cratis/language/kotlin",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "kotlin"
@@ -1350,8 +1553,11 @@
       "id": "cratis/language/typescript",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "typescript"
@@ -1361,9 +1567,12 @@
       "id": "cratis/lens",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
         "cratis-rtk",
-        "cratis-lens-browser-extension"
+        "cratis-lens-browser-extension",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -1375,10 +1584,13 @@
       "id": "cratis/methodology/governed-releases",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
         "cratis-platform-prepare-release-pr",
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
-        "cratis-governed-release-methodology"
+        "cratis-governed-release-methodology",
+        "cratis-security-review"
       ],
       "languages": []
     },
@@ -1420,15 +1632,18 @@
       "id": "cratis/screenplay",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-event-model-diagram",
         "cratis-modeling-design-event-model",
         "cratis-modeling-discover-timeline",
         "cratis-modeling-review-event-model",
         "cratis-modeling-trace-existing-behavior",
+        "cratis-performance-review",
         "cratis-rtk",
         "cratis-screenplay-accept-model",
         "cratis-screenplay-authentication-and-onboarding",
+        "cratis-screenplay-author-extension",
         "cratis-screenplay-availability",
         "cratis-screenplay-declare-slice",
         "cratis-screenplay-edit-workspace",
@@ -1439,7 +1654,8 @@
         "cratis-screenplay-onboard-workspace",
         "cratis-screenplay-recover-intent",
         "cratis-screenplay-specify-outcome",
-        "cratis-screenplay-streams-and-consistency"
+        "cratis-screenplay-streams-and-consistency",
+        "cratis-security-review"
       ],
       "languages": [
         "language-agnostic"
@@ -1449,8 +1665,11 @@
       "id": "cratis/specifications",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
-        "cratis-rtk"
+        "cratis-performance-review",
+        "cratis-rtk",
+        "cratis-security-review"
       ],
       "languages": [
         "language-agnostic"
@@ -1463,6 +1682,7 @@
       ],
       "availableTargets": [
         "coverage-analysis",
+        "cratis-specifications-exercise-backend",
         "cratis-specifications-isolate-behavior",
         "filter-syntax",
         "platform-detection",
@@ -1489,8 +1709,12 @@
       "id": "cratis/stage",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-onboarding-runtime",
+        "cratis-performance-review",
         "cratis-rtk",
+        "cratis-security-review",
         "cratis-stage-render-slice",
         "cratis-stage-run-sandbox"
       ],
@@ -1502,8 +1726,11 @@
       "id": "cratis/studio",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
         "cratis-rtk",
+        "cratis-security-review",
         "cratis-studio-mcp-safety-guidance"
       ],
       "languages": [
@@ -1542,6 +1769,7 @@
         "cratis-chronicle-react-to-fact",
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
+        "cratis-code-review",
         "cratis-components-build-canvas",
         "cratis-components-choose-control",
         "cratis-components-compose-toolbar",
@@ -1557,6 +1785,7 @@
         "cratis-modeling-discover-timeline",
         "cratis-modeling-review-event-model",
         "cratis-modeling-trace-existing-behavior",
+        "cratis-performance-review",
         "cratis-platform-configure-environment",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
@@ -1573,6 +1802,7 @@
         "cratis-screenplay-onboard-workspace",
         "cratis-screenplay-recover-intent",
         "cratis-screenplay-specify-outcome",
+        "cratis-security-review",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-isolate-behavior",
         "cratis-specifications-observe-ui",
@@ -1610,6 +1840,8 @@
       "id": "cratis/engineering/core",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
         "cratis-platform-contribute-change",
         "cratis-platform-prepare-release-pr",
         "cratis-commits-and-pull-requests",
@@ -1630,6 +1862,7 @@
         "cratis-engineering-release-trains",
         "cratis-engineering-review-rounds",
         "cratis-release-notes",
+        "cratis-security-review",
         "cratis-session-handoff",
         "cratis-technical-examples"
       ],
@@ -1644,7 +1877,10 @@
         "cratis/engineering/dotnet"
       ],
       "availableTargets": [
-        "cratis-engineering-csharp-conventions"
+        "cratis-engineering-csharp-conventions",
+        "cratis-fundamentals-name-value",
+        "cratis-fundamentals-type-discovery",
+        "cratis-observability"
       ],
       "languages": [
         "csharp"
@@ -1660,6 +1896,11 @@
         "cratis/engineering/dotnet/testing",
         "cratis/engineering/dotnet/refactoring"
       ],
+      "availableTargets": [
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
+      ],
       "languages": [
         "csharp"
       ]
@@ -1668,8 +1909,12 @@
       "id": "cratis/engineering/dotnet/performance",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "microbenchmarking",
         "analyzing-dotnet-performance",
         "vectorization",
@@ -1683,8 +1928,12 @@
       "id": "cratis/engineering/dotnet/diagnostics",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "dotnet-trace-collect",
         "dump-collect",
         "pvanalyze"
@@ -1697,8 +1946,12 @@
       "id": "cratis/engineering/dotnet/msbuild",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "msbuild",
         "directory-build-organization",
         "eliminate-redundant-restores",
@@ -1716,9 +1969,13 @@
       "id": "cratis/engineering/dotnet/orleans",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
         "cratis-orleans-jobs",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "orleans"
       ],
       "languages": [
@@ -1729,8 +1986,12 @@
       "id": "cratis/engineering/dotnet/testing",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "platform-detection",
         "run-tests",
         "filter-syntax",
@@ -1745,8 +2006,12 @@
       "id": "cratis/engineering/dotnet/migrate-dotnet11",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "migrate-dotnet10-to-dotnet11"
       ],
       "languages": [
@@ -1757,8 +2022,12 @@
       "id": "cratis/engineering/dotnet/refactoring",
       "composes": [],
       "availableTargets": [
+        "cratis-code-review",
         "cratis-commits-and-pull-requests",
+        "cratis-performance-review",
+        "cratis-platform-prepare-release-pr",
         "cratis-rtk",
+        "cratis-security-review",
         "csharp-refactoring",
         "dotnet-aot-compat"
       ],
@@ -1809,6 +2078,7 @@
         "cratis/engineering/core"
       ],
       "availableTargets": [
+        "cratis-fundamentals-name-value",
         "cratis-specifications-test-typescript-behavior"
       ],
       "languages": [

@@ -24,29 +24,29 @@ interface CatalogProfile extends Profile { description?: string; featured?: bool
 const catalog = readJson<Record<'publicProfiles' | 'engineeringProfiles', CatalogProfile[]>>(join(root, '.cratis/ai/profile-catalog.json'));
 const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
 const manifest = readJson<{ profiles: string[]; languages: string[] }>(join(root, '.cratis/ai/manifest.json'));
-// 88b9b9af1 + the walkthrough.
+// Approved profile composition and language applicability.
 const graph = (['publicProfiles', 'engineeringProfiles'] as const).flatMap(section => catalog[section].map(p =>
     [section, p.id, sorted(p.composes ?? []), sorted(p.languages ?? [])] as const)).sort((a, b) => a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0);
 const ids = graph.map(row => row[1]);
 // Approved direct target hashes in profile-ID order.
 const targets = `
-efd6e8b20d 3424fc5c5b 996c0dc754 367c34a4b6 cebf4a7593 59bacc7ee5 15f7e15351 a5775ff45f
-a5775ff45f a716d1b5a4 f339643561 8f6f16be90 8504cc7fa3 88970eef00 dbf8545981 1db6707330
-8f6f16be90 0aa9e41e1b 2f1722b9ff - - 281c886cc8 6e66dd670c -
-3ca074c722 36aa92822d ce00067af7 3ca074c722 - ce00067af7 1bc7624553 ce00067af7
-- 843bd455c1 - - - - ff6866b8a7 -
-- efa0b818ea 7add883f54 4996440368 226f14578d 030aaaac72 31ff53d01f d0cd44ed70
-- 62b90a5763 4ebb42c901 - b68d53f554 db69f1593e 9dd86f9426 f5104113db
-d1d52a9549 ad1566413e 4eb24ff137 - - - - 172829aaee
-efd6e8b20d - - - - - 9179c19ac8 f013db4081
-6df07480cb 73ae16e0e5 73ae16e0e5 73ae16e0e5 73ae16e0e5 73ae16e0e5 73ae16e0e5 a3e6036337
-7cdba1bf33 26e63b3b48 a1e001f8a6 73ae16e0e5 01802ed9b3 133627f836 73ae16e0e5 c22d70c043
-172829aaee 09365dfbaf d9406ea53f 164273a28c
+efd6e8b20d caf43b025b 3c4996515f 6938a683aa cebf4a7593 09f51c2aec edf833f608 9a01d2647c
+9a01d2647c 87a4d4e7ab 79fc527a6f 43d2db935f 61ccb20157 301bea73c6 5bac36aa65 518a840887
+742cf55e6f 43d2db935f 5f82dc618c 5b2e1b69e3 5b2e1b69e3 015420d5d2 832ba866ca 5b2e1b69e3
+3ca074c722 ba6e0a1c00 840e0037c9 2eb64bd7ef 5b2e1b69e3 62c78c80fb b1ab20392b 94c314d2f8
+759d051ebf ae41268393 - 5b2e1b69e3 5b2e1b69e3 5b2e1b69e3 f350625213 8ebd2d4c89
+5b2e1b69e3 efa0b818ea 634d235944 27afc1e67d fbe77a29a5 28ff2d6afe 72a302477f c2c5bed659
+- 5fdd0c177f c104619d9c 5b2e1b69e3 9ef74c5749 fbea753318 eb1cd9be95 dc8fbd0866
+aaee798853 3ed21a8b13 29fc5dbb66 - - - - 5184982126
+efd6e8b20d - - - - - 9e49550745 cdec94282c
+e80c8ab9fd 01802ed9b3 01802ed9b3 01802ed9b3 01802ed9b3 01802ed9b3 01802ed9b3 d251031288
+46c86ba34b 26e63b3b48 a1e001f8a6 01802ed9b3 01802ed9b3 37d9fcdb78 01802ed9b3 7ca7b4ae3e
+172829aaee 7883182b2c b700fb255c bf6952cb17
 `.trim().split(/\s+/);
 
 
 test('catalog and offered targets match the approved plan', () => {
-    assert.equal(digest(graph), '49016163ecc23325b0e11062c2279c4501b1129dd6d58e40ef33e1ae02b9e1d6');
+    assert.equal(digest(graph), 'a042bd81ba97534a79952615c1aa5ce6264d2f08608bafc235aa11e0d6c742ff');
     assert.deepEqual(sorted(manifest.profiles), ids);
     assert.equal(digest(sorted(manifest.languages)), '8b7c9f51bc65717ce60954b08ec7bf1314304b48bffa80d61fcde905fbb4b0de');
     assert.deepEqual(ids.filter((id, i) => {
@@ -56,27 +56,67 @@ test('catalog and offered targets match the approved plan', () => {
     assert.deepEqual(profiles.filter(p => p.featured || (p.id !== 'cratis/v2/application' && p.description !== undefined)).map(p => p.id), []);
 });
 
-const languages = ['csharp', 'typescript', 'kotlin', 'java', 'go', 'elixir', 'python'];
+const languages = ['csharp', 'typescript', 'kotlin', 'java', 'go', 'elixir', 'python', 'react', 'language-agnostic'];
 const app = 'cratis/application';
 const eng = 'cratis/engineering';
 const governedReleases = 'cratis/methodology/governed-releases';
 const release = ['governed-release-methodology', 'platform-prepare-release-pr'];
 const core = ['arc-declare-command', 'chronicle-record-event', 'specifications-exercise-backend'];
+const reviewers = ['code-reviewer', 'performance-reviewer', 'security-reviewer'];
+const reviewSkills = ['code-review', 'performance-review', 'security-review'];
+const arcCore = ['arc-declare-command', 'arc-declare-operation', 'arc-expose-mcp-operation', 'arc-generate-proxies'];
+const scenario = 'specifications-exercise-backend';
 const startup = 'platform-start-application';
 const startupRoots = new Set([app, 'cratis', 'cratis/full']);
 const startupLanguages = new Set(['csharp', 'java', 'kotlin', 'react', 'typescript']);
-const restoredCapabilities: { profile: string; language: string; skills: string[] }[] = [
-    ...['java', 'kotlin'].map(language => ({ profile: `${app}/${language}`, language, skills: [startup] })),
-    { profile: 'cratis/arc/identity', language: 'csharp', skills: ['arc-authorize-request'] },
-    { profile: 'cratis/chronicle/core', language: 'go', skills: ['event-model-diagram', 'multi-service-local-orchestration'] },
-    { profile: 'cratis/application/elixir', language: 'elixir', skills: ['observability'] },
+const restoredCapabilities: { profile: string; language: string; skills: string[]; references?: string[] }[] = [
+    ...['java', 'kotlin'].map(language => ({ profile: `${app}/${language}`, language, skills: [startup, 'observability', 'platform-deliver-slice'] })),
+    ...['typescript', 'react'].map(language => ({ profile: `${app}/react`, language, skills: ['observability', 'application-growth'] })),
+    ...['csharp', 'typescript', 'react', 'java', 'kotlin', 'elixir'].map(language => ({ profile: 'cratis/full', language, skills: ['observability'] })),
+    { profile: app, language: '', skills: ['observability', 'application-growth'] },
+    { profile: app, language: 'typescript', skills: ['arc-declare-operation', 'observability'], references: ['arc-declare-operation/typescript.md'] },
+    { profile: eng, language: 'csharp', skills: reviewSkills },
+    { profile: `${app}/csharp`, language: 'csharp', skills: ['application-growth', 'observability', 'platform-deliver-slice'] },
+    { profile: `${app}/elixir`, language: 'elixir', skills: ['observability', 'platform-deliver-slice'] },
+    { profile: `${app}/typescript`, language: 'typescript', skills: ['arc-declare-operation', 'observability', 'platform-deliver-slice'] },
+    { profile: 'cratis/arc', language: 'typescript', skills: ['arc-declare-operation'], references: ['arc-declare-operation/typescript.md'] },
+    ...['core', 'ef-core', 'identity'].map(name => ({ profile: `cratis/arc/${name}`, language: 'csharp', skills: arcCore })),
+    { profile: 'cratis/arc/identity', language: 'csharp', skills: ['arc-authorize-request', 'arc-isolate-tenant'] },
+    { profile: 'cratis/arc/server-typescript', language: 'typescript', skills: ['observability'] },
+    ...['react', 'typescript'].map(language => ({
+        profile: 'cratis/arc/react', language,
+        skills: ['components-display-list', 'components-submit-form', 'specifications-observe-ui', 'specifications-test-application-ui'],
+    })),
+    ...['application/arc-only', 'application/arc-chronicle'].map(name => ({
+        profile: `cratis/${name}`, language: 'csharp', skills: arcCore,
+        references: ['arc-declare-command/csharp.md', 'arc-generate-proxies/csharp.md'],
+    })),
+    ...['specifications/dotnet', 'application/chronicle-dotnet', 'application/react', 'arc/csharp', 'chronicle/csharp'].map(name => ({
+        profile: `cratis/${name}`, language: 'csharp', skills: [scenario], references: [`${scenario}/csharp.md`],
+    })),
+    ...['elixir', 'typescript'].map(language => ({
+        profile: `cratis/chronicle/client-${language}`, language, skills: [scenario], references: [`${scenario}/${language}.md`],
+    })),
+    { profile: 'cratis/chronicle/client-elixir', language: 'elixir', skills: ['chronicle-inspect-observer'], references: ['chronicle-inspect-observer/elixir.md'] },
+    {
+        profile: 'cratis/chronicle/core', language: 'go',
+        skills: ['event-model-diagram', 'multi-service-local-orchestration', 'modeling-design-event-model', 'modeling-discover-timeline',
+            'modeling-review-event-model', 'modeling-trace-existing-behavior'],
+    },
+    ...['csharp', 'language-agnostic'].map(language => ({ profile: 'cratis/chronicle/compliance', language, skills: ['chronicle-protect-personal-data'] })),
+    { profile: 'cratis/chronicle/multi-tenancy', language: 'csharp', skills: ['chronicle-connect-application'] },
+    { profile: `${eng}/csharp`, language: 'csharp', skills: ['fundamentals-name-value', 'fundamentals-type-discovery', 'observability'] },
+    { profile: `${eng}/typescript`, language: 'typescript', skills: ['fundamentals-name-value'] },
+    ...['msbuild', 'performance'].map(name => ({ profile: `${eng}/dotnet/${name}`, language: 'csharp', skills: ['platform-prepare-release-pr'] })),
+    { profile: 'cratis/screenplay', language: '', skills: ['screenplay-author-extension'] },
+    { profile: 'cratis/stage', language: '', skills: ['onboarding-runtime'] },
 ];
 const byId = new Map(profiles.map(p => [p.id, p]));
 
 // v1 keeps explicit profile targets even when their language does not match. The opt-in v2 walkthrough
 // likewise keeps its mixed-stack payload. These skills are not Go recipes and must not leak into other Go roots.
 const goSpecialists = new Map([
-    ['arc-expose-mcp-operation', ['cratis/application/arc-chronicle', 'cratis/application/arc-only', 'cratis/v2/application']],
+    ['arc-expose-mcp-operation', ['cratis/application/arc-chronicle', 'cratis/application/arc-only', 'cratis/arc/core', 'cratis/v2/application']],
     ['arc-migrate-relational-schema', ['cratis/arc/ef-core', 'cratis/v2/application']],
     ['arc-react-bind-slice', ['cratis/arc/react', 'cratis/v2/application']],
 ]);
@@ -95,10 +135,10 @@ function purpose({ profiles, languages }: Selection, installed: string[]): strin
         : profile === `${app}/csharp` ? [...core, startup] : /^cratis\/arc(?:\/(?:csharp|go))?$/.test(profile) ? core.slice(0, 1)
         : profile === 'cratis/chronicle' ? core.slice(1, 2) : [];
     const has = (name: string) => installed.includes(`cratis-${name}`);
-    const restored = restoredCapabilities.filter(({ profile, language }) => profiles.includes(profile) && languages.includes(language));
-    const supportsStartup = languages.some(language => startupLanguages.has(language));
+    const restored = restoredCapabilities.filter(({ profile, language }) => profiles.includes(profile) && languages.join() === language);
+    const supportsStartup = !languages.length || languages.some(language => startupLanguages.has(language));
     return [
-        ...[...expected, ...restored.flatMap(({ skills }) => skills)].filter(name => !has(name)).map(name => `missing ${name}`),
+        ...[...expected, ...reviewSkills, ...restored.flatMap(({ skills }) => skills)].filter(name => !has(name)).map(name => `missing ${name}`),
         ...(profile === eng ? [...core, 'platform-deliver-slice', startup].filter(has).map(name => `unexpected ${name}`) : []),
         ...(startupRoots.has(profile) && has(startup) !== supportsStartup ? [`${supportsStartup ? 'missing' : 'unexpected'} ${startup}`] : []),
         ...(languages.join() === 'go' ? goSpecialistProblems(profiles, has) : []),
@@ -115,8 +155,8 @@ test('explicit roots resolve per language', () => {
     const cwd = scratch('closures');
     try {
         mkdirSync(join(cwd, '.cratis'));
-        const failures = profiles.flatMap(({ id }) => languages.flatMap(language => {
-            const selection = { profiles: [id], languages: [language] };
+        const failures = profiles.flatMap(({ id }) => ['', ...languages].flatMap(language => {
+            const selection = { profiles: [id], languages: language ? [language] : [] };
             writeFileSync(join(cwd, '.cratis/ai.json'), JSON.stringify(selection));
             const expected = skillClosure(byId, selection, 'pi');
             const problems = purpose(selection, expected);
@@ -132,7 +172,9 @@ test('explicit roots resolve per language', () => {
 
 const matrix: Selection[] = [
     ...[app, eng].flatMap(profile => languages.map(language => ({ profiles: [profile], languages: [language] }))),
-    ...restoredCapabilities.map(({ profile, language }) => ({ profiles: [profile], languages: [language] })),
+    ...restoredCapabilities.filter(({ profile, language }, i) =>
+        restoredCapabilities.findIndex(entry => entry.profile === profile && entry.language === language) === i)
+        .map(({ profile, language }) => ({ profiles: [profile], languages: language ? [language] : [] })),
     { profiles: [governedReleases], languages: ['go'] },
     ...`arc/server-typescript,arc/react typescript
 application java,kotlin
@@ -205,12 +247,14 @@ test('CLI listings expose all choices', offline, () => {
     assert.deepEqual(listings, [ids, ids, ids]);
 });
 
-for (const selection of matrix) {
+const labeledMatrix = new Map(matrix.map(selection =>
+    [[...selection.profiles, ...selection.languages].join('+').replaceAll('/', '-'), selection] as const));
+for (const [label, selection] of labeledMatrix) {
     const { profiles, languages } = selection;
-    const label = [...profiles, ...languages].join('+').replaceAll('/', '-');
     test(`offline install: ${label}`, offline, () => {
         const cwd = mkdtempSync(join(evidence!, `${label}-`));
-        const output = invoke(['install', '--yes', '--output', 'json', '--profiles', profiles.join(), '--languages', languages.join(), '--harnesses', 'pi'], cwd);
+        const languageOptions = languages.length ? ['--languages', languages.join()] : [];
+        const output = invoke(['install', '--yes', '--output', 'json', '--profiles', profiles.join(), ...languageOptions, '--harnesses', 'pi'], cwd);
         writeFileSync(join(cwd, 'install-output.json'), output);
         const base = join(cwd, '.cratis/ai');
         const files = new Map(readdirSync(join(base, 'skills'), { recursive: true, withFileTypes: true }).filter(e => e.isFile()).map(e => {
@@ -222,6 +266,17 @@ for (const selection of matrix) {
         const names = sorted([...files.keys()].filter(path => /^skills\/[^/]+\/SKILL\.md$/.test(path)).map(path => path.split('/')[1]));
         assert.deepEqual(names, skillClosure(byId, selection, 'cli'));
         assert.deepEqual(purpose(selection, names), []);
+        const references = restoredCapabilities.filter(({ profile, language }) => profiles.includes(profile) && languages.join() === language)
+            .flatMap(({ references }) => references ?? []);
+        for (const reference of references) {
+            const [skill, file] = reference.split('/');
+            assert.ok(files.has(`skills/cratis-${skill}/references/${file}`), `missing ${reference}`);
+        }
+        const installedPaths = new Set(installed.Files.map(file => file.Destination));
+        assert.deepEqual(reviewers.filter(agent => !installedPaths.has(`agents/${agent}.md`)), []);
+        if (restoredCapabilities.some(entry => profiles.includes(entry.profile) && languages.join() === entry.language && entry.skills.includes('platform-deliver-slice'))) {
+            assert.ok(installedPaths.has('agents/slice-implementer.md'));
+        }
         if (profiles[0] === 'cratis' || profiles[0] === governedReleases) {
             // v1 excludes this composed, empty-language profile under a language filter but honors an explicit root.
             for (const name of release) assert.equal(names.includes(`cratis-${name}`), profiles[0] === governedReleases);
