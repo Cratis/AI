@@ -65,15 +65,33 @@ const core = ['arc-declare-command', 'chronicle-record-event', 'specifications-e
 const entry = ['platform-start-application', 'platform-deliver-slice'];
 const byId = new Map(profiles.map(p => [p.id, p]));
 
-function purpose({ profiles: [profile], languages }: Selection, installed: string[]): string[] {
+// v1 keeps explicit profile targets even when their language does not match. The opt-in v2 walkthrough
+// likewise keeps its mixed-stack payload. These skills are not Go recipes and must not leak into other Go roots.
+const goSpecialists = new Map([
+    ['arc-expose-mcp-operation', ['cratis/application/arc-chronicle', 'cratis/application/arc-only', 'cratis/v2/application']],
+    ['arc-migrate-relational-schema', ['cratis/arc/ef-core', 'cratis/v2/application']],
+    ['arc-react-bind-slice', ['cratis/arc/react', 'cratis/v2/application']],
+]);
+
+function goSpecialistProblems(profiles: string[], has: (name: string) => boolean): string[] {
+    return [...goSpecialists].flatMap(([skill, roots]) => {
+        if (roots.some(root => profiles.includes(root))) return has(skill) ? [] : [`missing ${skill}`];
+        return has(skill) ? [`unexpected ${skill}`] : [];
+    });
+}
+
+function purpose({ profiles, languages }: Selection, installed: string[]): string[] {
+    const [profile] = profiles;
     const expected = profile === app || profile === 'cratis' || profile === 'cratis/full' ? [...core, ...entry]
         : profile === eng ? ['commits-and-pull-requests', 'platform-prepare-release-pr']
         : profile === `${app}/csharp` ? core : /^cratis\/arc(?:\/(?:csharp|go))?$/.test(profile) ? core.slice(0, 1)
         : profile === 'cratis/chronicle' ? core.slice(1, 2) : [];
-    const forbidden = profile === eng ? [...core, ...entry] : languages.join() === 'go'
-        ? ['arc-expose-mcp-operation', 'arc-react-bind-slice', 'arc-migrate-relational-schema'] : [];
     const has = (name: string) => installed.includes(`cratis-${name}`);
-    return [...expected.filter(name => !has(name)).map(name => `missing ${name}`), ...forbidden.filter(has).map(name => `unexpected ${name}`)];
+    return [
+        ...expected.filter(name => !has(name)).map(name => `missing ${name}`),
+        ...(profile === eng ? [...core, ...entry].filter(has).map(name => `unexpected ${name}`) : []),
+        ...(languages.join() === 'go' ? goSpecialistProblems(profiles, has) : []),
+    ];
 }
 
 const scratch = (label: string) => {
