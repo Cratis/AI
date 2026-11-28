@@ -5,6 +5,9 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { installedLinkProblems, referenceLinkProblems } from './installed-links.ts';
+import { packageProblems, retiredSkills, sharedSkills } from './corpus-shape.ts';
+import { nativeRouteProblems } from './native-routes.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { pluginManifestPath, pluginManifestProblems } from './plugin-manifest.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
@@ -129,7 +132,13 @@ function skillIdentityProblems(skill: Skill): string[] {
 async function referenceProblems(skill: Skill): Promise<string[]> {
     const references = skill.files.filter(path => path !== skill.file && path.endsWith('.md'));
     const within = (path: string) => relative(skill.directory, path).replaceAll('\\', '/');
-    const problems = skillReferenceProblems(skill.shown, skillBody(skill.content), references.map(within));
+    const body = skillBody(skill.content);
+    const assets = skill.files.map(within);
+    const problems = [
+        ...skillReferenceProblems(skill.shown, body, references.map(within)),
+        ...referenceLinkProblems(skill.shown, body, assets),
+        ...(sharedSkills.includes(skill.name) ? nativeRouteProblems(skill.shown, body, assets) : []),
+    ];
     for (const reference of references) {
         const document = { shown: relative(skill.root, reference), directory: dirname(reference), content: await readFile(reference, 'utf8') };
         problems.push(...referenceContentsProblems(document.shown, document.content), ...linkProblems(document));
@@ -255,6 +264,8 @@ async function ruleProblems(corpus: Corpus): Promise<string[]> {
     const names = (await readdir(join(corpus.directory, 'rules')).catch(() => [])).filter(name => name.endsWith('.md')).sort();
     const rules = await Promise.all(names.map(async name => ({ path: `${corpusDirectory}/rules/${name}`, content: await readFile(join(corpus.directory, 'rules', name), 'utf8') })));
     const missing = names.includes('general.md') ? [] : [`${corpusDirectory}/rules/general.md is missing.`];
+    const general = rules.find(rule => rule.path.endsWith('/general.md'));
+    if (general && Buffer.byteLength(general.content) > 4300) missing.push(`${general.path} exceeds 4,300 UTF-8 bytes.`);
     return [...missing, ...danglingSkillReferences(rules, corpus.skills)];
 }
 
@@ -262,6 +273,14 @@ async function serverProblems(corpus: ResolvedCorpus): Promise<string[]> {
     const problems: string[] = [];
     const servers = await readJson<unknown>(corpus, `${corpusDirectory}/mcp-servers.json`, problems);
     return servers === undefined ? problems : [...problems, ...validateMcpServers(servers, new Set(corpus.profiles))];
+}
+
+async function packagedSkillProblems(directory: string): Promise<string[]> {
+    const paths = await filesUnder(join(directory, 'skills')).catch(() => []);
+    const installed = new Map(await Promise.all(paths.filter(path => !path.endsWith('/verification.json') && !path.includes('/evals/')).map(async path => [
+        relative(directory, path).replaceAll('\\', '/'), path.endsWith('.md') ? await readFile(path, 'utf8') : '',
+    ] as const)));
+    return [...packageProblems(installed, retiredSkills), ...installedLinkProblems(installed)];
 }
 
 /** The one static check of the shipped corpus at `.cratis/ai`: no model, no network, no generated state. */
@@ -274,6 +293,7 @@ export async function verifyCorpus(root: string): Promise<CorpusReport> {
     if (source.skills.length === 0) failures.push(`${corpusDirectory}/skills contains no skills.`);
     const corpus: ResolvedCorpus = { ...source, profiles: await profileIds(source, failures) };
     for (const name of corpus.skills) failures.push(...await skillProblems(corpus, name));
+    failures.push(...await packagedSkillProblems(directory));
     failures.push(...await ruleProblems(corpus), ...await serverProblems(corpus));
     failures.push(...await pluginProblems(corpus), ...await authoringInputProblems(corpus), ...await installFixtureProblems(corpus));
     return { failures, skills: corpus.skills.length, profiles: corpus.profiles.length };

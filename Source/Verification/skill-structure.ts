@@ -36,7 +36,7 @@ export function skillBody(content: string): string {
 }
 
 /** Parsed frontmatter mapping, or undefined when absent, malformed (reported by the frontmatter validator) or not a mapping. */
-function frontmatterFields({ content }: SkillFrontmatterSource): Record<string, unknown> | undefined {
+export function frontmatterFields({ content }: { content: string }): Record<string, unknown> | undefined {
     const lines = linesOf(content);
     const closing = lines.findIndex((line, index) => index > 0 && line.text === '---');
     if (lines[0].text !== '---' || closing <= 0) return undefined;
@@ -102,18 +102,40 @@ export function skillReferenceProblems(subject: string, body: string, paths: str
         `${subject} must directly reference '${path}'; that file is only reachable through another file, or not at all.`);
 }
 
-interface Fence { character: string; length: number }
+interface Fence { character: string; length: number; tag: string }
 
 function fenceOpening({ text }: { text: string }): Fence | undefined {
     const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(text);
     if (!opening) return undefined;
     if (opening[1][0] === '`' && opening[2].includes('`')) return undefined;
-    return { character: opening[1][0], length: opening[1].length };
+    return { character: opening[1][0], length: opening[1].length, tag: opening[2].trim().split(/\s+/)[0].toLowerCase() };
 }
 
 function closesFence({ text }: { text: string }, fence: Fence): boolean {
     const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(text);
     return closing !== null && closing[1][0] === fence.character && closing[1].length >= fence.length;
+}
+
+export function markdownBlocks(content: string) {
+    const prose: string[] = [];
+    const code: Array<{ tag: string; lines: string[] }> = [];
+    let fence: Fence | undefined;
+    for (const line of linesOf(content)) {
+        if (fence && closesFence(line, fence)) { fence = undefined; continue; }
+        if (fence?.tag) code.at(-1)!.lines.push(line.text);
+        if (fence) continue;
+        fence = fenceOpening(line);
+        if (fence?.tag) code.push({ tag: fence.tag, lines: [] });
+        if (!fence) prose.push(line.text);
+    }
+    return { prose, code };
+}
+
+export function markdownLinkDestinations(content: string): string[] {
+    return markdownBlocks(content).prose.flatMap(line => {
+        const prose = line.replace(/(`+)[^`\n]*?\1/g, '');
+        return [...prose.matchAll(/\[[^\]\n]*\]\(<?([^\s)>]+)>?(?:\s+"[^"]*")?\)/g)].map(match => match[1]);
+    });
 }
 
 function headingOf(line: { text: string; start: number; end: number }, index: number) {

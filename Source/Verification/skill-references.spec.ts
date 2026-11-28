@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
+import { installedLinkProblems, referenceLinkProblems } from './installed-links.ts';
+
 import { danglingSkillReferences, skillReferences } from './skill-references.ts';
 
 const corpus = resolve(import.meta.dirname, '../../.cratis/ai');
@@ -47,4 +49,22 @@ test('every skill named in a rule resolves to a skill directory', () => {
         .filter(name => name.endsWith('.md'))
         .map(name => ({ path: `${directory}/${name}`, content: readFileSync(join(corpus, directory, name), 'utf8') })));
     assert.deepEqual(danglingSkillReferences(entries, skillNames), []);
+});
+
+test('installed links use exact names and anchors', () => {
+    const files = new Map([
+        ['skills/demo/SKILL.md', '# Demo\n## Local target\n'],
+        ['skills/demo/references/Detail.md', '# Example\n## Read next\n~~~text\n## Fiction\n~~~'],
+    ]);
+    const check = (links: string) => installedLinkProblems(new Map([...files, ['skills/demo/SKILL.md', `${files.get('skills/demo/SKILL.md')}\n${links}`]]));
+    assert.deepEqual(check('[read](./references/Detail.md#read-next) [local](#local-target) [online](https://example.invalid)'), []);
+    for (const target of ['references/detail.md', 'references/Detail.md#Read-Next', 'references/Detail.md#fiction', '../uninstalled/SKILL.md', 'verification.json']) {
+        assert.equal(check(`[read](${target})`).length, 1, target);
+    }
+});
+
+test('an installed asset under references is not reachable through a mention alone', () => {
+    const assets = ['references/diagram.svg'];
+    assert.deepEqual(referenceLinkProblems('skills/demo/SKILL.md', 'For shape, read [the diagram](references/diagram.svg).', assets), []);
+    assert.equal(referenceLinkProblems('skills/demo/SKILL.md', 'Read `references/diagram.svg`.', assets).length, 1);
 });

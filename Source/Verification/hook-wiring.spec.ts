@@ -9,7 +9,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -131,4 +131,43 @@ test('the scanner returns fixed advice only for small regular project sources', 
     assert.equal(scan('untrusted.cs', 'x'.repeat(16385)), '');
     writeFileSync(join(dir, 'untrusted.cs'), '.AutoMap()' + ' '.repeat(65536));
     assert.equal(scan('untrusted.cs'), '');
+});
+
+const advisoryFixtures = [
+    ['cratis-ieventlog-in-handle', 'Operation.cs', '[Command] void Handle(IEventLog log) {}', 'void Handle(IEventLog log) {}'],
+    ['cratis-controller-base', 'Operation.cs', 'using Microsoft.AspNetCore.Mvc;\nclass Demo : ControllerBase {}', 'class Demo : ControllerBase {}'],
+    ['cratis-route-on-readmodel', 'Operation.cs', '[ReadModel]\n[Route("demo")]\nrecord Demo;', '[Route("demo")]\nrecord Demo;'],
+    ['cratis-primereact-dialog-import', 'Operation.tsx', "import { Dialog } from 'primereact/dialog';", "import { Dialog } from '@cratis/components';"],
+    ['cratis-automap-call', 'Operation.cs', 'model.AutoMap();', '[NoAutoMap]\nclass Demo { void Map() { model.AutoMap(); } }'],
+];
+
+test('Claude advises on changed patterns without blocking edits', () => {
+    const { hooks } = JSON.parse(readFileSync(templatePath, 'utf8')) as { hooks: Record<string, Entry[]> };
+    const entry = hooks.PostToolUse?.find(e => e.hooks.some(h => h.command.includes('cratis-pattern-scan.sh')));
+    assert.ok(entry?.matcher);
+    const matcher = new RegExp(`^(?:${entry.matcher})$`);
+    for (const tool of ['Write', 'Edit', 'MultiEdit', 'NotebookEdit']) assert.match(tool, matcher);
+    assert.doesNotMatch('Read', matcher);
+    const command = entry.hooks.find(h => h.command.includes('cratis-pattern-scan.sh'))!.command;
+    const scripts = '.cratis/ai/hooks/scripts';
+    const patterns = readFileSync(join(root, scripts, 'cratis-patterns.json'));
+    assert.ok(patterns.length <= 3000);
+    const base = join(root, '.ai-work');
+    mkdirSync(base, { recursive: true });
+    const cwd = mkdtempSync(join(base, 'patterns-'));
+    try {
+        mkdirSync(join(cwd, scripts), { recursive: true });
+        for (const name of ['cratis-pattern-scan.sh', 'cratis-patterns.json', 'hook-lib.sh']) copyFileSync(join(root, scripts, name), join(cwd, scripts, name));
+        for (const [id, file, changed, benign] of advisoryFixtures) for (const content of [changed, benign]) {
+            const path = join(cwd, file);
+            writeFileSync(path, content + '\n');
+            const result = spawnSync('bash', ['-c', command], { cwd, encoding: 'utf8',
+                input: JSON.stringify({ cwd, session_id: `${id}-${content === changed}`, tool_name: 'Edit', tool_input: { file_path: path } }),
+                env: { ...process.env, CLAUDE_PROJECT_DIR: cwd, TMPDIR: cwd },
+            });
+            assert.equal(result.status, 0, result.stderr);
+            const decision = result.stdout.trim() ? JSON.parse(result.stdout).hookSpecificOutput?.additionalContext : undefined;
+            assert.equal(Boolean(decision), content === changed, id);
+        }
+    } finally { rmSync(cwd, { recursive: true, force: true }); }
 });
