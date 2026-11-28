@@ -60,7 +60,7 @@ Unsigned forwarded identity headers are ignored unless `Cratis:Arc:TrustForwarde
 
 Test three paths against the deployed listener: a direct request that skips the proxy, a request without credentials and a token for the wrong audience. All three must be refused.
 
-`/.cratis/me` answers from the authenticated principal and returns 401 without one. `IProvideIdentityDetails` adds presentation data for the frontend; it grants nothing. After an account change, clear the frontend's cached identity and reconnect authorized subscriptions.
+`/.cratis/me` answers from the authenticated principal and returns 401 without one. `IProvideIdentityDetails` supplies presentation data and does not grant access to an Arc operation; enforce that operation's own policy. Behind AuthProxy, the endpoint also supplies the proxy's admission verdict. With the default `IdentityVerification: Required`, only a 2xx with `isAuthorized: true` admits the caller. Deliberately return `IsUserAuthorized = false` to refuse admission. A 404, other non-2xx, unavailable backend, timeout (10 seconds by default), empty or unparseable body, or missing verdict also denies. Keep the endpoint reachable and fast rather than switching to `BestEffort` to hide a fault. Test fresh admission through the proxy with a positive verdict, a negative verdict and an unavailable backend. After an account change, clear the frontend's cached identity and reconnect authorized subscriptions.
 
 Arc also ships personal access tokens (`IPersonalAccessTokens`) for non-interactive callers. Pick the mechanism the deployment needs; no single topology is required.
 

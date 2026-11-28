@@ -12,3 +12,5 @@ async restoreOrder(event: OrderPlaced) {
 ```
 
 Do not call the live gateway from the replay handler. Force one failure after the gateway accepts the live request. The retry must present the same key, not generate a new one.
+
+If the follow-up makes a local business decision, return an Arc command. See "Reactors that return commands (Chronicle)" in `cratis-arc-invoke-command` for delivery, replay and DI setup.

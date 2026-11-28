@@ -51,7 +51,8 @@ Reuse the registered Arc MongoDB services. A second, unconfigured `MongoClient` 
 
 ## EF Core
 
-- **Discovery** runs only when `AutoDiscoverDbContexts` is on (the default) and the connection string is not empty, and it finds only `ReadOnlyDbContext` subclasses. A read model that a command takes as a parameter needs `[ReadModel]` and a public `DbSet<T>` on such a context; a set on a write context is not found.
+- **Discovery** runs only when `AutoDiscoverDbContexts` is on (the default) and a connection string is configured. It finds public `BaseDbContext` subclasses without `[IgnoreAutoRegistration]`; `ReadOnlyDbContext` subclasses are registered read-only and the rest read-write. Separately, a command read-model parameter needs `[ReadModel]` and a public `DbSet<T>` on a `ReadOnlyDbContext`; a set on a write context is not found.
+- **Connection open** resolves the current tenant and purpose even with pooled contexts. For migrations use `using var purpose = ConnectionPurposeScope.Begin(ConnectionPurpose.Schema);` from `Cratis.Arc.Connections` around the operation. Never put a tenant's resolved connection into singleton options.
 - **`BaseDbContext`** supplies the conventions. An `OnModelCreating` override calls `base.OnModelCreating(modelBuilder)` first, or the conventions are lost.
 - **`Upsert` is tracked** and needs `SaveChanges`. **`UpsertAsync`** writes immediately with native SQL on SQL Server, PostgreSQL and SQLite, bypassing change tracking and leaving tracked instances and generated values stale; other providers and mappings with generated keys, navigations or owned entities fall back to the tracked path and need `SaveChanges`. Use an application-assigned key, and never assume one call flushed unrelated pending changes.
 - **Observation** (`Observe`, `ObserveSingle`, `ObserveById`) needs the observation services that `WithEntityFrameworkCore()` registers. A single-entity observation emits `null` when no row matches and stays subscribed. SQLite only sees writes made through the same application, so a passing in-process test does not prove that an external write is delivered.
@@ -63,6 +64,18 @@ Reuse the registered Arc MongoDB services. A second, unconfigured `MongoClient` 
 - In single-database mode every tenant shares one database. The writer stamps `_namespace` on each element and the reader has to filter `WHERE n._namespace = $namespace`; receiving the `$namespace` parameter does not filter anything.
 - `Query<T>` converts concept parameters and maps columns to members by name. When dropping to `Run` or `Session`, pass `graph.Parameters(...)` so the same conversion and `$namespace` apply.
 
+## Resolve connections and credentials
+
+Arc 22.109.0 or later uses `Cratis:Arc:ConnectionResolution` as the shared default for MongoDB and EF Core. A configured integration-level `ConnectionResolution` replaces the entire shared default; it does not merge. The two slots run in order, `Connection` then `Identity`. The default is `Default` (configured values); use `Template` for scope-derived values, `Http` for a trusted endpoint or `Custom` for an application `IConnectionResolver`.
+
+For rotating identity without moving the database, configure only the `Identity` slot inside `ConnectionResolution` and have the endpoint return identity only:
+
+```json
+{ "Identity": { "Resolver": "Http", "Http": { "Endpoint": "https://platform.example/connections" } } }
+```
+
+Results are cached per request key, honor `expiresAt` and are invalidated on recognized login failure. Never log resolved credentials. Changing the destination does not migrate data.
+
 ## Verify the connection, not the startup
 
-A host that starts has not connected. Read one known record through the query, then repeat with a second tenant and check that each sees only its own data. Connection and credentials resolve once per service scope for the current tenant: don't capture a resolved client, session or connection in a singleton.
+A host that starts has not opened a connection. For EF Core, open for two tenants through the same context pool and assert that each reaches only its own database; also test a schema-purpose open, credential expiry and login-failure invalidation. For document and graph readers, read a known record through the query for each tenant. Do not capture a resolved client, session or connection in a singleton.

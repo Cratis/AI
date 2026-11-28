@@ -20,4 +20,10 @@ export class RegisterTask {
 
 Register the service and load current generated metadata, or supply explicit binding descriptors. TypeScript erases parameter types. Build the host to detect unbound dependencies; explicit descriptors take precedence over generated inference. For an event-producing handler return the fact to the configured Chronicle integration and check that the owning ID's history contains it once.
 
+## Explicit `@inject` markers
+
+Use one explicit token or marker per injected parameter on `handle()` or `provide()`, in signature order. For typed provision, `@inject(Tasks, abortSignal(), commandContext(), provided(Foo))` binds the prepared `Foo` at the fourth parameter of `handle()`. Use `commandReadModel(Type)` for a read model, `mongoCollection(Type)` for MongoDB or `drizzleDatabase()` for Drizzle. If using the positional provision convention instead of `provided(Type)`, Arc supplies the first handler argument separately.
+
+Do not rely on reflection for default or rest parameters: it stops counting at the first one. Prefer fixed named parameters over those signatures; generated bindings do not accept rest parameters. If generated metadata and explicit tokens do not cover the handler signature, `await builder.build()` can fail with `Unbound handle parameters on <Type>.handle`. Run the build at startup to exercise this check.
+
 When observers must see an append before the reply, `completionTimeoutMs` bounds the wait for every observer. A timeout can follow a committed append: do not repeat a non-idempotent command to fix a slow observer. Compensation has its own cooperative `commandCompensationTimeoutMs`; it does not revert a committed event. Use `eventSourceIdResponse` when the response is the history ID rather than the event itself.

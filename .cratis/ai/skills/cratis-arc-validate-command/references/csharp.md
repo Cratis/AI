@@ -2,7 +2,7 @@
 
 Prerequisite: `Cratis.Arc`; validators use FluentValidation.
 
-Use a command validator for the registration rule below on a plain string. To require a nonempty value wherever `AuthorName` is itself validated, put `public class AuthorNameValidator : ConceptValidator<AuthorName> { public AuthorNameValidator() => RuleFor(name => name.Value).NotEmpty(); }` next to `AuthorName`. Import `Cratis.Arc.Validation` and `FluentValidation`.
+Use a command validator for the registration rule below on a plain string. To require a nonempty value wherever `AuthorName` is itself validated, put `public class AuthorNameValidator : ConceptValidator<AuthorName> { public AuthorNameValidator() => RuleFor(name => name.Value).NotEmpty(); }` next to `AuthorName`. Import `Cratis.Arc.Validation` and `FluentValidation`. `AuthorName` contributes only supported literal, unconditional rules to generated clients; see the C# reference in `cratis-arc-generate-proxies` for the extractable families.
 
 Add the validator beside `RegisterAuthor` in `Features/Authors/Registration/RegisterAuthor.cs`. Arc discovers `CommandValidator<RegisterAuthor>`; no dependency injection registration is necessary. Keep the file's existing namespace declaration; add the validator class below the command. Add `using Cratis.Arc.Commands;` for the base class and `using FluentValidation;` for the rule extensions unless those namespaces are already in scope.
 
@@ -57,7 +57,9 @@ A result blocks when its severity is greater than the allowed threshold, and an 
 
 ## Read models as validator inputs
 
-`[ReadModel]` marks a type; it does not load it. The provider that owns the type does: Chronicle, an EF Core `ReadOnlyDbContext` or MongoDB. Work out which one before debugging a missing instance, and tell apart no instance for a valid key, no provider for the type, and an invalid key. Declare the parameter non-nullable when the rule needs the state, so absence refuses; use a nullable parameter only when the rule handles absence.
+`[ReadModel]` marks a type; it does not load it. The provider that owns the type does: Chronicle, an EF Core `ReadOnlyDbContext` or MongoDB. Work out which one before debugging a missing instance, and tell apart no instance for a valid key, no provider for the type, and an invalid key. Declare the parameter non-nullable when the rule needs the state, so absence refuses; use a nullable parameter only when the rule handles absence. A missing or removed materialized projection or reducer (including a passive reducer) returns null. A never-created `[Passive]` projection instead returns a default-valued instance, so neither nullability path detects it. Project an explicit existence flag, such as `[SetValue<AuthorRegistered>(true)] bool Exists`, with one assignment per creation event, and check `Exists`. Renumbering an enum does not establish existence. `CommandScenario` returns null for unseeded IDs; also seed a default-valued instance and assert that the decision refuses it.
+
+For explicitly protected validators outside `On`, use the "Validators outside On" guidance in `cratis-chronicle-protect-decision`.
 
 ## Dates and malformed input
 

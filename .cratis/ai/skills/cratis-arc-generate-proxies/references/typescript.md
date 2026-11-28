@@ -11,3 +11,10 @@ Match generator options to the server before debugging the client:
 | `--segments-to-skip` | `generatedApis.segmentsToSkipForRoute` |
 | `--skip-command-name-in-route` | `generatedApis.includeCommandNameInRoute: false` |
 | `--skip-query-name-in-route` | `generatedApis.includeQueryNameInRoute: false` |
+
+## Output options
+
+- `--type-mapping Shared.Money=@acme/money` reuses a shared type instead of generating it, emitting `import { Money } from '@acme/money';`. Use the namespace-qualified source declaration name. For CLR types, use the mapping in the C# reference instead.
+- `--skip-react-hooks` omits the React hooks for non-React or server-only consumers.
+- `--js-import-specifiers` emits `.js` extensions on local imports for ESM/NodeNext.
+- `--emit-interfaces` emits model interfaces instead of classes. Keep classes when consumers need decorators or hydration into model instances.
