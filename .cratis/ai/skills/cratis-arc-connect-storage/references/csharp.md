@@ -30,6 +30,23 @@ Set `Cratis:MongoDB:Server` and `Cratis:MongoDB:Database` in the host project's 
 
 In the author query, take `IMongoCollection<Author>` as a method parameter. Register an author and check that `AllAuthors` returns it. With Arc's default database resolver, tenant `A` uses `library+A`, not `library`; this is not a naming rule the query should implement. Resolve tenant membership before selecting storage.
 
+### Use native MongoDB operations
+
+For ordinary reads, repositories and sinks, use `Builders<T>.Filter`, `.Sort` and `.Update` with the native driver. Use `Find` for documents and `Aggregate` for pipelines; compose `FilterDefinition<T>` and `PipelineDefinition<TInput, TOutput>` rather than queryables. Do not use `AsQueryable()` for ordinary reads: unsupported LINQ expressions, such as some casts on concept-valued members, fail at execution, not compilation. The exception is a provider-backed query Arc must compose for paging.
+
+For the registered `IMongoCollection<Author> collection` above, import `MongoDB.Driver` and `MongoDB.Bson`. With the configured camel-case field names:
+
+```csharp
+FilterDefinition<Author> named = Builders<Author>.Filter.Eq(author => author.Name, "Aster");
+var authors = collection.Find(named).ToList();
+var counts = collection.Aggregate()
+    .Match(named)
+    .Group(new BsonDocument { { "_id", "$name" }, { "count", new BsonDocument("$sum", 1) } })
+    .ToList();
+```
+
+With two Aster documents and one other author, expect two matches and a single Aster group with count two. Both reads filter in the database before `ToList()`; do not materialize first and filter in memory.
+
 ## When a document is missing or tenants use separate databases
 
 - **An existing author is missing:** compare the reader's physical server, database and collection with the writer, then compare BSON field names before changing conventions.
