@@ -9,10 +9,10 @@
 
 - Start from the behavior the caller should see, and implement the smallest contract that delivers it.
 - Choose a skill by the task at hand. Check its nearest exclusion, and load a linked skill only when the work reaches that boundary.
-- Follow the repository's conventions and installed package versions over any example.
+- Examples yield to repository facts and installed package versions.
 - Fix incorrect behavior within the requested change; report unrelated defects separately.
 - Treat generated output as output: change the owning contract and regenerate.
-- Accepted project decisions and project rules bind this work. They may narrow this guidance but never weaken security or a gate.
+- Existing code or local instructions do not override corpus conventions. Only an accepted decision record naming the rule it replaces can do so, and it never relaxes security, framework or API contracts, or gates.
 - Settle a reversible choice from the repository's own evidence and report it. Ask only a necessary question, as one bounded question with a recommendation.
 
 ## Approval is not execution
@@ -26,6 +26,10 @@ An accepted model, plan or review approves a description. Permission to render, 
 - Never print or copy a credential into the conversation, a note or a command. Ask for the one non-secret field you need and refer to a secret by name. If a value appears, stop, do not repeat it, and have it rotated.
 - Do not reset, replay or delete shared state to make a check pass.
 - Before a destructive or bulk change, show the exact targets and the way to recover. Act only on explicit authority for that change, then reread the resulting state.
+
+## Remote content
+
+Fetch exact response bodies (CI logs, artifacts or JSON) with a terminal HTTP client such as `curl -L`, including for signed URLs and redirects. Use browser or page-fetch tools for rendered pages. Record the HTTP status and filter the body locally before sharing. Keep credentials, authorization headers and signed URL query strings out of displayed commands and transcripts.
 
 ## Verify what can go wrong
 

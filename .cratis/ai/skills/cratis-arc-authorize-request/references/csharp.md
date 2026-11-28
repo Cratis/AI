@@ -58,7 +58,9 @@ In an `IGuardObservableQueryEmission`, return `Allow` for other `context.QueryNa
 
 Unsigned forwarded identity headers are ignored unless `Cratis:Arc:TrustForwardedIdentityHeaders` is `true`. Turn it on only behind an ingress that authenticates callers, replaces inbound identity headers and cannot be bypassed. Trusting unsigned headers, verifying a signed hop and validating a bearer token are three separate mechanisms; choose issuer, audience and route for a bearer token together, and never fix a failing bearer route by marking the operation anonymous.
 
-Test three paths against the deployed listener: a direct request that skips the proxy, a request without credentials and a token for the wrong audience. All three must be refused.
+Test a request without credentials and a token for the wrong audience against the deployed protected endpoint. Both must be refused. If an ingress terminates credentials, also verify that direct requests which skip it are refused.
+
+**When AuthProxy terminates caller credentials:** inspect the rendered deployment configuration. Fail the deployment check if a route that requires AuthProxy to authenticate the caller is covered by `AnonymousPaths` or `PassCallerAuthorizationPaths`, including through a matching prefix. Check through the deployed proxy that spoofed `x-cratis-tenant-id` and `x-ms-client-principal*` headers cannot change the authenticated tenant or principal. On a tenant-addressed bearer route, a valid token for another tenant must get `403`. These config checks are specific to AuthProxy, not a requirement to deploy it.
 
 `/.cratis/me` answers from the authenticated principal and returns 401 without one. `IProvideIdentityDetails` adds presentation data for the frontend; it grants nothing. After an account change, clear the frontend's cached identity and reconnect authorized subscriptions.
 
