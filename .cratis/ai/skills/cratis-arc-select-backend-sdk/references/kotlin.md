@@ -11,4 +11,4 @@ curl -sS localhost:8080/api/create-task -H 'Content-Type: application/json' -d '
 curl -sS -X QUERY localhost:8080/api/tasks -H 'Content-Type: application/json' -d '{"arguments":{}}'
 ```
 
-Expect the created task ID and title in `response`, then the same task in `data`. These routes are configured for the samples' packages. If the route is missing in your app, check the generated manifest and endpoint options before changing the payload.
+Expect the created task ID and title in `response`, then the same task in `data`. These routes are configured for the samples' packages. If the command route is missing in your app, use the generated manifest to confirm command discovery. For the URL, verify the effective POST mapping in the running Spring host: Arc derives the path from the host's endpoint options.

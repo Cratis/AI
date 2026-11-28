@@ -9,7 +9,7 @@ compatibility: Requires React Storybook with @storybook/react-vite, the Library 
 Start with a Storybook preview for the application and a working dialog. In this Library example the trigger and dialog are both named “Add author”, with a single name field. Put `AddAuthor.stories.tsx` beside the application's `AddAuthorButton` and `AddAuthor` components. Check that focus enters the dialog without configuring a different focus target for the test. Omit the decorator if the preview already supplies the Arc and Components providers.
 
 ```tsx
-import 'reflect-metadata';
+import '@cratis/fundamentals/reflection';
 import { Arc } from '@cratis/arc.react';
 import { CratisComponentsProvider } from '@cratis/components';
 import type { Meta, StoryObj } from '@storybook/react-vite';

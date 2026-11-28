@@ -23,8 +23,10 @@ func RegisterGreet(builder *arc.Builder) error {
     return commands.Register[Greet](builder, commands.Handle(Greet.Handle))
 }
 
+type BookID string
+
 type RegisterBook struct {
-    BookID string `json:"bookId"`
+    BookID BookID `json:"bookId"`
     Title  string `json:"title" validate:"required"`
 }
 

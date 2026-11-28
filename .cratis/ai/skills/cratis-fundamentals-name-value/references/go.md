@@ -1,11 +1,11 @@
-# Define a Go concept at its boundary
+# Name a Go scalar at its boundary
 
-For a string value use an application-owned defined type and expose its primitive to the concept contract:
+For a string identity, default to a defined type (not an alias). It stays distinct in Go and remains a string in JSON:
 
 ```go
-type AuthorName string
-
-func (name AuthorName) ConceptValue() string { return string(name) }
+type BookID string
 ```
 
-A UUID-backed identity also needs the codecs used by the chosen transport and store. Forward text and JSON handling to the underlying UUID and propagate decode errors rather than returning a zero identity. Test a round-trip of the real payload plus an invalid UUID; satisfying `concepts.Concept[T]` alone is not a codec test.
+Keep `BookID` on the command. When passing it to Chronicle's `EventForSource`, convert it explicitly with `chronicle.EventSourceID(c.BookID)` as in `cratis-arc-declare-command`.
+
+Use `cratis-fundamentals-concept-go` when you need SDK concept recognition, for example for a UUID-backed identity. Do not add `ConceptValue` by itself: Arc rejects a concept declaration without the required text and JSON codecs when building the command pipeline.

@@ -1,19 +1,19 @@
 ---
 name: cratis-arc-react-bind-slice
 description: Use when a developer mounts the Arc React host, renders a generated query in custom markup or invokes a generated command from an action. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
-compatibility: Requires react, react-dom, reflect-metadata and compatible versions of @cratis/arc, @cratis/arc.react and @cratis/fundamentals. Add @cratis/components for DataPage or command dialogs.
+compatibility: Requires react, react-dom and compatible versions of @cratis/arc, @cratis/arc.react and @cratis/fundamentals. Add @cratis/components for DataPage or command dialogs.
 ---
 
 # Bind generated proxies in a React component
 
 Start with a plain function component and React-enabled generated proxies (`cratis-arc-generate-proxies` skill). For the Library example below, choose the import reference for the backend that produced the files: a C# project (`.csproj`) → [C#](references/csharp.md); a Kotlin project (`.kt`) → [Kotlin](references/kotlin.md). Otherwise use the module that actually exports the generated proxy.
 
-In a new frontend, install `@cratis/arc`, `@cratis/arc.react`, `@cratis/fundamentals`, `react`, `react-dom` and `reflect-metadata`. Enable `experimentalDecorators: true` under `compilerOptions` in `tsconfig.json` for generated models that use legacy `@field` decorators, and use a build that honors that setting.
+In a new frontend, install `@cratis/arc`, `@cratis/arc.react`, `@cratis/fundamentals`, `react` and `react-dom`. Enable `experimentalDecorators: true` under `compilerOptions` in `tsconfig.json` for generated models that use legacy `@field` decorators, and use a build that honors that setting.
 
-1. In `main.tsx`, load metadata before the application. Mount `Arc` once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
+1. In `main.tsx`, load the Fundamentals metadata polyfill before importing the application. Mount `Arc` once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
 
 ```tsx
-import 'reflect-metadata';
+import '@cratis/fundamentals/reflection';
 import { createRoot } from 'react-dom/client';
 import { Arc } from '@cratis/arc.react';
 import { App } from './App';
@@ -64,7 +64,8 @@ Render the status and keep failed input for correction. Read the updated list fr
 
 ## Configure the host
 
-- For the same-origin Library host, omit `apiBasePath`: the generated routes already start with `/api`. Only set an additional deployment prefix, e.g. `apiBasePath="/library"` for `/library/api/...`. For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
+- For the same-origin Library host, omit `apiBasePath`: the generated routes already start with `/api`. Set it only for an additional deployment prefix, e.g. `apiBasePath="/library"` for `/library/api/...`. Route the live-query transport to the backend too: the default SSE hub uses `/.cratis/queries/sse` and its `/subscribe` and `/unsubscribe` endpoints, with the same deployment prefix when set.
+- For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
 
 - To show an editor-only control, import `RequireRole` from `@cratis/arc.react/identity`. Pass `roles={['catalog-editor']}` and distinguish `whileLoading` from `forbidden`. This is presentation only; enforce authorization on the backend command and query.
 

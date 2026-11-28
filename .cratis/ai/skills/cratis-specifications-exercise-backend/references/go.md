@@ -37,7 +37,7 @@ func TestRegisterBook(t *testing.T) {
         {name: "valid title", title: "Aster", wantAppend: true},
     } {
         t.Run(tc.name, func(t *testing.T) {
-            bookID := "book-17"
+            bookID := BookID("book-17")
             writes := &recordingTransaction{}
             builder, err := arc.NewBuilder(arc.Options{Namespace: "Library"})
             requireNoError(t, err)
