@@ -1,5 +1,14 @@
 # Append an author registration
 
+## Contents
+
+- Read back the accepted registration
+- Read when an existing author registered
+- When it goes off the usual path
+- Related skills
+- Decide whether another append is safe
+- Observation commands
+
 Declare the fact in the registration feature. This is all the event declaration needs:
 
 ```csharp
@@ -87,4 +96,27 @@ Use the stored occurrence time, not the lookup time. If another writer permits m
 
 Distinguish a confirmed refusal from `AppendOutcomeUnknown`: the latter may already have committed. If using keyed retry, preserve the key, route and prepared content. Never retry unkeyed because the key was refused. `ConstraintIndexUnavailable` wrote nothing; wait for repair and retry that attempt unchanged. `Prepare` and `VerifyContent` compare content at a known position, not whether a logical request executed exactly once. `Unavailable` is inconclusive. Named tags are metadata, not payload fields; authorize metadata reads even if they exclude content.
 
+For a lost batch reply (client 19.92.0+, kernel 19.91.0+), retain the prepared route, metadata, ordered payloads and stable operation key. Reissue the same call only to reconcile the uncertain attempt:
+
+```csharp
+if (!log.SupportsIdempotentAppends) throw new NotSupportedException();
+Task<AppendManyResult> Send() => log.AppendManyOnce(source, orderedEvents, operationKey);
+```
+
+`AppendManyOnce` derives each entry key with `IdempotencyKey.ForIndex(index)`; reordering or rebuilding changes the index-to-event binding. For a mixed-source batch, `EventForEventSourceId.IdempotencyKey` can be set per entry; any unkeyed entry has no duplicate protection. Inspect `AppendManyResult.Outcomes` in order. `Appended` and `AlreadyAppended` are accepted; `AlreadyAppendedAfterErasure` means do not recreate the event. `IdempotencyConflicts` are failures, not duplicate successes. `IdempotentAppendsNotSupported` refuses before sending, including for keyed appends staged in a unit of work or combined with effect receipts. Never fall back to an unkeyed retry.
+
+To preserve distinct guards for one source (Chronicle 19.84.0+), pass ordered pairs instead of a dictionary:
+
+```csharp
+IEnumerable<KeyValuePair<EventSourceId, ConcurrencyScope>> guards =
+    new KeyValuePair<EventSourceId, ConcurrencyScope>[] { new(source, firstScope), new(source, secondScope) };
+var result = await log.AppendMany(entries, correlationId: null, tags: null, concurrencyScopes: guards);
+```
+
+Use the violation’s `ScopeIndex` and `Scope` to identify the failed predicate. If `IncompatibleConcurrencyScopesForEventSource` is thrown, do not drop a guard to make the write pass.
+
 When returning HTTP success depends on commit, complete the owning unit before sending the response. A batch is not a general ambient transaction; middleware completion after the response cannot turn a failure into an HTTP refusal. An accepted append also does not prove observer completion. When the caller needs it, inspect `WaitForCompletion` for timeout, failed partitions and outstanding observers before reporting completion.
+
+## Observation commands
+
+In an Arc observation command’s `Handle`, compare each incoming fact independently with the stream’s current facts or a keyed `[Passive]` read. Return no events for an identical observation and only the facts that changed otherwise. A lagging materialized view can suppress a real change or cause a duplicate. If writers can race, use [a protected decision read](../../cratis-chronicle-protect-decision/SKILL.md) for the comparison. Specify both an identical observation that appends nothing and a one-field change that appends exactly one fact.

@@ -65,3 +65,9 @@ Run these verification reads outside command decision logic. With `using Cratis.
 ## Preserve policy when the schema changes
 
 In this client nonempty `[ComplianceDetails]` takes precedence over the `[PII]` details; the PII attribute’s own details are used as a fallback. Do not combine `[Encrypted]` and `[PII]` as two layers of the same erasure policy: they have different key ownership. After deletion, `EncryptionKeyErased` is a refusal, not permission to re-provision silently. `AllowNewEncryptionKeyFor` is an explicit decision for **future data** and cannot recover previous revisions. `IEventSequence.Redact` targets an event or selected source/types with a reason, not every value protected by a subject key. Protect key storage and its replicas alongside the event store.
+
+For a hosting change, follow the dedicated key store cutover in `cratis-chronicle-deploy-kernel` before interpreting empty values as evidence of erasure.
+
+## Handle retained causation separately
+
+Deleting the subject key does not scrub causation property values. On Chronicle 19.20.0 or later, set `events.causationPropertyRetention` to `Omit` (`Cratis__Chronicle__Events__CausationPropertyRetention=Omit`; default `Retain`) to stop retaining property values on new writes only. For existing events, use targeted Workbench redaction (see `cratis-chronicle-web-workbench`) when authorized; it removes event content as well as retained causation property values. Forwarded copies and backups need separate handling. Check a synthetic marker before and after changing retention or redacting; never use real personal data.

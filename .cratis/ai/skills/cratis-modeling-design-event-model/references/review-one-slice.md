@@ -27,6 +27,8 @@ Give the rule, concrete setup, action (if any) and expected result. Ask the owne
 
 Ask about missing, duplicate or out-of-order observations when the answer changes a decision. For example, if Directory sends two different names for A out of order, which observation counts as current, and what evidence establishes that? Leave the answer open if the source supplies no ordering information.
 
+On a representative stream, count adjacent identical payloads of the same event type and compare the measured volume with the expected event-volume budget. Investigate unexplained repeats before adding a counter or reaction.
+
 ## Bound a change
 
 Start with the surprising example. If Library wants a different display name, does the registration decision change, the stored fact, or only the projection? Trace the changed value through the producing decision, existing histories, row key, query, UI and public mappings that actually consume it. Revisit the affected examples with their owner; leave independent slices alone. Report the rule that changed, its consumers and any result still awaiting a decision.

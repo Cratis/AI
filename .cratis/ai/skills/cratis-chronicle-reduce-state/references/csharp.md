@@ -31,11 +31,12 @@ For an uncovered calculation, commit one direct spec: start with no model, fold 
 ## Avoid
 
 - Don't mutate previous state or calculate duration from today's date. Replay must use the recorded inputs.
-- Keep `Reduce` on the model. A separate `IReducerFor<LoanDuration>` is an extreme exception for an unavoidable injected dependency whose answer is repeatable on replay. Record changing external input as a fact instead.
+- Keep `Reduce` on the model by default. Use a separate `IReducerFor<LoanDuration>` only for an unavoidable injected dependency whose answer is repeatable on replay; record changing external input as a fact instead.
+- If the model assembly cannot reference Chronicle, the host can nominate a plain instance reducer with `options.ExplicitArtifacts.RegisterReducer<PlainLoanDurationReducer>()`. Do not also supply a self `Reduce` for that model; one builder owns it.
 
 ## Related skills
 
 - [Map events onto a read model](../../cratis-chronicle-project-view/SKILL.md)
 - Test a decision directly with `cratis-specifications-isolate-behavior` (in the `cratis/specifications/dotnet` profile).
 
-When converting an existing reducer, preserve its observer identity, selected events, keys and decision-fold admission. A filtered or dependency-bearing reducer is not an equivalent replacement for an admissible unfiltered fold. A label does not filter delivery: configure metadata filters explicitly and seed matching source/stream/tag metadata in the test. Different partitions can run concurrently. Keep replay lifecycle work outside `Reduce`; global and partition callbacks differ and an end hook is not guaranteed to run after failure. Reassess replay when the implementation changes.
+When converting an existing reducer, preserve its observer identity, selected events, keys and decision-fold admission. A filtered or dependency-bearing reducer is not an equivalent replacement for an admissible unfiltered fold. A label does not filter delivery: configure metadata filters explicitly and seed matching source/stream/tag metadata in the test. Different partitions can run concurrently. Keep replay lifecycle work outside `Reduce`. On the model, optionally declare public static non-generic hooks returning exactly `Task`: `BeginReplay()`, `EndReplay()`, `BeginReplayPartition(Partition)`, and `EndReplayPartition(Partition)`. Import `Partition` from `Cratis.Chronicle.Observation` and make it the first parameter of either partition hook. After it (or as the only parameters of global hooks), use class/interface service dependencies only, not the event, model or `EventContext`. Chronicle resolves them in the notification’s async DI scope and awaits the hook and scope disposal. Do not assume full replay issues partition notifications, failure issues an end notification, or delivery is exactly once. See “Definition change replay” in `cratis-chronicle-inspect-observer` before changing a reducer with interleaved history.

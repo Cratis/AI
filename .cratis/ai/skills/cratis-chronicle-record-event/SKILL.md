@@ -8,7 +8,7 @@ compatibility: A supported application client and access to the intended kernel.
 
 Choose the stable event type and generation, source key and target sequence before writing. The source identifies the history; a correlation ID identifies a workflow, not a business entity. Keep the payload a fact about the past.
 
-- C# (`.csproj`): [declare and check the C# event](references/csharp.md).
+- C# (`.csproj`): [declare and check the C# event](references/csharp.md), or [record only changes from repeated observations](references/csharp.md#observation-commands).
 - Node server (`package.json`): [append a registered Node event](references/typescript.md).
 - Kotlin (`.kt`): [append from a Kotlin coroutine](references/kotlin.md).
 - Java (`.java`): [append through the Java facade](references/java.md).

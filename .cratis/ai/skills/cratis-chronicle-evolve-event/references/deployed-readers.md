@@ -33,3 +33,5 @@ using var updated = new ChronicleClient(options, new InMemoryClientArtifactsProv
 ```
 
 Get `var store = await updated.GetEventStore(storeName, "migration-test");` and a different `var newAuthorId = AuthorId.New();`. Append `new AuthorRegistered("Birch")` for `newAuthorId` and check acceptance. Read `await store.ReadModels.GetInstanceById<CurrentAuthor>(oldAuthorId.Value)` until `DisplayName` is `"Aster"` and `await store.ReadModels.GetInstanceById<PreviousAuthor>(newAuthorId.Value)` until `Name` is `"Birch"`; stop with a timeout if either hasn't arrived after 30 seconds. Filtering on the stored event type ID alone does not select a generation.
+
+If the deployed reader is a replayable PDL projection, save its definition with `GenerationDelivery = Pinned` while V1 is the latest registered generation. Register V2 and append a V2 event without resaving the declaration. Replay from the beginning and check the V1 field mapping against both an originally V1 event and the V2 event. Check the persisted definition’s resolved generation as well as the output.

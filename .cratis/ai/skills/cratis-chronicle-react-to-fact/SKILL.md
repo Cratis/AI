@@ -8,7 +8,7 @@ compatibility: A supported application client and an observed event type.
 
 For a notification that must only begin after deployment, set the initial subscription position to the tail **and** exclude the notification from replay. Neither choice prevents retries after an interrupted acknowledgement. Give each distinct effect a stable key for the observed delivery, and have the receiver enforce it atomically with the effect. A local “sent” flag written after a successful external call leaves a crash window.
 
-- `.csproj`: [implement a reactor and receipt](references/csharp.md).
+- `.csproj`: [implement a reactor and receipt](references/csharp.md) or [record durable work that is not a domain event](references/occurrences.md).
 - Node `package.json`: [bind a method to the event](references/typescript.md).
 - `.kt`: [register the annotated handler](references/kotlin.md).
 - `.java`: [handle a single event or explicit batch](references/java.md).
