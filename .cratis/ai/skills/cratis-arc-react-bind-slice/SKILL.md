@@ -6,7 +6,7 @@ compatibility: Requires react, react-dom, reflect-metadata and @cratis/arc.react
 
 # Bind generated proxies in a React component
 
-Start with a plain function component and React-enabled generated proxies (the `cratis-arc-generate-proxies` skill, when installed). The paths and author types below belong to the Library example; use your slice's generated imports.
+Start with a plain function component and React-enabled generated proxies (`cratis-arc-generate-proxies` skill). The paths and author types below belong to the Library example; use your slice's generated imports.
 
 1. In `main.tsx`, load metadata before the application. Mount `Arc` once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
 
@@ -36,7 +36,7 @@ if (!authors.hasData) return <p>No authors yet.</p>;
 return <ul>{authors.data.map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>;
 ```
 
-3. For a name search in the same folder, import `AuthorsNamed` from the same generated file. That paged query (the `cratis-arc-page-query` skill, when installed) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
+3. For a name search in the same folder, import `AuthorsNamed` from the same generated file. That paged query (`cratis-arc-page-query` skill) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
 
 ```tsx
 const [matches] = AuthorsNamed.when(name.trim().length > 0).use({ name: name.trim() });
@@ -78,7 +78,7 @@ Start with no rows, then register an author. The list should change without a pa
 ## Related skills
 
 - [Separate the view model](../cratis-arc-react-separate-view-model/SKILL.md) when presentation state belongs outside the component.
-- Check the user-visible result (the `cratis-specifications-observe-ui` skill, when installed) if the binding changes a user journey.
+- Check the user-visible result (`cratis-specifications-observe-ui` skill) if the binding changes a user journey.
 - For a standard query-backed table, use `cratis-components-display-list` from the Components profile.
 
 For command state and refusal, read [commands.md](references/commands.md).

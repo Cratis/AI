@@ -6,7 +6,7 @@ compatibility: Requires an Arc backend; recording an event also requires its Chr
 
 # Declare a command
 
-A command is one named state change: its input, and a handler that decides what happened. Declare it in the slice that owns the change, next to the events (the `cratis-chronicle-record-event` skill, when installed) it records, with named values (the `cratis-fundamentals-name-value` skill, when installed) for its identities.
+A command is one named state change: its input, and a handler that decides what happened. Declare it in the slice that owns the change, next to the events (`cratis-chronicle-record-event` skill) it records, with named values (`cratis-fundamentals-name-value` skill) for its identities.
 
 Decide two things first:
 
@@ -21,14 +21,14 @@ The artifact being changed selects the one reference to read: `*.csproj` → [C#
 
 ## Expected outcome
 
-Execute the command through its pipeline in a backend scenario (the `cratis-specifications-exercise-backend` skill, when installed): a valid request succeeds and records the fact once, against the intended identity; an invalid one is refused and records nothing. With two candidate identities, use different values for each and assert which one received the event.
+Execute the command through its pipeline in a backend scenario (`cratis-specifications-exercise-backend` skill): a valid request succeeds and records the fact once, against the intended identity; an invalid one is refused and records nothing. With two candidate identities, use different values for each and assert which one received the event.
 
 ## Stop when
 
-The handler has to read state to decide: protect the decision (the `cratis-chronicle-protect-decision` skill, when installed) rather than reading the database directly in the handler.
+The handler has to read state to decide: protect the decision (`cratis-chronicle-protect-decision` skill) rather than reading the database directly in the handler.
 
 ## Related skills
 
-- Deliver a lending slice (the `cratis-platform-deliver-slice` skill, when installed): validate input, protect availability if lending depends on it, project `BookLent` unless already mapped, expose the live query, generate both proxies, then bind the page.
+- Deliver a lending slice (`cratis-platform-deliver-slice` skill): validate input, protect availability if lending depends on it, project `BookLent` unless already mapped, expose the live query, generate both proxies, then bind the page.
 - [Invoke the command](../cratis-arc-invoke-command/SKILL.md)
 - [Validate the command](../cratis-arc-validate-command/SKILL.md) to reject an empty name before the handler runs.

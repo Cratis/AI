@@ -50,11 +50,11 @@ public static class ListingExchange
 }
 ```
 
-`AuthorId` comes from Name a domain value (the `cratis-fundamentals-name-value` skill, when installed). Require `result.IsSuccess && !result.HasIdempotencyConflicts` for publication success.
+`AuthorId` comes from Name a domain value (`cratis-fundamentals-name-value` skill). Require `result.IsSuccess && !result.HasIdempotencyConflicts` for publication success.
 
 ## Check the public handoff
 
-Use disposable stores for this one-off wiring check. If the public/private boundary is an uncovered application promise, extend the existing backend check (the `cratis-specifications-exercise-backend` skill, when installed); don't add a hosted spec of Chronicle forwarding. In the directory, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Forwarding and consumption have separate checkpoints; subscribing does not by itself route an explicit consumer observer to the inbox. Route it to the intended per-source sequence. Delivery is asynchronous: repeat that read until it returns the listing, stopping with a timeout after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
+Use disposable stores for this one-off wiring check. If the public/private boundary is an uncovered application promise, extend the existing backend check (`cratis-specifications-exercise-backend` skill); don't add a hosted spec of Chronicle forwarding. In the directory, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Forwarding and consumption have separate checkpoints; subscribing does not by itself route an explicit consumer observer to the inbox. Route it to the intended per-source sequence. Delivery is asynchronous: repeat that read until it returns the listing, stopping with a timeout after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
 
 ## Avoid
 
@@ -68,7 +68,7 @@ Use disposable stores for this one-off wiring check. If the public/private bound
 
 ## Related skills
 
-- Choose a Chronicle client (the `cratis-chronicle-select-client` skill, when installed) before implementing the consumer in another language.
+- Choose a Chronicle client (`cratis-chronicle-select-client` skill) before implementing the consumer in another language.
 
 - [Append an event](../../cratis-chronicle-record-event/SKILL.md)
 - [Send a post-commit notice](../../cratis-chronicle-react-to-fact/SKILL.md)

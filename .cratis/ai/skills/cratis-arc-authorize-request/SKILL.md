@@ -6,7 +6,7 @@ compatibility: Requires an Arc backend whose host already authenticates callers.
 
 # Restrict a command or query to permitted callers
 
-Declare the requirement on the command (the `cratis-arc-declare-command` skill, when installed) or query, not in a field validator, so the pipeline refuses the caller before a handler runs. Require sign-in by default. Choose a role when access depends on group membership, and a named policy when the rule needs more than roles.
+Declare the requirement on the command (`cratis-arc-declare-command` skill) or query, not in a field validator, so the pipeline refuses the caller before a handler runs. Require sign-in by default. Choose a role when access depends on group membership, and a named policy when the rule needs more than roles.
 
 The host's authentication mechanism establishes the caller; a header, cookie or property the caller can write is not identity. If access depends on ownership, compare the verified principal with the resource's owner, never with a caller-supplied owner ID.
 
@@ -32,4 +32,4 @@ No authentication mechanism is configured: configure one first, because a requir
 ## Related skills
 
 - [Check tenant membership](../cratis-arc-isolate-tenant/SKILL.md)
-- Exercise the backend (the `cratis-specifications-exercise-backend` skill, when installed)
+- Exercise the backend (`cratis-specifications-exercise-backend` skill)

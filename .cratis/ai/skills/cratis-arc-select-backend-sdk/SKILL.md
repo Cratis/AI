@@ -12,4 +12,4 @@ Read only the reference for the service being changed: `.csproj` → [C#](refere
 
 ## When a client must work with two services
 
-Check an authorized success and an invalid or unauthorized request on **each** host. Compare the generated route, payload, casing, validation fields and result. Only call `/validate` if the host advertises that route. A successful native reply is neither an HTTP compatibility test nor proof of a durable append. If the feature requires durable storage, select a Chronicle client (the `cratis-chronicle-select-client` skill, when installed) and verify the write separately.
+Check an authorized success and an invalid or unauthorized request on **each** host. Compare the generated route, payload, casing, validation fields and result. Only call `/validate` if the host advertises that route. A successful native reply is neither an HTTP compatibility test nor proof of a durable append. If the feature requires durable storage, select a Chronicle client (`cratis-chronicle-select-client` skill) and verify the write separately.

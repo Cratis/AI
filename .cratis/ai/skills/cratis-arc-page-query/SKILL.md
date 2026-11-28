@@ -26,4 +26,4 @@ Some fields are hidden from the caller: refuse a sort on a hidden field before t
 
 - [Expose a live query](../cratis-arc-expose-query/SKILL.md) for the unpaged Authors list.
 - [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md)
-- Display the list (the `cratis-components-display-list` skill, when installed)
+- Display the list (`cratis-components-display-list` skill)

@@ -28,7 +28,7 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 
 ## Retry a notice after a lost acknowledgement
 
-One-off wiring check with a disposable receiver. If the application owns deduplication, commit a spec of that decision at the receiver; don't add a hosted spec of Chronicle retry. See the `cratis-specifications-exercise-backend` skill, when installed.
+One-off wiring check with a disposable receiver. If the application owns deduplication, commit a spec of that decision at the receiver; don't add a hosted spec of Chronicle retry. See the `cratis-specifications-exercise-backend` skill.
 
 Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Keep the effect name unchanged on retry so the receiver sees the same key. An author ID would collapse distinct occurrences.
 
@@ -43,9 +43,9 @@ If the same delivery also sends email, pass `delivery.IdempotencyKeyFor("email")
 
 ## Related skills
 
-- Inspect reactor progress (the `cratis-chronicle-inspect-observer` skill, when installed) if a recorded registration never reaches the directory.
+- Inspect reactor progress (`cratis-chronicle-inspect-observer` skill) if a recorded registration never reaches the directory.
 
-- Call a provider during a command (the `cratis-arc-declare-operation` skill, when installed)
+- Call a provider during a command (`cratis-arc-declare-operation` skill)
 - [Publish a public event](../../cratis-chronicle-publish-contract/SKILL.md)
 
 ## Route returned work and isolate failures

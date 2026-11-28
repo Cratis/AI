@@ -121,7 +121,7 @@ When only the input and expected values change across examples, [check one rule 
 
 ## Carry the accepted examples into the application
 
-Reuse backend specs (the `cratis-specifications-exercise-backend` skill, when installed); commit a case only for an uncovered consequential decision. Model tests don't prove the running slice (the `cratis-platform-deliver-slice` skill, when installed).
+Reuse backend specs (`cratis-specifications-exercise-backend` skill); commit a case only for an uncovered consequential decision. Model tests don't prove the running slice (`cratis-platform-deliver-slice` skill).
 
 ## When it goes off the usual path
 
@@ -137,4 +137,4 @@ Reuse backend specs (the `cratis-specifications-exercise-backend` skill, when in
 ## Related skills
 
 - [Accept the model](../cratis-screenplay-accept-model/SKILL.md) to review what changed in the running examples.
-- Exercise the backend (the `cratis-specifications-exercise-backend` skill, when installed) for the corresponding runtime assertions.
+- Exercise the backend (`cratis-specifications-exercise-backend` skill) for the corresponding runtime assertions.

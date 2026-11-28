@@ -59,7 +59,7 @@ Run these verification reads outside command decision logic. With `using Cratis.
 
 ## Related skills
 
-- Authorize access (the `cratis-arc-authorize-request` skill, when installed)
+- Authorize access (`cratis-arc-authorize-request` skill)
 - [Project the member profile](../../cratis-chronicle-project-view/SKILL.md)
 
 ## Preserve policy when the schema changes

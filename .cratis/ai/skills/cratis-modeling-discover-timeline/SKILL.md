@@ -5,7 +5,7 @@ description: Use when a business request or story needs an agreed timeline of ac
 
 # Discover the business timeline
 
-If the starting point is code, [trace existing behavior](../cratis-modeling-trace-existing-behavior/SKILL.md). If it is a recording, recover intent (the `cratis-screenplay-recover-intent` skill, when installed) (needs the Screenplay CLI). For a business request such as “register authors,” start with the story rather than the implementation.
+If the starting point is code, [trace existing behavior](../cratis-modeling-trace-existing-behavior/SKILL.md). If it is a recording, recover intent (`cratis-screenplay-recover-intent` skill) (needs the Screenplay CLI). For a business request such as “register authors,” start with the story rather than the implementation.
 
 1. **Ask for one completed instance.** “Think of the last time you did this. What started it? Who cared about the result, and how did they know it was done?” Use the owner's words. A supplied document is a starting account, not confirmation of a rule.
 2. **Collect facts before ordering them.** Ask what became true during that instance. Write candidate facts in the past tense: “author registered,” not “register author.” Keep questions separate. Broaden the account only when another fact or outcome distinguishes a path that matters to the owner.

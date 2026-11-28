@@ -99,7 +99,7 @@ module Library
           for "directory-welcomes"
 ```
 
-Run `screenplay test model --format json` on the composed model. Require the command, invocation, redelivery and clock specifications to pass. `then invokes` compares only the invocations and the stated input values. `then no events` separately checks that redelivery records nothing. The command's own examples check the recorded fact and duplicate refusal. Implement the runtime reaction (the `cratis-chronicle-react-to-fact` skill, when installed) with a reactor after commit; verify target support and test any external delivery separately.
+Run `screenplay test model --format json` on the composed model. Require the command, invocation, redelivery and clock specifications to pass. `then invokes` compares only the invocations and the stated input values. `then no events` separately checks that redelivery records nothing. The command's own examples check the recorded fact and duplicate refusal. Implement the runtime reaction (`cratis-chronicle-react-to-fact` skill) with a reactor after commit; verify target support and test any external delivery separately.
 
 For work requested by a host rather than a calendar, [replace the schedule with a host trigger](references/host-trigger.md).
 
