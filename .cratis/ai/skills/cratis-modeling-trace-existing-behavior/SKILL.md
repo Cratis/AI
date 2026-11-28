@@ -19,6 +19,17 @@ Let the user choose a journey with a start and a result, such as a librarian reg
 3. Follow the write to the reader. For a projection, trace both the row key and displayed values; follow the query to the visible result. Read existing specifications for the paths they actually exercise. A missing test is not a missing behavior.
 4. Label each finding: **observed** (what a supplied run actually showed), **inferred from inspection** (what the wired implementation would do), **proposed fact** (candidate business meaning) or **unknown** (what would settle it). A screenshot of a row cannot identify its writer; static inspection does not establish that a request ran.
 
+Stay within the authorized system and material. A reconstruction from public material is plausible, not proof of the private workflow. Inspect statically before proposing a run; a live write needs separate approval for the target and action. Do not bypass access controls to fill an evidence gap.
+
+| Signal | What to trace before naming the slice |
+| --- | --- |
+| One gesture sends several requests or updates several tables | Find the decisions and transaction boundaries. Neither request count nor table count tells you how many business facts occurred. |
+| Generic update route | Compare its callers: correcting a spelling and transferring ownership may have different actors, rules and outcomes. |
+| A successful submission | Look for the actual uniqueness or duplicate-request rule. One success proves neither. Distinguish authenticated identity from editable form data. |
+| Mock or seeded row | Treat the test as a hypothesis. Find the production path that could produce this state before proposing any history as `given`. |
+
+If static inspection leaves a gap and the owner proposes a generator or captured traffic, [check what the recovery tool may run or disclose](references/recovery-inputs.md) first.
+
 ## Example: compare Library registration and listing
 
 Suppose the agreed examples require registration for Aster and refusal for a blank name. Use one table by slice and example. Mark each comparison **matched**, **changed** (different outcomes), **missing from model**, **missing from implementation** or **unverified**. In reconstruction, replace the baseline and status with candidate meaning; there is nothing to match against.

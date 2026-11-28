@@ -47,6 +47,12 @@ screen Authors
 
 Keep Add as `action RegisterAuthor for screen`: it needs no selected row. The inspection gesture above passes `item.id` directly rather than making the user enter it in a form.
 
+For an action `for item`, explicit bindings win, then compatible case-sensitive field names. A required non-generated scalar identifier may use a single key of the same nominal concept. Two UUIDs are not interchangeable just because they share a primitive. Where several collections could supply the subject, narrow to one displayed table or bind explicitly. Never choose the first row to resolve ambiguity. For a dialog that returns a newly assigned identifier, use `$response.<field>` in the successful command continuation that owns it; a failed submission has no such response. Do not read an old selection as a substitute.
+
+A template with typed slots describes the repeated structure: the implementing screen supplies its own data and actions, respecting slot cardinality. A performer-backed query similarly declares an interface, not a second portable implementation. Preserve its inputs, result cardinality and policy; find provider evidence for its parameters rather than inferring them from the screen's dependency alone.
+
+For a decision that generates an identifier, attaches code, or compares time-sensitive inputs, [choose the command contract](references/decision-inputs.md) before you bind the form.
+
 ## Gate an interaction
 
 If Add author is a preview feature, declare this audience at the model root. Add the gate under `screen AddAuthor` and `command RegisterAuthor`. The top-level form remains ungated: `screenplay model` can report warning `PLAY1139`. Accept this warning only if the form is reachable solely from the gated screen and the caller handles a not-available command result.
@@ -61,6 +67,8 @@ available for AuthorRegistrationPreview
 ```
 
 Hide Add when the gate is closed, including when it cannot be resolved. Keep any existing command permission check; availability doesn't grant permission. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add or run the command, and that a caller inside the audience without permission is still denied.
+
+If the same screen renders differently across profiles, [trace the shell and data provision](references/shell-and-data.md) before editing the component or adding a second command.
 
 ## When it goes off the usual path
 

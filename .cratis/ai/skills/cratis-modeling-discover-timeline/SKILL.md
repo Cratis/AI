@@ -13,6 +13,8 @@ If the starting point is code, [trace existing behavior](../cratis-modeling-trac
 4. **Fill in what happened between facts.** What did the person know or see, what did they request, and what did they see next? If nobody acted, name the trigger, such as a schedule or an outside notification. Distinguish the request from its outcome: pressing a button does not establish a business fact.
 5. **Locate each fact.** Name the business boundary that owns its meaning and the specific instance whose history changes (the event source ID). The caller need not be that instance. Look for changes in vocabulary or decision authority, not database tables, pages or reporting lines. One storyline can cross several features.
 
+Before calling the story complete, ask what else can start it, who can change their mind, what can fail or time out, and what happens on a repeat or after the apparent end. For each material branch, record a fact, a question, a deliberate exclusion or why it cannot occur. Separate stated rules from inference and assumptions. Preserve thresholds and deadlines verbatim with their source; present contradictions to the owner rather than averaging them.
+
 ## Read back the timeline
 
 Keep it short: actor or trigger, intent, fact, address, observed result and unresolved branches. For example:

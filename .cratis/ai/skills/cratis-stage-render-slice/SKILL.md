@@ -15,7 +15,8 @@ Start with the [accepted handoff](../cratis-screenplay-handoff-slice/SKILL.md): 
    ```
 
    Exit 6 means changes are pending, 0 means current. A refusal isn't an empty plan. Review the diagnostics, planned writes and removals. Don't rerun with `--force` to get past edited or colliding files. Save manual work and reconcile it with its owner first.
-2. Get publication approval from the requesting user unless they named another owner. Then repeat the reviewed command without `--check`. For a later change to an already scaffolded destination, preview and then publish only the accepted scope with the same application identity:
+   If a scoped projection is refused for overwriting identity, compare the assignment with the resolved key. A simple assignment restating its event-source, event-property or literal key can be admitted; assigning a different value is not equivalent. Do not delete a correct key to get past the check.
+2. [Review ownership and the planner result](references/review-render-plan.md). Get publication approval from the requesting user unless they named another owner. Then repeat the reviewed command without `--check`. For a later change to an already scaffolded destination, preview and then publish only the accepted scope with the same application identity:
 
    ```sh
    cratis render model --name Library --destination out --scope Library.Authors.RegisterAuthor --check

@@ -91,7 +91,7 @@ For legacy models without opt-in or refused shapes, write stated intent and mark
 Options to discuss with the domain expert (decide, do not assume):
 a. **one stream is the boundary**: put the decision on the stream that owns the state (often a
    different identity choice) and enforce it in the target with a concurrency scope, plus the
-   first-append check described under "First append into a scope" in SKILL.md (a scope on an empty
+   [first-append check](#first-append-into-a-scope) (a scope on an empty
    source or partition is not checked by default);
 b. **reservation by identity**: if the scarce things can be named (seat 1..N, slot at 09:00),
    give each its own identity and use uniqueness, after checking it expresses the invariant;
