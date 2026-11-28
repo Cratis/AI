@@ -46,7 +46,7 @@ partial dimension match.
 mutating repair of **one exact** mistaken manual close. Supply the scope flags
 shown by the installed help/catalog and the reason. The kernel records actor
 and reason in `StreamScopeReopened` and refuses a closure owned by a closing
-event. `--yes` skips confirmation, not that ownership check. Never turn this into
+event (`ClosedByEvent`). Use the modeled reopening event for that closure. `--yes` skips confirmation, not that ownership check. Never turn this into
 a way around a modeled closure or reopen broad scopes speculatively.
 
 ## Compare a model with live metadata

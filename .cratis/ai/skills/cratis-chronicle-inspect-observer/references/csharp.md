@@ -47,3 +47,15 @@ To summarize captured attempts without printing their payloads, run `node script
 
 - [Check the original append](../../cratis-chronicle-record-event/SKILL.md)
 - Diagnose the live query connection (`cratis-arc-diagnose-live-query` skill in `cratis/arc/csharp`)
+
+## Definition change replay
+
+| Change | `Automatic` (default) | `PartialOnly` | `Manual` |
+| --- | --- | --- | --- |
+| Only adds event types with no history | No action | No action | No action |
+| Reducer adds types whose events all follow the old inputs for each affected source | Partial replay | Partial replay | Recommend partial replay |
+| Projection adds a type with history; reducer history is interleaved; mapping, key, filter or reducer implementation changes | Full replay | Recommend full replay | Recommend full replay |
+
+The setting is `observers.definitionEvolution`. Global projections are an exception: replay is refused even when a rebuild is recommended. A recommendation is not a completed rebuild. Check actual jobs with `eventStore.Jobs.GetJobs()` or Workbench and verify representative persisted state in the expected destination.
+
+For rolling projection deployments, give each release a real `ChronicleOptions.SoftwareVersion`. Versions compare by SemVer precedence without build metadata. An older registration cannot replace a newer definition, and an older full set cannot retire the newer projections. Equal, missing or invalid versions do not protect against replacement. To deliberately roll back a definition, stamp the rollback build higher than the stored version (`Cratis__Chronicle__SoftwareVersion`), then confirm the stored definition and rebuild status. The version alone does not trigger replay.

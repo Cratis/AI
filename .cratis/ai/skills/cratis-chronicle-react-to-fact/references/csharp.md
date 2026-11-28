@@ -19,8 +19,11 @@ public interface IAuthorDirectory
     Task Announce(IdempotencyKey key, string name);
 }
 
+[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]
+[StartAtTail]
 public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 {
+    [OnceOnly]
     public Task Registered(AuthorRegistered @event, ReactorDelivery delivery) =>
         directory.Announce(delivery.IdempotencyKeyFor("announce"), @event.Name);
 }
@@ -30,16 +33,18 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 
 One-off wiring check with a disposable receiver. If the application owns deduplication, commit a spec of that decision at the receiver; don't add a hosted spec of Chronicle retry. See the `cratis-specifications-exercise-backend` skill (in `cratis/application`).
 
+With client and kernel 19.70.0 or later, seed pre-registration history and confirm the new reactor sends no notice for it. Append a new occurrence while stopped; restarting the same observer must resume its saved position and send that notice. Replaying with `[OnceOnly]` must not invoke the notice handler.
+
 Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Keep the effect name unchanged on retry so the receiver sees the same key. An author ID would collapse distinct occurrences.
 
 If the same delivery also sends email, pass `delivery.IdempotencyKeyFor("email")` to the email adapter's `IdempotencyKey` parameter. Each receiver must deduplicate its own key atomically with its effect, so a retry can finish the email without repeating the announcement.
 
 ## When it goes off the usual path
 
-- **Historical events must not resend the notice:** `[OnceOnly]` skips replay, not ordinary retry. A `[Replay]` handler can replace the ordinary handler during replay when historical events need different work. Neither marker deduplicates external effects.
+- **Historical events must not resend the notice:** `[StartAtTail]` skips initial history only on first registration, while `[OnceOnly]` skips explicit replay. Neither suppresses ordinary redelivery or deduplicates external effects. A `[Replay]` handler can replace the ordinary handler during replay when historical events need different work.
 
 - **The follow-up makes its own local business decision:** return a command invocation as shown below. For a leased occurrence rather than a reactor delivery, see "Execute a command once per occurrence effect" in `cratis-arc-invoke-command`.
-- **An existing reactor moves or is renamed:** preserve its observer ID to keep its position. For this class, set `[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]` on the renamed class.
+- **An existing reactor moves or is renamed:** preserve its observer ID to keep its position. Keep the explicit `[Reactor]` ID shown in the example, even after moving or renaming the class.
 
 ## Related skills
 
@@ -54,7 +59,7 @@ When a returned fact belongs to a different history, return `EventForEventSource
 
 For an explicit batch, receive `EventBatch` and handle each entry's own context. Report a failed partition with `batch.Fail(context, exception)` or defer the partition with `batch.Defer(context, retryAfter)` if supported. Do not represent an unperformed effect as success. If the business outcome needs a visible transition, give it to its existing owner; a failed partition is an operational failure, not that business transition. For local command outcomes use the refusal handling below; for leased occurrence work use the executor in `cratis-arc-invoke-command`.
 
-If the work is durable but not a domain fact, consider `Occurrences.Record` with a stable ID. A lease can redeliver. Transactional `UseEffectReceipt` is not a receipt from an external service. Do not put personal information in a trigger payload or a secret in a stored receipt.
+If the work is durable but not a domain fact, [record an occurrence](occurrences.md) with a stable ID. A lease can redeliver. Transactional `UseEffectReceipt` is not a receipt from an external service. Do not put personal information in a trigger payload or a secret in a stored receipt.
 
 ## Handle a refused follow-up command
 

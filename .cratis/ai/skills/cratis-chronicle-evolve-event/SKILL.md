@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-evolve-event
-description: Use when changing a stored event shape while old history and older readers must remain usable. Not for changing a relational schema (use cratis-arc-migrate-relational-schema).
+description: Use when evolving a stored event shape without breaking history or deployed readers, or planning an explicitly authorized historical repair. Not for changing a relational schema (use cratis-arc-migrate-relational-schema).
 compatibility: A supported application client and access to the intended kernel.
 ---
 
@@ -16,5 +16,6 @@ Keep the deployed event type ID. Give the changed shape its own generation and r
 - Elixir (`mix.exs`): [declare both Elixir directions](references/elixir.md).
 - Python has no released application client: [keep generation mapping in the producer boundary](references/python.md).
 - [deployed readers](references/deployed-readers.md)
+- [Bulk historical repair](references/bulk-repair.md) is an explicitly authorized exception, never the normal migration path.
 
 Store an old-generation example before introducing the new mapping. Check an upcast read, delivery to a reader pinned to the earlier shape, and replay across the boundary. Readiness to serve migrated history is not the same as accepting registration. If no mapping preserves required business meaning, stop for a contract decision.
