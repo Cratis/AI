@@ -8,7 +8,7 @@ compatibility: Requires @cratis/components, @cratis/arc.react and @cratis/fundam
 
 Default to one `CommandDialog` for a short submission. Bind the state change's input to the generated command. Submitting requests the change; it does not prove that an event committed.
 
-1. Under the app's `Arc` and `CratisComponentsProvider`, create `Features/Authors/Registration/AddAuthor.tsx`. Import the generated command from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
+1. In the Library example, under the app's `Arc` and `CratisComponentsProvider`, create `Features/Authors/Registration/AddAuthor.tsx`. Import the generated command from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
 
 ```tsx
 import { useState } from 'react';

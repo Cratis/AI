@@ -1,6 +1,6 @@
 # Start a Node host
 
-Use the Node application builder when the server should load host configuration. Explicit options override configuration; the Fetch entry point does not load configuration files. With generated metadata and features in the same package as the entry point:
+Use the Node application builder when the server should load host configuration. Explicit options override configuration; the Fetch entry point does not load configuration files. In the Library example (`Features/` is example-specific), the generated metadata and features are in the same package as the entry point:
 
 ```typescript
 import { ArcApplication } from '@cratis/arc.core';

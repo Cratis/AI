@@ -23,4 +23,4 @@ Check in this order for any missing signal: SDK not disabled, source subscribed,
 
 ## Renaming signals
 
-When renaming a metric or attribute your producer emits, emit the old and new names together for at least one minor release. Verify dashboards and alerts use the new name before removing the old one. Do not sum old and new series; they describe the same measurements.
+Published span, metric and attribute names and units are a contract. Document additive changes and release them as minor. When replacing a published signal or unit, emit both forms for at least one minor release, document the old form as deprecated and have dashboard and alert owners verify their migration before removing it in a major release. Do not sum the old and new series; they describe the same measurements.

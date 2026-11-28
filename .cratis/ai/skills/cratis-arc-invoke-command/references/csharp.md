@@ -2,7 +2,7 @@
 
 Prerequisite: an Arc host with the command registered; `ICommandPipeline` comes from dependency injection.
 
-Inject `ICommandPipeline` into the service that initiates registration. `Execute(command)` creates its own service scope. Await the result before recording the import as successful.
+Inject `ICommandPipeline` into the service that initiates registration. In a reactor, return the command invocation instead of injecting the pipeline; see `cratis-chronicle-react-to-fact`. `Execute(command)` creates its own service scope. Await the result before recording the import as successful.
 
 `RegisterAuthor` and `AuthorId` are the declared command and its identity. In `Features/Authors/Registration/AuthorImporter.cs`, using the `Cratis` global usings:
 
