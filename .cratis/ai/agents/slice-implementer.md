@@ -5,7 +5,6 @@ tools:
   - Read
   - Grep
   - Glob
-  - Bash
   - Edit
   - Write
 modelTier: scoped

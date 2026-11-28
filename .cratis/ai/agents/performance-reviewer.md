@@ -5,7 +5,6 @@ tools:
   - Read
   - Grep
   - Glob
-  - Bash
 readonly: true
 modelTier: reviewer
 reviewIndependence: different-provider

@@ -50,6 +50,7 @@
         "hooks": [
           {
             "type": "command",
+            "timeout": 3,
             "command": "bash \"$CLAUDE_PROJECT_DIR\"/.cratis/ai/hooks/scripts/cratis-pattern-scan.sh"
           }
         ]
