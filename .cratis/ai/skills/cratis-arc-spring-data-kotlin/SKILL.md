@@ -153,6 +153,6 @@ indeterminate outcomes rather than claiming atomic cross-store success.
 - For JPA, verify committed notifications, rollback suppression and the intended
   in-process boundary; test thread affinity before enabling transactions.
 
-Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/references/kotlin.md). For the Chronicle JVM client, use the `cratis-chronicle-select-client` skill; this skill covers Spring Data observation.
+Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/references/kotlin.md). For the Chronicle JVM client, use the `cratis-chronicle-select-client` skill (in `cratis/chronicle`); this skill covers Spring Data observation.
 
 For an existing projection, read [how to change collection names safely](references/read-model-naming.md).

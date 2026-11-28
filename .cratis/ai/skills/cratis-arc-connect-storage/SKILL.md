@@ -6,9 +6,9 @@ compatibility: Requires an Arc backend and a reachable database.
 
 # Connect Arc to the database it reads
 
-Match the integration to the data the slice reads, not to Chronicle's storage. Use the integration the SDK ships for that database, so naming, value serialization and tenant database selection agree with the writer. Take the typed collection, repository or session as a parameter of the query (`cratis-arc-expose-query` skill); don't build database or collection names in the query.
+Match the integration to the data the slice reads, not to Chronicle's storage. Use the integration the SDK ships for that database, so naming, value serialization and tenant database selection agree with the writer. Take the typed collection, repository or session as a parameter of the query (`cratis-arc-expose-query` skill in `cratis/arc`); don't build database or collection names in the query.
 
-Resolve tenant membership before selecting storage. For changes to an EF table, prepare a relational migration (`cratis-arc-migrate-relational-schema` skill) instead.
+Resolve tenant membership before selecting storage. For changes to an EF table, prepare a relational migration (`cratis-arc-migrate-relational-schema` skill in `cratis/arc/ef-core`) instead.
 
 ## Read the reference for the host
 
@@ -24,5 +24,5 @@ A known record is missing: compare the reader's physical server, database and co
 
 ## Related skills
 
-- Expose AllAuthors (`cratis-arc-expose-query` skill)
-- Select the tenant (`cratis-arc-isolate-tenant` skill)
+- Expose AllAuthors (`cratis-arc-expose-query` skill in `cratis/arc`)
+- Select the tenant (`cratis-arc-isolate-tenant` skill in `cratis/arc`)

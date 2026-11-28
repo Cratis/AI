@@ -6,10 +6,10 @@ compatibility: Requires a running Arc backend, its database and credentials for 
 
 # Find the missing live update
 
-Trace one write on one open subscription to the query (`cratis-arc-expose-query` skill), as the same authenticated caller, tenant and database throughout. Work from storage outward and stop at the first stage that fails:
+Trace one write on one open subscription to the query (`cratis-arc-expose-query` skill in `cratis/arc`), as the same authenticated caller, tenant and database throughout. Work from storage outward and stop at the first stage that fails:
 
-1. **The write succeeded.** Require a successful command (`cratis-arc-declare-command` skill) result before looking for an update.
-2. **The row is stored** where the reader looks. If not, check the projection (`cratis-chronicle-project-view` skill) and the storage connection (`cratis-arc-connect-storage` skill), not delivery.
+1. **The write succeeded.** Require a successful command (`cratis-arc-declare-command` skill in `cratis/arc`) result before looking for an update.
+2. **The row is stored** where the reader looks. If not, check the projection (`cratis-chronicle-project-view` skill in `cratis/chronicle`) and the storage connection (`cratis-arc-connect-storage` skill in `cratis/arc`), not delivery.
 3. **The server source emits.** The query returns the provider's observable, not a materialized list, and the store can notify changes.
 4. **The transport delivers.** A direct stream carries the changed row.
 5. **The client receives it.** Only then inspect the frontend.
@@ -26,7 +26,7 @@ The stage that drops the change is identified by a write whose known ID appears 
 
 ## Stop when
 
-Updates stop after an identity change: reconnect after switching accounts (see the `cratis-arc-react-bind-slice` skill), then check whether the emission guard (`cratis-arc-authorize-request` skill) denies the new caller.
+Updates stop after an identity change: reconnect after switching accounts (see the `cratis-arc-react-bind-slice` skill in `cratis/arc/react`), then check whether the emission guard (`cratis-arc-authorize-request` skill in `cratis/arc/identity`) denies the new caller.
 
 ## Avoid
 
@@ -36,5 +36,5 @@ Updates stop after an identity change: reconnect after switching accounts (see t
 
 ## Related skills
 
-- Connect the Mongo reader (`cratis-arc-connect-storage` skill)
-- Generate proxies (`cratis-arc-generate-proxies` skill)
+- Connect the Mongo reader (`cratis-arc-connect-storage` skill in `cratis/arc`)
+- Generate proxies (`cratis-arc-generate-proxies` skill in `cratis/arc/csharp`)

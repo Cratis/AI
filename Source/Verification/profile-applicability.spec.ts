@@ -30,15 +30,15 @@ const graph = (['publicProfiles', 'engineeringProfiles'] as const).flatMap(secti
 const ids = graph.map(row => row[1]);
 // Approved direct target hashes in profile-ID order.
 const targets = `
-908d1976a7 1c3c7eb826 996c0dc754 367c34a4b6 cebf4a7593 5651dff530 f339643561 f339643561
+efd6e8b20d 3424fc5c5b 996c0dc754 367c34a4b6 cebf4a7593 59bacc7ee5 15f7e15351 f339643561
 f339643561 a716d1b5a4 f339643561 8f6f16be90 8504cc7fa3 88970eef00 dbf8545981 1db6707330
-8f6f16be90 0aa9e41e1b - - - 281c886cc8 6e66dd670c -
+8f6f16be90 0aa9e41e1b 2f1722b9ff - - 281c886cc8 6e66dd670c -
 3ca074c722 36aa92822d ce00067af7 3ca074c722 - ce00067af7 1bc7624553 ce00067af7
-- 1770c151be - - - - ff6866b8a7 -
+- 843bd455c1 - - - - ff6866b8a7 -
 - efa0b818ea 7add883f54 4996440368 226f14578d 030aaaac72 31ff53d01f d0cd44ed70
 - 62b90a5763 4ebb42c901 - b68d53f554 db69f1593e 9dd86f9426 f5104113db
 d1d52a9549 ad1566413e 4eb24ff137 - - - - 172829aaee
-908d1976a7 - - - - - 9179c19ac8 f013db4081
+efd6e8b20d - - - - - 9179c19ac8 f013db4081
 6df07480cb 73ae16e0e5 73ae16e0e5 73ae16e0e5 73ae16e0e5 73ae16e0e5 73ae16e0e5 a3e6036337
 7cdba1bf33 26e63b3b48 a1e001f8a6 73ae16e0e5 01802ed9b3 133627f836 73ae16e0e5 c22d70c043
 172829aaee 09365dfbaf d9406ea53f 164273a28c
@@ -62,7 +62,14 @@ const eng = 'cratis/engineering';
 const governedReleases = 'cratis/methodology/governed-releases';
 const release = ['governed-release-methodology', 'platform-prepare-release-pr'];
 const core = ['arc-declare-command', 'chronicle-record-event', 'specifications-exercise-backend'];
-const entry = ['platform-start-application', 'platform-deliver-slice'];
+const startup = 'platform-start-application';
+const startupRoots = new Set([app, 'cratis', 'cratis/full']);
+const startupLanguages = new Set(['csharp', 'react', 'typescript']);
+const restoredCapabilities: { profile: string; language: string; skills: string[] }[] = [
+    { profile: 'cratis/arc/identity', language: 'csharp', skills: ['arc-authorize-request'] },
+    { profile: 'cratis/chronicle/core', language: 'go', skills: ['event-model-diagram', 'multi-service-local-orchestration'] },
+    { profile: 'cratis/application/elixir', language: 'elixir', skills: ['observability'] },
+];
 const byId = new Map(profiles.map(p => [p.id, p]));
 
 // v1 keeps explicit profile targets even when their language does not match. The opt-in v2 walkthrough
@@ -82,14 +89,17 @@ function goSpecialistProblems(profiles: string[], has: (name: string) => boolean
 
 function purpose({ profiles, languages }: Selection, installed: string[]): string[] {
     const [profile] = profiles;
-    const expected = profile === app || profile === 'cratis' || profile === 'cratis/full' ? [...core, ...entry]
+    const expected = startupRoots.has(profile) ? [...core, 'platform-deliver-slice']
         : profile === eng ? ['commits-and-pull-requests', 'platform-prepare-release-pr']
-        : profile === `${app}/csharp` ? core : /^cratis\/arc(?:\/(?:csharp|go))?$/.test(profile) ? core.slice(0, 1)
+        : profile === `${app}/csharp` ? [...core, startup] : /^cratis\/arc(?:\/(?:csharp|go))?$/.test(profile) ? core.slice(0, 1)
         : profile === 'cratis/chronicle' ? core.slice(1, 2) : [];
     const has = (name: string) => installed.includes(`cratis-${name}`);
+    const restored = restoredCapabilities.filter(({ profile, language }) => profiles.includes(profile) && languages.includes(language));
+    const supportsStartup = languages.some(language => startupLanguages.has(language));
     return [
-        ...expected.filter(name => !has(name)).map(name => `missing ${name}`),
-        ...(profile === eng ? [...core, ...entry].filter(has).map(name => `unexpected ${name}`) : []),
+        ...[...expected, ...restored.flatMap(({ skills }) => skills)].filter(name => !has(name)).map(name => `missing ${name}`),
+        ...(profile === eng ? [...core, 'platform-deliver-slice', startup].filter(has).map(name => `unexpected ${name}`) : []),
+        ...(startupRoots.has(profile) && has(startup) !== supportsStartup ? [`${supportsStartup ? 'missing' : 'unexpected'} ${startup}`] : []),
         ...(languages.join() === 'go' ? goSpecialistProblems(profiles, has) : []),
     ];
 }
@@ -110,6 +120,9 @@ test('explicit roots resolve per language', () => {
             const expected = skillClosure(byId, selection, 'pi');
             const problems = purpose(selection, expected);
             if (selectedSkillNames(cwd)?.join() !== expected.join()) problems.push('closure mismatch');
+            if ((id === app || id === eng) && !rulesForPath(cwd, '.cratis/ai.json').some(rule => rule.name === 'profiles.md')) {
+                problems.push('missing profile selection rule');
+            }
             return problems.map(problem => `${id}/${language}: ${problem}`);
         }));
         assert.deepEqual(failures, []);
@@ -118,6 +131,7 @@ test('explicit roots resolve per language', () => {
 
 const matrix: Selection[] = [
     ...[app, eng].flatMap(profile => languages.map(language => ({ profiles: [profile], languages: [language] }))),
+    ...restoredCapabilities.map(({ profile, language }) => ({ profiles: [profile], languages: [language] })),
     { profiles: [governedReleases], languages: ['go'] },
     ...`arc/server-typescript,arc/react typescript
 application java,kotlin

@@ -13,7 +13,7 @@ compatibility: Requires git and the GitHub CLI (gh).
 Where installed with `cratis/review`, read the `review-reports` rule before
 choosing reviewers or reporting findings. Its report shape, verdicts, scope
 limits, and reviewer independence apply to every round. This skill schedules reviews; it does not
-replace the criteria in `cratis-code-review` or specialist review skills.
+replace the criteria in `cratis-code-review` (in `cratis/review`) or specialist review skills.
 
 **Blocking** means a must-fix finding in **Blockers**, yielding **Changes
 requested**. **Advisory** means a non-blocking finding in **Suggestions**. An

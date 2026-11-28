@@ -25,7 +25,7 @@ This repository is a Cratis library or tool, not an application built on one.
 - Run the existing focused check that covers the change. Add or extend a spec only for uncovered public behavior.
 - Generators and analyzers ship their output as public surface. Change the generator, not the generated file.
 
-Use the `cratis-platform-contribute-change` skill to locate the contract and its focused check, and `cratis-platform-prepare-release-pr` for the release note and label.
+Use the `cratis-platform-contribute-change` skill (in `cratis/engineering/core`) to locate the contract and its focused check, and `cratis-platform-prepare-release-pr` (in `cratis/engineering/core`) for the release note and label.
 
 ## Platform .NET conventions
 

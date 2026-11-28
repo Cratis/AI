@@ -6,7 +6,7 @@ compatibility: Requires an Arc backend with the command already declared.
 
 # Dispatch a command from backend code
 
-Execute the declared command (`cratis-arc-declare-command` skill) through the command pipeline, never by calling its handler: the pipeline runs authorization, validation and the append. Let the pipeline own its scope unless the caller must share dependencies it already holds. Wait for the result before recording the work as done.
+Execute the declared command (`cratis-arc-declare-command` skill in `cratis/arc`) through the command pipeline, never by calling its handler: the pipeline runs authorization, validation and the append. Let the pipeline own its scope unless the caller must share dependencies it already holds. Wait for the result before recording the work as done.
 
 A result is not an exception. Inspect it and tell apart a refused caller, invalid input, a temporary refusal and a fault before reading the response. Validation alone is early feedback, not a dry run: it runs no handler and does not replace checking the final result.
 
@@ -24,5 +24,5 @@ Several commands form one job: decide first whether a failed item stops the job,
 
 ## Related skills
 
-- Declare a command (`cratis-arc-declare-command` skill)
+- Declare a command (`cratis-arc-declare-command` skill in `cratis/arc`)
 - [Validate its inputs](../cratis-arc-validate-command/SKILL.md)

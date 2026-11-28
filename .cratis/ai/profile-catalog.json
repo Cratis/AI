@@ -50,7 +50,6 @@
         "cratis-modeling-trace-existing-behavior",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
-        "cratis-platform-start-application",
         "cratis-platform-verify-service-handoff",
         "cratis-specifications-exercise-backend"
       ],
@@ -164,7 +163,6 @@
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
         "cratis-platform-deliver-slice",
-        "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [
@@ -308,6 +306,7 @@
         "cratis-chronicle-record-event",
         "cratis-chronicle-reduce-state",
         "cratis-fundamentals-name-value",
+        "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [
@@ -349,6 +348,7 @@
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
+        "cratis-observability",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [
@@ -660,6 +660,9 @@
       "composes": [
         "cratis/arc/core"
       ],
+      "availableTargets": [
+        "cratis-arc-authorize-request"
+      ],
       "languages": [
         "csharp",
         "react",
@@ -924,6 +927,8 @@
       "availableTargets": [
         "cratis-chronicle-deploy-kernel",
         "cratis-commits-and-pull-requests",
+        "cratis-event-model-diagram",
+        "cratis-multi-service-local-orchestration",
         "cratis-rtk"
       ],
       "languages": [
@@ -1168,7 +1173,6 @@
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
         "cratis-platform-deliver-slice",
-        "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [

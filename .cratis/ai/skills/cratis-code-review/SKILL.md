@@ -133,9 +133,9 @@ degradations a reviewer can see without measuring:
 ## Step 6 — Specification coverage
 
 - Check that direct specs cover consequential decisions
-  (`cratis-specifications-isolate-behavior`) and backend scenarios cover only
-  the obligations that depend on the pipeline, dispatch, mapping or constraints
-  (`cratis-specifications-exercise-backend`). Both skills are in `cratis/application`.
+  (`cratis-specifications-isolate-behavior` in `cratis/specifications/dotnet`) and backend
+  scenarios cover only the obligations that depend on the pipeline, dispatch, mapping or constraints
+  (`cratis-specifications-exercise-backend` in `cratis/application`).
   For application-owned decision guards, check one assembly-level admission spec
   rather than asking for races that re-prove framework behavior.
 - Presentation message strings are not asserted by default. Exact wording is

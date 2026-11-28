@@ -1,6 +1,6 @@
 # Connect an ASP.NET Core library service to Chronicle
 
-Start with a running kernel, its trusted endpoint and credentials for the application. If none exists, start a kernel (`cratis-chronicle-deploy-kernel` skill) first. Supply credentials through the deployment secret store rather than committing a credential-bearing connection string.
+Start with a running kernel, its trusted endpoint and credentials for the application. If none exists, start a kernel (`cratis-chronicle-deploy-kernel` skill in `cratis/chronicle/core`) first. Supply credentials through the deployment secret store rather than committing a credential-bearing connection string.
 
 1. Reference `Cratis.Chronicle.AspNetCore` in the standalone web project. Configure the endpoint under `Cratis:Chronicle:ConnectionString` in `appsettings.json`. Replace the example host and port with those of the Chronicle kernel. Use a certificate trusted by the application and enable validation explicitly:
 
@@ -27,11 +27,11 @@ app.UseCratisChronicle();
 await app.RunAsync();
 ```
 
-Choose the combined host when the app already uses Arc and Chronicle through `Cratis`: call `builder.AddCratis(configureChronicleOptions: options => options.EventStore = "library");` and `app.UseCratis();` instead of the two standalone calls. For namespace selection per tenant, see Isolate tenant access (`cratis-arc-isolate-tenant` skill).
+Choose the combined host when the app already uses Arc and Chronicle through `Cratis`: call `builder.AddCratis(configureChronicleOptions: options => options.EventStore = "library");` and `app.UseCratis();` instead of the two standalone calls. For namespace selection per tenant, see Isolate tenant access (`cratis-arc-isolate-tenant` skill in `cratis/arc/csharp`).
 
 ## Check the connection
 
-One-off wiring check, not a committed spec of namespace isolation. For a change to an application's tenant boundary, use its existing backend fixture (`cratis-specifications-exercise-backend` skill).
+One-off wiring check, not a committed spec of namespace isolation. For a change to an application's tenant boundary, use its existing backend fixture (`cratis-specifications-exercise-backend` skill in `cratis/application`).
 
 In a disposable namespace, resolve the scoped `IEventStore` and use [the registration event and source ID](../../cratis-chronicle-record-event/SKILL.md): `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));` with a fresh `AuthorId`. Check `result.IsSuccess`, then read `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` (`using Cratis.Chronicle.Events;`). With the same store name but a different namespace, the read must not return the registration. When logging a `Cratis.Chronicle.Connections.ChronicleConnectionString` use `connectionString.Redacted` rather than the raw value.
 
@@ -48,8 +48,8 @@ In a disposable namespace, resolve the scoped `IEventStore` and use [the registr
 
 ## Related skills
 
-- Configure the Arc host (`cratis-arc-host-application` skill)
-- Diagnose observer progress (`cratis-chronicle-inspect-observer` skill)
+- Configure the Arc host (`cratis-arc-host-application` skill in `cratis/arc/csharp`)
+- Diagnose observer progress (`cratis-chronicle-inspect-observer` skill in `cratis/chronicle/client-dotnet`)
 
 ## Select namespace and wait for registration
 

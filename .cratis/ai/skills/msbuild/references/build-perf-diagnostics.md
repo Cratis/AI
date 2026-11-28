@@ -111,7 +111,7 @@ Use these as investigation hints, not universal budgets or proof of a cause:
   > not `EnableNETAnalyzers` (it only disables the .NET SDK's own analyzers, so it is
   > not an owner switch), and never delete `Analyzer` items, which would also remove
   > generators. Each configuration/TFM/RID/property tuple has exactly one analyzer-owning
-  > build (see `cratis-ci-pipeline-performance`, `references/build-once-and-shard.md`).
+  > build (see `cratis-ci-pipeline-performance` in `cratis/engineering/core`, `references/build-once-and-shard.md`).
   > Measure with `-bl` and `ReportAnalyzer=true` before and after.
 
 - **GlobalPackageReference:** examine the project, `Directory.Build.props`,

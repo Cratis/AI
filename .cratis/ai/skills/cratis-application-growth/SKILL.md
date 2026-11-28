@@ -76,7 +76,7 @@ one purpose (shell and tenancy into the host or a `Tenancy.Contracts`, an engine
 with contracts); everything else moves into the module that owns it. Delete the project when it is empty.
 
 **Retiring a project that owns event types** removes those types: their stored events and registrations
-need an event-store plan before the project goes; use the `cratis-chronicle-evolve-event` skill.
+need an event-store plan before the project goes; use the `cratis-chronicle-evolve-event` skill (in `cratis/chronicle`).
 
 Done when: the seam baseline and the module-reference baseline reach zero.
 
@@ -109,7 +109,7 @@ name-scoped filters, which is where structural changes break. Say which phases w
 | Observers replay from the start, side effects repeat | A namespace or type name changed an observer identity | Pin the id, or repair stored identities before starting the new version |
 | `IFoo` not resolved, or the wrong implementation wins | Interface moved to `.Contracts`, so the same-namespace convention no longer binds; or extra bindings ran before explicit registrations | Register the pair explicitly; apply generated bindings once, after all explicit ones |
 | 404 from the frontend or a script after a rename | Arc routes follow the namespace | Regenerate proxies; replace hard-coded routes; update reverse-proxy rewrites |
-| A generated proxy lost members after a split | A project that only references a type emitted a copy over the owner’s proxy | Generate each project into its own package; map referenced assemblies with `AssemblyToPackageMapping`. See the `cratis-arc-generate-proxies` skill. |
+| A generated proxy lost members after a split | A project that only references a type emitted a copy over the owner’s proxy | Generate each project into its own package; map referenced assemblies with `AssemblyToPackageMapping`. See the `cratis-arc-generate-proxies` skill (in `cratis/arc/csharp`). |
 | API docs, authorization or Release stripping silently stopped applying | Code keyed on a namespace or path | Replace name keys with explicit declarations or one shared pattern |
 | Stored jobs fail to resume after a project rename or a move | Job type names are assembly-qualified | Keep `AssemblyName`; for a job type moved to another assembly, rewrite the stored names or leave a type forwarder |
 | Module B does not compile without module A's internals | Hidden coupling | Contract or lower project; never `InternalsVisibleTo` |
@@ -117,8 +117,8 @@ name-scoped filters, which is where structural changes break. Say which phases w
 
 ## Related
 
-- Modules deployed as separate services: the `cratis-platform-verify-service-handoff` skill and the `cratis-chronicle-publish-contract` skill.
+- Modules deployed as separate services: the `cratis-platform-verify-service-handoff` skill (in `cratis/application/arc-chronicle`) and the `cratis-chronicle-publish-contract` skill (in `cratis/chronicle`).
 - Superseding the structure's accepted records: `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
-- Verifying a slice against its model after a move: the `cratis-platform-deliver-slice` skill.
+- Verifying a slice against its model after a move: the `cratis-platform-deliver-slice` skill (in `cratis/application`).
 
 The host composes modules; platform code knows none. For example, Billing owns invoicing; Orders consumes Billing.Contracts, not Billing implementation files through a compile include. Before moving namespaces, inventory persisted observer and model IDs; preserve identity or plan a verified migration before rollout.

@@ -8,7 +8,7 @@ compatibility: Requires the Screenplay CLI.
 
 Use the command and observable query from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md). In the existing `model/Authors/registration.play`, insert the form directly under `module Library`. Insert each `screen` block inside the existing slice that owns its command or query, alongside those declarations. The headers below show placement; do not redeclare the slices in another file.
 
-1. Bind the form to `RegisterAuthor` and label the editable name. Do not add an `id` field. The AddAuthor dialog (`cratis-components-submit-form` skill) initializes the generated command with a fresh ID.
+1. Bind the form to `RegisterAuthor` and label the editable name. Do not add an `id` field. The AddAuthor dialog (`cratis-components-submit-form` skill in `cratis/components`) initializes the generated command with a fresh ID.
 2. Make Add a screen action: it does not require a selected row. Navigate to Authors only after successful submission.
 3. Bind the list to `AllAuthors` so the screen uses the modeled collection instead of a second local list.
 
@@ -84,4 +84,4 @@ For an opt-in Scene web form that collects query arguments, [wire the TypeScript
 - [Model automation](../cratis-screenplay-model-automation/SKILL.md) for system-triggered work on a local fact rather than a librarian's action.
 - [Model translation](../cratis-screenplay-model-translation/SKILL.md) when an outside observation must first become a local fact.
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to define the operation inputs and results.
-- Bind the React slice (`cratis-arc-react-bind-slice` skill) to implement the accepted interaction.
+- Bind the React slice (`cratis-arc-react-bind-slice` skill in `cratis/arc/react`) to implement the accepted interaction.

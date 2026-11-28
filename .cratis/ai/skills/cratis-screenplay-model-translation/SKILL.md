@@ -112,9 +112,9 @@ module Library
           name = "Aster"
 ```
 
-Transport the public event (`cratis-chronicle-publish-contract` skill) through the outbox and inbox. Test delivery separately; these model specifications don't run polling or transport.
+Transport the public event (`cratis-chronicle-publish-contract` skill in `cratis/chronicle`) through the outbox and inbox. Test delivery separately; these model specifications don't run polling or transport.
 
-If the outside system needs a new reusable provider package rather than just a boundary mapping, author the extension (`cratis-screenplay-author-extension` skill) separately. Declaring a translation does not install or activate a backend.
+If the outside system needs a new reusable provider package rather than just a boundary mapping, author the extension (`cratis-screenplay-author-extension` skill in `cratis/v2/application`) separately. Declaring a translation does not install or activate a backend.
 
 ## When it goes off the usual path
 

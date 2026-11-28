@@ -46,6 +46,6 @@ func RegisterBookCommand(builder *arc.Builder) error {
 }
 ```
 
-For the append example, register `BookRegistered` in the Chronicle event catalog and install the integration on the builder before `Build`. Use `cratis-chronicle-record-event` if installed for the Go event registration steps. The integration is a nested module: the root Arc version does not version it. Use a verified integration checkout or version as described in `cratis-arc-select-backend-sdk`; without the integration use the standalone reply example and don't claim an append.
+For the append example, register `BookRegistered` in the Chronicle event catalog and install the integration on the builder before `Build`. Use `cratis-chronicle-record-event` if installed for the Go event registration steps. The integration is a nested module: the root Arc version does not version it. Use a verified integration checkout or version as described in `cratis-arc-select-backend-sdk` (in `cratis/arc/go`); without the integration use the standalone reply example and don't claim an append.
 
 A plain return is not a request to persist. Use `chronicle.Events` to group event values and `chronicle.EventForSource` to name an individual event's target explicitly. Verify that target in a pipeline spec. For preparation before a decision, use `commands.WithProvide(provide, handle)` to bind the preparation function and consume its typed result. Finish registration before `Build`; it seals composition.

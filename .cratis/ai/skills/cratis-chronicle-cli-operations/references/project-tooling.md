@@ -26,7 +26,7 @@ fails; `--no-templates` skips it. CLI and template versions are separate. Do not
 silently enable scaffold scripts; preserve the template's `--allow-scripts`
 choice. Multi-service orchestration still needs explicit per-store settings.
 
-For `cratis render` / `run`, use the `cratis-stage-render-slice` skill. The bundled renderer determines support;
+For `cratis render` / `run`, use the `cratis-stage-render-slice` skill (in `cratis/stage`). The bundled renderer determines support;
 a CLI upgrade can change admission, generated output and the default container
 without changing the model. Never infer support from the ESM version alone or
 edit generated output to make an older CLI accept it.

@@ -13,11 +13,11 @@ that read one contract, produced from the model and a Cratis environment:
 |---|---|---|
 | **AuthProxy** | The only public entry point; signs people in with the model’s providers. | `Cratis:AuthProxy:Application`. |
 | **Ante** | **One per application.** Signs invitation tokens, serves the lobby, records acceptance and legal terms, publishes to its outbox. | `Ante:Onboarding:*`. |
-| **Herald** | Sends the invitation and welcome emails from the application (including the declined sign-up email). | `cratis-showrunner-herald`. |
+| **Herald** | Sends the invitation and welcome emails from the application (including the declined sign-up email). | `cratis-showrunner-herald` (in `cratis/application/arc-chronicle`). |
 
 Nobody writes the equivalent `Ante:*` or `Cratis:AuthProxy:*` keys by hand for a Screenplay
 application. The model supplies structure (providers, personas, invitation types, legal files);
-the **environment** supplies every value and secret (`cratis-environments-and-secrets`).
+the **environment** supplies every value and secret (`cratis-environments-and-secrets` in `cratis/cli`).
 
 **Requires** Ante 1.5.0 or later for `Ante:Onboarding:*`, AuthProxy 2.40.0 or later for
 `Cratis:AuthProxy:Application`, and Showrunner 1.11.0 or later for the `Performance` resource.
@@ -95,8 +95,8 @@ with its AuthProxy when the application has `authentication` and its own Ante wh
 ## Route near misses
 
 - The model's `onboarding` block and environment keys: `cratis-screenplay-authentication-and-onboarding`.
-- Environment commands and secrets providers: `cratis-environments-and-secrets`.
-- Sending the emails: `cratis-showrunner-herald`.
+- Environment commands and secrets providers: `cratis-environments-and-secrets` (in `cratis/cli`).
+- Sending the emails: `cratis-showrunner-herald` (in `cratis/application/arc-chronicle`).
 - Box Office offers, seats and entitlements beyond the default offering: Showrunner's Box Office documentation; this corpus covers only starting a tenant on the default offering.
 - Ante used by a host product, not a Screenplay application: Ante's own documentation; this corpus does not cover it.
-- Chronicle itself in a cluster: the `cratis-chronicle-deploy-kernel` skill.
+- Chronicle itself in a cluster: the `cratis-chronicle-deploy-kernel` skill (in `cratis/chronicle/core`).

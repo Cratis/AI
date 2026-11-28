@@ -2,7 +2,6 @@
 applyTo: "**/.cratis/**"
 paths:
   - "**/.cratis/**"
-profile: application
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

@@ -120,6 +120,6 @@ HTTP requests to test the resolver itself.
 ## Route near misses
 
 - Node host setup: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md).
-- Chronicle namespaces in .NET: the `cratis-chronicle-connect-application` skill.
+- Chronicle namespaces in .NET: the `cratis-chronicle-connect-application` skill (in `cratis/chronicle/client-dotnet`).
 - Request authorization: [cratis-arc-authorize-request](../cratis-arc-authorize-request/references/typescript.md).
 - C# Arc tenant resolution: the C# Arc skills.

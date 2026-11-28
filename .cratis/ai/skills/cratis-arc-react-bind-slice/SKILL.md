@@ -6,7 +6,7 @@ compatibility: Requires react, react-dom and compatible versions of @cratis/arc,
 
 # Bind generated proxies in a React component
 
-Start with a plain function component and React-enabled generated proxies (`cratis-arc-generate-proxies` skill). For the Library example below, choose the import reference for the backend that produced the files: a C# project (`.csproj`) → [C#](references/csharp.md); a Kotlin project (`.kt`) → [Kotlin](references/kotlin.md). Otherwise use the module that actually exports the generated proxy.
+Start with a plain function component and React-enabled generated proxies (use the `cratis-arc-generate-proxies` skill when installed). For the Library example below, choose the import reference for the backend that produced the files: a C# project (`.csproj`) → [C#](references/csharp.md); a Kotlin project (`.kt`) → [Kotlin](references/kotlin.md). Otherwise use the module that actually exports the generated proxy.
 
 In a new frontend, install `@cratis/arc`, `@cratis/arc.react`, `@cratis/fundamentals`, `react` and `react-dom`. Enable `experimentalDecorators: true` under `compilerOptions` in `tsconfig.json` for generated models that use legacy `@field` decorators, and use a build that honors that setting.
 
@@ -38,7 +38,7 @@ if (!authors.hasData) return <p>No authors yet.</p>;
 return <ul>{authors.data.map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>;
 ```
 
-3. For a name search in the same folder, import `AuthorsNamed` from the module that exports it; do not assume both queries share a module. That paged query (`cratis-arc-page-query` skill) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
+3. For a name search in the same folder, import `AuthorsNamed` from the module that exports it; do not assume both queries share a module. That paged query (`cratis-arc-page-query` skill in `cratis/arc`) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
 
 ```tsx
 const [matches] = AuthorsNamed.when(name.trim().length > 0).use({ name: name.trim() });
@@ -60,7 +60,7 @@ async function registerAuthor() {
 }
 ```
 
-Render the status and keep failed input for correction. Read the updated list from the query, not the submitted command. When collecting the inputs in a dialog, use `cratis-components-submit-form` instead; it executes the command itself.
+Render the status and keep failed input for correction. Read the updated list from the query, not the submitted command. When collecting the inputs in a dialog, use `cratis-components-submit-form` (in `cratis/components`) instead; it executes the command itself.
 
 ## Configure the host
 
@@ -81,7 +81,7 @@ Start with no rows, then register an author. The list should change without a pa
 ## Related skills
 
 - [Separate the view model](../cratis-arc-react-separate-view-model/SKILL.md) when presentation state belongs outside the component.
-- Check the user-visible result (`cratis-specifications-observe-ui` skill) if the binding changes a user journey.
+- Check the user-visible result (`cratis-specifications-observe-ui` skill in `cratis/application/react`) if the binding changes a user journey.
 - For a standard query-backed table, use `cratis-components-display-list` from the Components profile.
 
 For command state and refusal, read [commands.md](references/commands.md).

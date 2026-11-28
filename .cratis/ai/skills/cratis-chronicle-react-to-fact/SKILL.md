@@ -16,4 +16,4 @@ For a notification that must only begin after deployment, set the initial subscr
 - `mix.exs`: [handle the registered event module](references/elixir.md).
 - Python has no released application client: [delegate subscription ownership](references/python.md).
 
-Deliver the same event twice after simulating a lost acknowledgement. Expect one externally visible effect. Test replay separately from retry and initial catch-up. If the receiver cannot deduplicate, stop before enabling automatic redelivery of an irreversible effect. For a failing partition, inspect progress (`cratis-chronicle-inspect-observer` skill) before changing delivery policy.
+Deliver the same event twice after simulating a lost acknowledgement. Expect one externally visible effect. Test replay separately from retry and initial catch-up. If the receiver cannot deduplicate, stop before enabling automatic redelivery of an irreversible effect. For a failing partition, inspect progress (`cratis-chronicle-inspect-observer` skill in `cratis/chronicle/client-dotnet`) before changing delivery policy.

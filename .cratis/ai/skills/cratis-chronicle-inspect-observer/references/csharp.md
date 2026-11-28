@@ -46,4 +46,4 @@ To summarize captured attempts without printing their payloads, run `node script
 - [Check the reactor's delivery handling](../../cratis-chronicle-react-to-fact/SKILL.md) if retrying an announcement could send it twice.
 
 - [Check the original append](../../cratis-chronicle-record-event/SKILL.md)
-- Diagnose the live query connection (`cratis-arc-diagnose-live-query` skill)
+- Diagnose the live query connection (`cratis-arc-diagnose-live-query` skill in `cratis/arc/csharp`)

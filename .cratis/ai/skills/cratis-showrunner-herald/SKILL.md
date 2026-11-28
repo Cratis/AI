@@ -44,7 +44,7 @@ builder.AddHerald(herald =>
   validated at startup and the error names the option.
 - Defaults worth knowing: `DefaultLanguage` `en`, `Transport` `Smtp`, `Smtp.Security` `StartTls`,
   `Retry.MaxAttempts` 6, `PollingInterval` 5 seconds. Read [options](references/options.md) for the full table.
-- A `signupDeclined` email is sent from `OrganizationRegistrationDeclined` with the reviewer's message as a value; see `cratis-onboarding-runtime`.
+- A `signupDeclined` email is sent from `OrganizationRegistrationDeclined` with the reviewer's message as a value; see `cratis-onboarding-runtime` (in `cratis/modeling/screenplay-stage`).
 - Chronicle finds Herald's events through type discovery of referenced `Cratis*` packages.
 - Run the worker in **one** application instance: delivery is at least once.
 
@@ -105,6 +105,6 @@ a custom `IEmailTransport` before `AddHerald`.
 
 ## Route near misses
 
-- Events, reactors and projections that call Herald: the `cratis-chronicle-react-to-fact` skill and the `cratis-chronicle-project-view` skill.
-- Invitation tokens, the lobby and acceptance: `cratis-onboarding-runtime`.
-- Erasing personal data: the `cratis-chronicle-protect-personal-data` skill.
+- Events, reactors and projections that call Herald: the `cratis-chronicle-react-to-fact` skill (in `cratis/chronicle`) and the `cratis-chronicle-project-view` skill (in `cratis/chronicle`).
+- Invitation tokens, the lobby and acceptance: `cratis-onboarding-runtime` (in `cratis/modeling/screenplay-stage`).
+- Erasing personal data: the `cratis-chronicle-protect-personal-data` skill (in `cratis/chronicle`).

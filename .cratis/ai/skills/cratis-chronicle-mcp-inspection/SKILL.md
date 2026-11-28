@@ -92,7 +92,7 @@ publication, promotion or server assurance claim.
 
 ## Related
 
-`cratis-chronicle-cli-operations` covers replay, retry, quarantine clearing and
+`cratis-chronicle-cli-operations` (in `cratis/cli`) covers replay, retry, quarantine clearing and
 observer removal; MCP mutations are job control only. Neither surface redacts
 or revises events — those belong to the browser Workbench with separate
 authorization.

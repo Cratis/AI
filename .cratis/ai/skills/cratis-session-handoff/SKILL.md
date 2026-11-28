@@ -14,7 +14,7 @@ other worktrees, unanswered questions, the user's exact words) lives only in
 the session's context, so it is written down while the session is healthy, not
 reconstructed after it degrades. This skill covers one agent continuing its own
 task in a later session. Parallel lanes with claims, leases and inboxes use
-`cratis-orchestration-lanes`, which reuses the template here.
+`cratis-orchestration-lanes` (in `cratis/orchestration`), which reuses the template here.
 
 Keep work records in the ignored scratch folder (`.ai-work`). Open each handoff
 with the repository, branch, expected `HEAD`, named worktree paths and date.

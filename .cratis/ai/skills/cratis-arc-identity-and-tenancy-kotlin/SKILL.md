@@ -129,4 +129,4 @@ before changing an ingress adapter; do not hand-roll permissive parsing.
 - Run the application's `./gradlew build` and real storage/ingress checks.
 
 Command rules: `cratis-arc-validation-kotlin`. Standalone Chronicle namespaces:
-the `cratis-chronicle-select-client` skill, not this resolver configuration.
+the `cratis-chronicle-select-client` skill (in `cratis/chronicle/client-kotlin`), not this resolver configuration.

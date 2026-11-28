@@ -5,7 +5,7 @@ description: Use when an existing codebase needs a candidate event model or its 
 
 # Trace one journey through existing code
 
-Let the user choose a journey with a start and a result, such as a librarian registering an author and finding the name in the Authors list. Both modes are read-only: report what you find without changing code, data or model. Use synthetic values. No running target is required; do not inspect production by default. For a recording alone, recover intent from the recording (`cratis-screenplay-recover-intent` skill).
+Let the user choose a journey with a start and a result, such as a librarian registering an author and finding the name in the Authors list. Both modes are read-only: report what you find without changing code, data or model. Use synthetic values. No running target is required; do not inspect production by default. For a recording alone, recover intent from the recording (`cratis-screenplay-recover-intent` skill in `cratis/screenplay`).
 
 ## Choose the mode
 

@@ -35,7 +35,7 @@ behavior this file does not already state.
 - General correctness and maintainability: use `cratis-code-review`. Its
   performance section is the pass-by list; this skill is the focused one. When
   both have run, do not restate the same finding twice.
-- Adding paging rather than judging it: use `cratis-arc-page-query` from
+- Adding paging rather than judging it: use `cratis-arc-page-query` (in `cratis/arc`) from
   `cratis/application`.
 - Security or data exposure: use `cratis-security-review`. An over-fetching
   payload is a finding for both — say which lens produced it.

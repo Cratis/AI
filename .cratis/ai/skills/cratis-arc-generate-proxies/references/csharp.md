@@ -1,8 +1,8 @@
 # Generate the author contracts
 
-For an event-sourced command and a live page, deliver the whole slice (`cratis-platform-deliver-slice` skill): generate after the event has a projection and the view has a query. A command proxy alone cannot update the list.
+For an event-sourced command and a live page, deliver the whole slice (`cratis-platform-deliver-slice` skill in `cratis/application`): generate after the event has a projection and the view has a query. A command proxy alone cannot update the list.
 
-Build the project containing RegisterAuthor (`cratis-arc-declare-command` skill) and AllAuthors (`cratis-arc-expose-query` skill). `Cratis` includes `Cratis.Arc.ProxyGenerator.Build`; with `Cratis.Arc` alone reference the build package directly.
+Build the project containing RegisterAuthor (`cratis-arc-declare-command` skill in `cratis/arc/csharp`) and AllAuthors (`cratis-arc-expose-query` skill in `cratis/arc/csharp`). `Cratis` includes `Cratis.Arc.ProxyGenerator.Build`; with `Cratis.Arc` alone reference the build package directly.
 
 Add these properties to `Library.csproj`:
 
@@ -38,8 +38,8 @@ Merge this section into the host project's `appsettings.json`, preserving other 
 
 ## Related skills
 
-- Use the generated query (`cratis-arc-react-bind-slice` skill)
-- Expose the query (`cratis-arc-expose-query` skill)
+- Use the generated query (`cratis-arc-react-bind-slice` skill in `cratis/arc/react`)
+- Expose the query (`cratis-arc-expose-query` skill in `cratis/arc/csharp`)
 
 ## Compare the route on both sides
 

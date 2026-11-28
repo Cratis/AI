@@ -86,5 +86,5 @@ Outside Arc's command pipeline, [guard the standalone append explicitly](standal
 
 ## Related skills
 
-- Validate command input (`cratis-arc-validate-command` skill)
+- Validate command input (`cratis-arc-validate-command` skill in `cratis/arc/csharp`)
 - [Reserve a unique value](../../cratis-chronicle-constrain-append/SKILL.md)

@@ -44,5 +44,5 @@ The model's `x-screenplay-observable` marks a live query; the plain `GET` and st
 ## Related skills
 
 - [Declare the model slice](../cratis-screenplay-declare-slice/SKILL.md) for its qualified name.
-- Render the accepted slice (`cratis-stage-render-slice` skill) to preview generated changes and assign target gaps before publication.
-- Deliver the slice (`cratis-platform-deliver-slice` skill) for the running application check.
+- Render the accepted slice (`cratis-stage-render-slice` skill in `cratis/stage`) to preview generated changes and assign target gaps before publication.
+- Deliver the slice (`cratis-platform-deliver-slice` skill in `cratis/application`) for the running application check.
