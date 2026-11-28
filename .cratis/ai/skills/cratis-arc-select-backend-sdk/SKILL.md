@@ -8,7 +8,7 @@ compatibility: Requires the toolchain for the selected host.
 
 Use the language and host of the service that owns the feature. Prove the command with its native dispatcher before integrating a browser client. A compatible HTTP envelope doesn't make .NET attributes, dependency injection or commit semantics portable.
 
-Read only the reference for the service being changed: `.csproj` → [C#](references/csharp.md); Node server `package.json` → [TypeScript](references/typescript.md); `.kt` → [Kotlin](references/kotlin.md); `.java` → [Java](references/java.md); `go.mod` → [Go](references/go.md); `mix.exs` → [Elixir](references/elixir.md). Python has no released Arc application SDK; call the owning service over HTTP instead.
+Read only the reference for the service being changed: `.csproj` → [C#](references/csharp.md); Node server `package.json` → [TypeScript](references/typescript.md); `.kt` → [Kotlin](references/kotlin.md); `.java` → [Java](references/java.md); `go.mod` → [Go](references/go.md); `mix.exs` → [Elixir](references/elixir.md). [Python](references/python.md) has no released Arc application SDK; call the owning service over HTTP instead.
 
 ## When a client must work with two services
 

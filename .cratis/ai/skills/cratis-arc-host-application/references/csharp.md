@@ -43,3 +43,11 @@ Run `dotnet run` from the host project directory. With the options above, reques
 - Do not omit either half of `AddCratisArc()` / `UseCratisArc()`.
 - Do not add a controller for a model-bound query; put the method on its read model.
 - When adding Chronicle, replace the Arc-only registration rather than registering Arc twice.
+
+## Locate a missing host capability
+
+Use `AddCratis` / `UseCratis` for the combined host, not a second Chronicle registration. Standalone `ArcApplication` uses `Hosting.ApplicationUrl`; ASP.NET uses its own listener settings. Verify the bound address before troubleshooting a route. If generated routes are absent, check discovery and endpoint mapping; distinguish an unmapped route from one challenging the caller. Check introspection and query health independently. Development identity/tenant fixtures and detailed exception responses belong only in development. Do not change a production environment to Development to make diagnostics appear.
+
+Availability is distinct from authorization. Ask about the same part with the same arguments as execution. Suspension takes precedence over audience entitlement. If the host cannot evaluate availability, report a retryable evaluation failure, not permission or a permanent denial.
+
+Turning MVC endpoints off at runtime is not removing MVC from a trimmed/AOT publication. Exercise the published artifact with application JSON metadata registered before serializer options freeze. Expose the embedded event-model viewer only when intended for that deployment.

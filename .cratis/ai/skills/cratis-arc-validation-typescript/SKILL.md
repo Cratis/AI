@@ -15,7 +15,7 @@ the member it concerns — never as a thrown error.
 Arc for TypeScript ships as stable 1.0.0 packages on npm (`@cratis/arc.core`
 and the other server packages). The published
 `@cratis/arc` client is separate; it runs the client-safe rules the proxy
-generator copies into generated proxies. For Node server setup, use [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md).
+generator copies into generated proxies. For Node server setup, use [declare the command](../cratis-arc-declare-command/references/typescript.md).
 
 `ValidationResult` is both the exported interface and a value with the helpers
 `ValidationResult.information/warning/error(message, options?)`; the positional
@@ -290,7 +290,7 @@ describe('when validating a task with an empty title', given(a_task_registration
 
 ## Route near misses
 
-- Defining the Node command or query: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md).
+- Defining the Node command or query: [declare the command](../cratis-arc-declare-command/references/typescript.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/references/typescript.md).
 - Append-time uniqueness or concurrency: [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md).
 - The .NET validation shape: [cratis-arc-validate-command](../cratis-arc-validate-command/SKILL.md); Kotlin/Java:
   `cratis-arc-validation-kotlin` in `cratis/arc/client-kotlin`.

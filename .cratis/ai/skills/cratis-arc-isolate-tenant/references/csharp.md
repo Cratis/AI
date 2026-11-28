@@ -49,3 +49,5 @@ Register the same `AuthorId` with different names in tenant A and tenant B as au
 - Do not trust membership supplied in a command body; inspect the verified principal.
 - Do not perform I/O in `IsMember`; use membership already established for this request.
 - Do not configure a single fixed tenant for a host serving multiple tenants.
+
+`ITenantIdResolver` returns a tenant identity; `TenantId.NotSet` is a sentinel, not null. Header, query and host selection remain caller-controlled until membership has been checked. Never carry an unchecked selection into an explicit worker scope.

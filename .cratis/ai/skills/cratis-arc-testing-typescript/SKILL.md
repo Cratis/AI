@@ -146,5 +146,5 @@ does not transform decorators.
 
 ## Route near misses
 
-- Writing the command or query itself: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md). The rule vocabulary is in [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
+- Writing the command or query itself: [declare the command](../cratis-arc-declare-command/references/typescript.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/references/typescript.md). The rule vocabulary is in [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
 - Specification naming and fixtures in general: `cratis-specifications-isolate-behavior` in `cratis/application`.

@@ -15,6 +15,6 @@ Give each business identity its own name. Choose its owner before its representa
 
 For an Elixir command or event identity, read [Elixir](references/elixir.md).
 
-No Python Arc application recipe is verified. Keep the scalar wire contract and validate it at the owning service boundary.
+No [Python](references/python.md) Arc application recipe is verified. Keep the scalar wire contract and validate it at the owning service boundary.
 
 Round-trip through the production wire and storage codecs. Stop if the scalar becomes a wrapper object, loses precision or can no longer hydrate the named value.

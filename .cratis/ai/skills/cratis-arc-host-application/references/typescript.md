@@ -14,3 +14,5 @@ await app.run({ port: 3000 });
 ```
 
 Register dependencies required by the discovered features before building. In an existing Express, Fastify or Hono service, mount the adapter on the existing host instead of starting a second listener. Mount the WebSocket transport separately if a client observes live queries; a successful finite HTTP query only proves HTTP registration.
+
+When the Node builder loads configuration, explicit code options override configured settings. A Fetch-only entry point does not read host configuration for you: supply the options explicitly. Development identity providers and detailed exception responses are independent settings; enabling one is not a reason to expose the other.

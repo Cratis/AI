@@ -40,3 +40,9 @@ Merge this section into the host project's `appsettings.json`, preserving other 
 
 - [Use the generated query](../../cratis-arc-react-bind-slice/SKILL.md)
 - [Expose the query](../../cratis-arc-expose-query/SKILL.md)
+
+## Compare the route on both sides
+
+Match `CratisProxiesApiPrefix` to `GeneratedApis:RoutePrefix` and `CratisProxiesSegmentsToSkip` to `GeneratedApis:SegmentsToSkipForRoute`. The two `CratisProxiesSkipCommandNameInRoute` / `CratisProxiesSkipQueryNameInRoute` build flags are **inverses** of the corresponding runtime `IncludeCommandNameInRoute` / `IncludeQueryNameInRoute`. A reverse proxy path base precedes the generated route, not part of its namespace. Inspect one generated URL and call the deployed route. A clean build proves generation, not mapping.
+
+Local validation only checks what the client knows. Remote validation exercises the server rules but is not a command execution. If the contract changed, regenerate from the producer and recompile the consumer rather than adjusting a stale client's local rules.

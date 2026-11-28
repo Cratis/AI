@@ -45,3 +45,9 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
 
 - [Discover the timeline](../../cratis-modeling-discover-timeline/SKILL.md) to identify the thing that owns the history.
 - [Declare the command](../../cratis-arc-declare-command/SKILL.md) once the request values are named.
+
+## Choose who creates the value
+
+Use `IGeneratable<T>` for context-free creation; use `IGeneratableInContext<T>` when the value depends on captured time or tenant. Do not read a new wall clock in the latter. Context-based UUIDv7 requires a context time. A sortable ID gives neither authorization nor a uniqueness constraint. Keep client-owned, natural and issuer-owned keys rather than replacing them with random ones. Test the factory directly and pin its named value separately in a pipeline scenario to prove wiring.
+
+For GeoJSON reuse `Point`, `LineString` and `Polygon`; coordinates are longitude then latitude. Changing a persisted shape requires migration, not just renaming a CLR type.

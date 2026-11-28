@@ -14,7 +14,7 @@ Use one operation per provider action. Work that cannot be undone, such as sendi
 
 For a command in a `*.csproj`, read [C#](references/csharp.md); for a Node server package, read [TypeScript](references/typescript.md); for a `go.mod` server, read [Go](references/go.md).
 
-Kotlin, Java and Elixir have no verified returned-operation runner. If delivery after commit is acceptable, record a durable fact and process it idempotently. If the contract requires compensation before commit, put the command in a supported host. Python callers should invoke that service over HTTP, not simulate rollback locally.
+Kotlin, Java and Elixir have no verified returned-operation runner. If delivery after commit is acceptable, record a durable fact and process it idempotently. If the contract requires compensation before commit, put the command in a supported host. [Python](references/python.md) callers should invoke that service over HTTP, not simulate rollback locally.
 
 ## Expected outcome
 
@@ -34,3 +34,9 @@ In a pipeline scenario, make the provider call fail after it may have been accep
 
 - [Declare a command](../cratis-arc-declare-command/SKILL.md)
 - [React after commit](../cratis-chronicle-react-to-fact/SKILL.md)
+
+For Elixir callers, read the [service boundary](references/elixir.md).
+
+For Java callers, read the [service boundary](references/java.md).
+
+For Kotlin callers, read the [service boundary](references/kotlin.md).

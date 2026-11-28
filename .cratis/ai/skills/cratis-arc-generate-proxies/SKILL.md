@@ -13,6 +13,6 @@ Generate from the server that owns the command or query. Use its registration an
 - For a Java module, read [Java](references/java.md).
 - For a Mix application, read [Elixir](references/elixir.md).
 
-No separately tagged Go generator module or Python Arc application generator is verified. Maintain an HTTP client against the service contract rather than installing a tool from an unrelated module tag.
+For Go, read the [generator release boundary](references/go.md). No [Python](references/python.md) Arc application generator is verified. Maintain an HTTP client against the service contract rather than installing a tool from an unrelated module tag.
 
 Regenerate after renaming a contract, compile the consumer, and call one real endpoint. A successful build with a wrong route is not a passing check.

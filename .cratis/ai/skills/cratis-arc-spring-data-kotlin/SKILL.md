@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-spring-data-kotlin
-description: Kotlin-only. Use when wiring Spring Data JPA or MongoDB persistence, current-state injection or storage-backed observations in an Arc Kotlin application. Not for Chronicle projections, C# EF Core or query transport alone.
+description: Use when wiring Spring Data JPA or MongoDB persistence, current-state injection or storage-backed observations in an Arc Kotlin application (Kotlin only). Not for Chronicle projections, C# EF Core or query transport alone.
 license: MIT
 ---
 
@@ -153,4 +153,6 @@ indeterminate outcomes rather than claiming atomic cross-store success.
 - For JPA, verify committed notifications, rollback suppression and the intended
   in-process boundary; test thread affinity before enabling transactions.
 
-Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md). For the Chronicle JVM client, use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md); this skill covers Spring Data observation.
+Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/references/kotlin.md). For the Chronicle JVM client, use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md); this skill covers Spring Data observation.
+
+For an existing projection, read [how to change collection names safely](references/read-model-naming.md).

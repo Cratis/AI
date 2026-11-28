@@ -63,3 +63,5 @@ Test three paths against the deployed listener: a direct request that skips the 
 `/.cratis/me` answers from the authenticated principal and returns 401 without one. `IProvideIdentityDetails` adds presentation data for the frontend; it grants nothing. After an account change, clear the frontend's cached identity and reconnect authorized subscriptions.
 
 Arc also ships personal access tokens (`IPersonalAccessTokens`) for non-interactive callers. Pick the mechanism the deployment needs; no single topology is required.
+
+A legacy client may fall back to presentation data if the identity route is absent (404), never if the server challenged or denied access (401/403). Clear cached presentation details when the account changes. Neither the cache nor a display cookie establishes a caller for a write.
