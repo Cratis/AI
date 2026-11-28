@@ -74,6 +74,12 @@ Put a repeatable mechanical operation in `scripts/` when a script removes repeat
 
 Prose does not enforce itself. A constraint that an analyzer, a lint, a hook or CI can check ships as that check, with at most a one-line pointer in a rule.
 
+## Evaluate behavior
+
+When authoring or materially changing a skill, keep at least three realistic requests that should select it and three near misses that name the sibling that should win in `Evaluations/corpus-v2/skills/<skill>/trigger.json`. Keep one to three output tasks with checkable assertions in `evals.json` in the same directory.
+
+When model runs are authorized, evaluate routing and compare each output task with the same task run without the skill. For these cases, `verify` checks the inputs; it does not prove routing or improvement. If model runs are unauthorized or not run, report behavior as **unverified**, not passing.
+
 ## Change together, then verify
 
 Change the skill, its `references/` and its entry in `profile-catalog.json` in one change. Regenerate the harness adapters after changing a rule; never edit a generated adapter. Then run:

@@ -55,8 +55,11 @@ A fix belongs in the library that owns the setup, not in each consuming reposito
 
 ## Test each guarantee where it can break
 
-- A suite that tests a dependency's semantics belongs in that dependency's own
-  repository. In a consumer, run it only when the dependency pin changes, or nightly.
+Follow the consumer-owned PR coverage, upstream case mapping and timing requirements
+in `verification-discipline.md` before relocating any check.
+
+- A suite that tests only a dependency's semantics belongs in that dependency's own
+  repository. In a consumer, run that duplicate coverage only when the dependency pin changes, or nightly.
 - Check a wire or API shape with a committed snapshot and a diff, not a live
   integration run.
 - Mixed-version or upgrade matrices run nightly or before a release, not on every
