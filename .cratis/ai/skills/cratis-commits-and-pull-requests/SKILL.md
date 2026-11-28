@@ -1,6 +1,6 @@
 ---
 name: cratis-commits-and-pull-requests
-description: Use before staging changes, writing a commit message or deciding when to commit. Not for preparing a release-note PR body or choosing its label (use cratis-platform-prepare-release-pr).
+description: Use before staging changes, writing a commit message or checking a pull request against repository policy. Not for preparing a platform release (use cratis-platform-prepare-release-pr).
 license: LICENSE
 compatibility: Requires Git.
 ---
@@ -18,9 +18,9 @@ deciding when to commit. Stage specific files and inspect `git diff --cached`;
 never commit an unbuildable unit. Run affected-project gates, then the
 repository-required checks before pushing. Never replace history for a tidier PR.
 
-cratis-platform-prepare-release-pr (`cratis/engineering/core`) owns PR bodies and
-release labels.
+For pull requests, follow the [description policy](references/pr-description.md) and
+[release label policy](references/pr-labels-and-release.md).
 
 ## When asked to ship
 
-An explicit ship or land request authorizes the delivery chain only as repository policy permits. A commit-only or PR-only request stops there. Review holds, release trains and explicit no-merge instructions win. A release label grants no authority: secure human confirmation or human merge for major releases where required. Before opening the PR, check its [description](references/pr-description.md) and [release label](references/pr-labels-and-release.md).
+An explicit ship or land request authorizes the delivery chain only as repository policy permits. A commit-only or PR-only request stops there. Review holds, release trains and explicit no-merge instructions win. A release label grants no authority: secure human confirmation or human merge for major releases where required.
