@@ -13,14 +13,15 @@ import { packageProblems, retiredSkills, sharedSkills } from './corpus-shape.ts'
 import { directWorkerProblems, shimBudgetProblems, workerRuleProblems } from './direct-worker.ts';
 import { installedLinkProblems } from './installed-links.ts';
 import { nativeRouteProblems } from './native-routes.ts';
+import { type Profile, type Selection, skillClosure } from './profile-closure.ts';
 import { skillBody } from './skill-structure.ts';
 
 const root = resolve(import.meta.dirname, '../..');
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) as T;
 const sorted = (items: Iterable<string>) => [...items].sort();
 const digest = (x: unknown) => createHash('sha256').update(JSON.stringify(x)).digest('hex');
-interface Profile { id: string; composes?: string[]; languages?: string[]; availableTargets?: string[]; description?: string; featured?: boolean }
-const catalog = readJson<Record<'publicProfiles' | 'engineeringProfiles', Profile[]>>(join(root, '.cratis/ai/profile-catalog.json'));
+interface CatalogProfile extends Profile { description?: string; featured?: boolean }
+const catalog = readJson<Record<'publicProfiles' | 'engineeringProfiles', CatalogProfile[]>>(join(root, '.cratis/ai/profile-catalog.json'));
 const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
 const manifest = readJson<{ profiles: string[]; languages: string[] }>(join(root, '.cratis/ai/manifest.json'));
 // 88b9b9af1 + the walkthrough.
@@ -58,19 +59,11 @@ test('catalog and offered targets match the approved plan', () => {
 const languages = ['csharp', 'typescript', 'kotlin', 'java', 'go', 'elixir', 'python'];
 const app = 'cratis/application';
 const eng = 'cratis/engineering';
+const governedReleases = 'cratis/methodology/governed-releases';
+const release = ['governed-release-methodology', 'platform-prepare-release-pr'];
 const core = ['arc-declare-command', 'chronicle-record-event', 'specifications-exercise-backend'];
 const entry = ['platform-start-application', 'platform-deliver-slice'];
-interface Selection { profiles: string[]; languages: string[] }
 const byId = new Map(profiles.map(p => [p.id, p]));
-
-function closure({ profiles, languages }: Selection): string[] {
-    const reached = new Set(profiles);
-    for (const id of reached) for (const child of byId.get(id)!.composes ?? []) {
-        const allowed = byId.get(child)!.languages;
-        if (!allowed?.length || allowed.some(lang => lang === 'language-agnostic' || languages.includes(lang))) reached.add(child);
-    }
-    return sorted(new Set([...reached].flatMap(id => byId.get(id)!.availableTargets ?? [])));
-}
 
 function purpose({ profiles: [profile], languages }: Selection, installed: string[]): string[] {
     const expected = profile === app || profile === 'cratis' || profile === 'cratis/full' ? [...core, ...entry]
@@ -96,7 +89,7 @@ test('explicit roots resolve per language', () => {
         const failures = profiles.flatMap(({ id }) => languages.flatMap(language => {
             const selection = { profiles: [id], languages: [language] };
             writeFileSync(join(cwd, '.cratis/ai.json'), JSON.stringify(selection));
-            const expected = closure(selection);
+            const expected = skillClosure(byId, selection, 'pi');
             const problems = purpose(selection, expected);
             if (selectedSkillNames(cwd)?.join() !== expected.join()) problems.push('closure mismatch');
             return problems.map(problem => `${id}/${language}: ${problem}`);
@@ -107,6 +100,7 @@ test('explicit roots resolve per language', () => {
 
 const matrix: Selection[] = [
     ...[app, eng].flatMap(profile => languages.map(language => ({ profiles: [profile], languages: [language] }))),
+    { profiles: [governedReleases], languages: ['go'] },
     ...`arc/server-typescript,arc/react typescript
 application java,kotlin
 application/kotlin,arc/react kotlin,react
@@ -188,8 +182,12 @@ for (const selection of matrix) {
         const installed = readJson<{ Files: Array<{ Destination: string }> }>(join(cwd, '.cratis/ai.manifest.json'));
         assert.deepEqual(sorted(installed.Files.map(f => f.Destination).filter(path => path.startsWith('skills/'))), sorted(files.keys()));
         const names = sorted([...files.keys()].filter(path => /^skills\/[^/]+\/SKILL\.md$/.test(path)).map(path => path.split('/')[1]));
-        assert.deepEqual(names, closure(selection));
+        assert.deepEqual(names, skillClosure(byId, selection, 'cli'));
         assert.deepEqual(purpose(selection, names), []);
+        if (profiles[0] === 'cratis' || profiles[0] === governedReleases) {
+            // v1 excludes this composed, empty-language profile under a language filter but honors an explicit root.
+            for (const name of release) assert.equal(names.includes(`cratis-${name}`), profiles[0] === governedReleases);
+        }
         const problems = [...installedLinkProblems(files), ...packageProblems(files, retiredSkills)];
         for (const skill of sharedSkills.filter(name => names.includes(name))) {
             const prefix = `skills/${skill}/`;
