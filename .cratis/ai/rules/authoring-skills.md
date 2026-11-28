@@ -46,6 +46,17 @@ A version is kept only when it marks a prerequisite. Before deleting one, decide
 - A skill never links or refers to a path that exists only in the corpus repository, such as its documentation, evaluations or verification sources. Installed skills are read without them.
 - Refer to a rule by name, in backticks, with the profile that installs it. Do not link to a rule from a skill: the rule may not be installed where the skill is.
 
+## Tasks that several SDKs implement
+
+Cratis applications are written in C#, TypeScript (Node server and React), Kotlin, Java, Go and Elixir, and the SDK feature sets differ; Python has no released application SDK. Write one skill per task, not one per language. An existing shared skill whose `SKILL.md` carries a single language's code is converted: that code moves to its `references/<lang>.md`, and the other languages get a reference or a stated gap.
+
+- **`SKILL.md` stays implementation-neutral.** It states the decision, the default, the expected outcome and when to stop, and it contains no host-language code. It tells the reader which artifact selects which reference: `*.csproj` → C#, a Node server `package.json` → TypeScript, `*.kt` → Kotlin, `*.java` → Java, `go.mod` → Go, `mix.exs` → Elixir. A React `.tsx` consumer of generated proxies is a different task from a Node server.
+- **Each SDK gets its own reference:** `references/csharp.md`, `typescript.md`, `kotlin.md`, `java.md`, `go.md`, `elixir.md`. Java has its own file even where its annotations match Kotlin's. Each reference gives the native prerequisite, one worked example, the observable result and what to do when it is absent. Split a reference into `references/<lang>-<topic>.md` only when one file cannot hold the material usefully.
+- **State every gap.** For each SDK without the capability, `SKILL.md` names it as unsupported and gives the safe alternative. Never let the reader adapt another language's reference. Python gets `references/python.md` only for a verified boundary, such as contracts or an external worker, never for a guessed recipe.
+- **Split into a separate skill** only when the trigger, default, nearest exclusion or done-condition differs, or when only one implementation exists (EF Core migrations, MCP exposure, Spring Data, ESLint, React view models). Such a skill teaches its one implementation directly, with no router. Syntax differences alone never justify a second skill.
+
+Neutral modeling, Screenplay and operator skills may use topical references; that exception never covers language-specific material in a shared skill.
+
 ## One source of truth
 
 A skill owns its task. Another skill or rule that touches the task hands off to it instead of repeating the steps, because copies diverge on the next edit. Resolve a contradiction at its source.
