@@ -9,7 +9,6 @@ paths:
   - "**/src/pages/**/*.html"
   - "**/src/content/**/*.md"
   - "**/src/content/**/*.mdx"
-profile: cratis/content
 ---
 
 # Writing content that people and assistants can find

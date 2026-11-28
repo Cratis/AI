@@ -4,10 +4,10 @@
 
 | Profile | Select it when |
 | --- | --- |
-| `cratis/application` | The repository builds an application on Cratis. Installs the v2 platform skills for modeling a business flow, implementing backend and UI slices, and running and diagnosing them. |
+| `cratis/application` | The repository builds an application on Cratis. Shared tasks route to the matching SDK guidance or explain a capability gap. |
 | `cratis/engineering` | The repository is a Cratis library or tool. Installs platform skills and internal engineering guidance. With C# it includes .NET build, diagnostics, performance, Orleans, testing and refactoring skills. |
 
-`cratis ai profiles list` shows the featured starting points; `--all` also lists the specialist profiles. Select the profiles you need for language-specific work, documentation, content, review, CodeScene, CLI or Workbench, and orchestration. For example, .NET 11 migration is a separate opt-in (`cratis/engineering/dotnet/migrate-dotnet11`). See the [profile inventory](./corpus-migration.md#profiles).
+`cratis ai profiles list` and `cratis ai profiles list --output json` both list every profile in this catalog. On CLI versions that support `--all`, it is optional here because no profiles are featured. Select specialist profiles by ID when needed. For example, .NET 11 migration is a separate opt-in (`cratis/engineering/dotnet/migrate-dotnet11`). Select `cratis/v2/application` explicitly for the mixed .NET and React walkthrough. See [how profiles compose](./corpus-migration.md#profiles).
 
 ## Install with the Cratis CLI
 

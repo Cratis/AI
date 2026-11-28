@@ -10,7 +10,6 @@ paths:
   - "**/tools/**"
   - "**/.github/workflows/**"
   - "**/.cratis/ai/hooks/**"
-profile: framework
 ---
 
 # Scripts and tooling

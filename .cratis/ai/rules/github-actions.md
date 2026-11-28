@@ -2,7 +2,6 @@
 applyTo: ".github/workflows/**"
 paths:
   - ".github/workflows/**"
-profile: framework
 ---
 
 # GitHub Actions workflows: capacity, cost, and release discipline

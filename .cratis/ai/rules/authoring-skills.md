@@ -1,9 +1,10 @@
 ---
-applyTo: ".cratis/ai/skills/**,.cratis/ai/rules/**"
+applyTo: ".cratis/ai/skills/**,.cratis/ai/rules/**,.cratis/ai/agents/**,.cratis/ai/prompts/**"
 paths:
   - ".cratis/ai/skills/**"
   - ".cratis/ai/rules/**"
-profile: framework
+  - ".cratis/ai/agents/**"
+  - ".cratis/ai/prompts/**"
 ---
 
 # Authoring skills and rules

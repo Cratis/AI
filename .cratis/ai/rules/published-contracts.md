@@ -6,7 +6,6 @@ paths:
   - "**/*vectors*.json"
   - "**/*.proto"
   - "**/*.schema.json"
-profile: framework
 ---
 
 # Published contracts

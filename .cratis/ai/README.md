@@ -12,16 +12,18 @@ Skills and rules for building applications on Cratis and for changing the Cratis
 | `mcp-servers.json` | MCP servers a profile can add; a profile's skills never require one. |
 | `hooks/`, `harnesses/` | Optional write guards and the harness-specific files generated from the content above. |
 
-## Profiles
+## Profile selection
 
 | Profile | For |
 | --- | --- |
 | `cratis/application` | Build an application on Cratis: model a business flow, implement its backend and UI slices, run and diagnose them. |
 | `cratis/engineering` | Change a Cratis platform repository: follow its library contracts, verify the change and prepare the PR and release note. |
 
-The worked application examples use .NET and React. Paths such as `Features/Books` are examples: follow the repository's layout and edit existing slices in place. Profiles select overlapping skills, not separate implementations per language.
+`cratis ai profiles list` lists all profiles because this catalog does not feature any. JSON (`--output json`) always lists all profiles. On CLI versions that support `--all`, it requests the full list explicitly; it is not needed with this catalog.
 
-The v2 platform skills cover application tasks. Existing profile IDs still resolve, and profiles also select specialist skills for internal .NET engineering, CodeScene, documentation, content, review, language-specific work, CLI and Workbench, and orchestration. Managed installs filter scoped rules by profile and language; the CLI release that filters Copilot instruction copies installs copies only for selected rules. See [migration](../../Documentation/corpus-migration.md) for the profile inventory.
+Select `cratis/v2/application` explicitly with `--profiles` for the mixed .NET and React walkthrough. Neither umbrella above composes it. For other applications, select `cratis/application` and the repository's languages; specialist profiles can be added by ID.
+
+A profile named directly is selected even if its language filter does not match. Composed profiles are admitted only if they match a configured language, have no language filter, or are language-agnostic. Leaving languages unspecified does not filter composition. The installer copies the chosen skill directories, including their references, but does not install other skills just because they are linked. Rules are filtered separately by profile and language. See the [catalog](profile-catalog.json) for direct membership and composition.
 
 ## Where to start
 

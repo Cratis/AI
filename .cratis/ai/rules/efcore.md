@@ -2,7 +2,7 @@
 applyTo: "**/*.cs"
 paths:
   - "**/*.cs"
-profile: cratis/arc/ef-core
+profile: application
 ---
 
 # Entity Framework Core Instructions

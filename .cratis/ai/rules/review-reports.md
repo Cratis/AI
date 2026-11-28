@@ -1,10 +1,11 @@
 ---
-applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**"
+applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**,.cratis/ai/agents/**,.cratis/ai/prompts/**"
 paths:
   - ".cratis/ai/skills/cratis-code-review/**"
   - ".cratis/ai/skills/cratis-security-review/**"
   - ".cratis/ai/skills/cratis-performance-review/**"
-profile: cratis/review
+  - ".cratis/ai/agents/**"
+  - ".cratis/ai/prompts/**"
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->

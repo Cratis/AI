@@ -1,9 +1,9 @@
 ---
-applyTo: "**/for_*/**/*.cs,**/when_*/**/*.cs"
+applyTo: "**/for_*/**/*.cs, **/when_*/**/*.cs"
 paths:
   - "**/for_*/**/*.cs"
   - "**/when_*/**/*.cs"
-profile: cratis/arc/ef-core
+profile: application
 ---
 
 # Entity Framework Core Specs

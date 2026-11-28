@@ -2,7 +2,7 @@
 applyTo: "**/.cratis/**"
 paths:
   - "**/.cratis/**"
-profile: framework
+profile: application
 ---
 
 # Profiles
