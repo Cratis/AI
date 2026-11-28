@@ -169,7 +169,7 @@ function descriptionLines(agent: CanonicalAgent): string[] {
 export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
     requireGeneratable(agent);
     const description = descriptionLines(agent);
-    const lines = ['---', ...description, 'mode: subagent', 'permission:', '  "*": deny', ...agentTools(agent.tools, 'opencode').map(tool => `  ${tool}: allow`), '---'];
+    const lines = ['---', ...description, 'mode: subagent', 'permission:', '  "*": deny', ...agentTools(agent.file, agent.tools, 'opencode').map(tool => `  ${tool}: allow`), '---'];
 
     return {
         source: agent.file,

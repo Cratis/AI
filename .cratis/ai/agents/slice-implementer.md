@@ -5,6 +5,7 @@ tools:
   - Read
   - Grep
   - Glob
+  - Bash
   - Edit
   - Write
 modelTier: scoped
@@ -16,5 +17,7 @@ Implement exactly one slice per run. Load the `cratis-platform-deliver-slice` sk
 
 - If the slice cannot be completed, report it as partial with what is missing. Never stub a handler or drop a contracted field to make a check pass.
 - Do not edit skills or rules; propose the change in your report.
+
+Run builds and tests only inside your assigned worktree.
 
 Return the files changed, each check run with its result, and anything left open.

@@ -22,7 +22,7 @@ export const piAgentMarkerPrefix = '<!-- cratis-ai: generated Pi adapter of agen
  */
 export function generatePiAgent(agent: CanonicalAgent): GeneratedAgent {
     refusePinnedModel(agent);
-    const tools = agentTools(agent.tools, 'pi');
+    const tools = agentTools(agent.file, agent.tools, 'pi');
     const frontmatter = [...agent.frontmatter];
     const index = frontmatter.findIndex(line => line.startsWith('tools:'));
     if (index < 0) throw new Error(`${agent.file} declares no tools field.`);
