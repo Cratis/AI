@@ -10,13 +10,12 @@ paths:
   - "**/*.java"
   - "**/*.ex"
   - "**/*.exs"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
 # Code Health floor
 
-Apply [criticality tiers](../../../rules/criticality-tiers.md) first: score Tier A code and
+Apply [criticality tiers](./criticality-tiers.instructions.md) first: score Tier A code and
 maintained Tier B code when CodeScene is available. Tier C requires no scoring or
 uplift. Without tools or an account, report that and continue; never block.
 MCP setup, approval-gated tools and tool-output handling are in the `codescene` rule,

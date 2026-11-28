@@ -2,7 +2,6 @@
 applyTo: ".github/workflows/**"
 paths:
   - ".github/workflows/**"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

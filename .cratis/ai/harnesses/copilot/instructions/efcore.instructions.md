@@ -2,7 +2,7 @@
 applyTo: "**/*.cs"
 paths:
   - "**/*.cs"
-profile: cratis/arc/ef-core
+profile: application
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

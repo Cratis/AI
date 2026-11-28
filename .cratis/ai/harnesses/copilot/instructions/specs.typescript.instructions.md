@@ -1,13 +1,8 @@
 ---
-applyTo: "**/for_*/**/*.ts, **/for_*/**/*.tsx, **/when_*/**/*.ts, **/when_*/**/*.tsx, **/given/**/*.ts, **/given/**/*.tsx"
+applyTo: "**/for_*/**/*.ts, **/when_*/**/*.ts"
 paths:
   - "**/for_*/**/*.ts"
   - "**/when_*/**/*.ts"
-  - "**/given/**/*.ts"
-  - "**/for_*/**/*.tsx"
-  - "**/when_*/**/*.tsx"
-  - "**/given/**/*.tsx"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

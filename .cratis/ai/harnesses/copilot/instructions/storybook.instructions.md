@@ -1,8 +1,8 @@
 ---
 applyTo: "**/*.stories.tsx"
+profile: application
 paths:
   - "**/*.stories.tsx"
-profile: cratis/components
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

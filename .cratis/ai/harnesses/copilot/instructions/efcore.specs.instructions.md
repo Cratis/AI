@@ -1,9 +1,9 @@
 ---
-applyTo: "**/for_*/**/*.cs,**/when_*/**/*.cs"
+applyTo: "**/for_*/**/*.cs, **/when_*/**/*.cs"
 paths:
   - "**/for_*/**/*.cs"
   - "**/when_*/**/*.cs"
-profile: cratis/arc/ef-core
+profile: application
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

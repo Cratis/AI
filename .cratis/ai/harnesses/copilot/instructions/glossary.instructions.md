@@ -13,7 +13,6 @@ paths:
   - "**/*.play"
   - "**/Documentation/**/*.md"
   - "**/Documentation/**/*.mdx"
-profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
