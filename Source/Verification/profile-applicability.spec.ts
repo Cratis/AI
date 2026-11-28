@@ -168,6 +168,11 @@ paths: "**/*.cs"
 ${'é'.repeat(bytes / 2)}`);
             assert.equal(shimBudgetProblems(cwd, [probes[0], probes[3]]).length, bytes > 3000 ? 1 : 0);
         }
+        writeFileSync(join(rules, 'reactors.md'), '---\npaths: "**/*"\n---\nShort.');
+        assert.deepEqual(shimBudgetProblems(cwd, []), ["Direct shim 'reactors.md' must be path scoped."]);
+        writeFileSync(join(rules, 'reactors.md'), '---\npaths: "**/*.cs"\n---\nShort.');
+        writeFileSync(join(rules, 'verification-discipline.md'), '---\npaths: "**/*"\n---\nShort.');
+        assert.deepEqual(shimBudgetProblems(cwd, []), []);
     } finally { rmSync(cwd, { recursive: true, force: true }); }
 });
 

@@ -17,6 +17,9 @@ const workerLists = {
 
 const directShims = new Set('verification-discipline specs concepts vertical-slices reactors specs.scenarios.csharp react components dialogs frontend-quality frontend-testing'.split(' ').map(name => `${name}.md`));
 
+// v1 applies the fresh-check rule to every change; its bytes still count toward every path's cap.
+const universalShims = new Set(['verification-discipline.md']);
+
 export function workerRuleProblems(readRule: (name: string) => string | undefined): string[] {
     return Object.entries(workerLists).flatMap(([id, list]) => {
         const missing = list.split(' ').map(name => `${name}.md`).filter(name => {
@@ -37,7 +40,7 @@ export function directWorkerProblems(root: string): string[] {
 export function shimBudgetProblems(root: string, paths: string[]): string[] {
     const universal = universalRules(root).filter(rule => directShims.has(rule.name));
     return [
-        ...universal.map(rule => `Direct shim '${rule.name}' must be path scoped.`),
+        ...universal.filter(rule => !universalShims.has(rule.name)).map(rule => `Direct shim '${rule.name}' must be path scoped.`),
         ...paths.flatMap(path => {
             const matching = [...universal, ...rulesForPath(root, path).filter(rule => directShims.has(rule.name))];
             const bytes = matching.reduce((total, rule) => total + Buffer.byteLength(skillBody(rule.content)), 0);
