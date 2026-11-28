@@ -49,10 +49,10 @@ one to add weight.
   template and release policy. For release intent and labels, use
   `cratis-platform-prepare-release-pr` from `cratis/engineering`. No development
   write-up (no Overview, Verification or Test plan headings; put review notes
-  and verification details in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
-  `(part of #n)` for anything that stays open (in repositories released by
-  `cratis/release-action`, `(#n)` is what closes the issue), never `Closes`, `Fixes` or
-  `Refs` before a number (also in bold or a link), and no issue reference
+  and verification details in a PR comment); follow the
+  [issue reference policy](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#issue-references).
+  Never use `Closes`, `Fixes` or `Refs` before a number (also in bold or a link),
+  and put no issue reference
   inside an HTML comment (release-action removes comments before publishing,
   so the issue is silently not closed; a body that is only a comment counts as
   empty and GitHub generates the notes); and absolute
@@ -148,7 +148,14 @@ dispatch the publish workflow from the current default branch with the PR's
 release notes. Re-running the stale commit does not fix this. Other 403s keep
 their original cause; do not treat every permission failure as workflow drift.
 
-Before re-running a cancelled publish, check
+A failed run that calculated a tag claimed by another commit is a concurrent-tag
+collision, not a workflow-drift 403 or a skipped batch. Confirm the commit named
+in the failure owns the tag and check below that the intended change is not
+already in a release. Re-run the failed workflow only when authorized and the
+version was calculated: the action recalculates it from the newer release. A fixed
+version would collide again. Do not use the workflow-drift recovery for this case.
+
+Before re-running a failed or cancelled publish, check
 `git merge-base --is-ancestor <merge-commit> <latest-release-tag>`. If it is an
 ancestor, a release already contains the change, so do not cut another version.
 The tag alone does not prove it shipped: a release can be created before its

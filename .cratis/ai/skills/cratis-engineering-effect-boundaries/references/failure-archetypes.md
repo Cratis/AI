@@ -111,6 +111,14 @@ matches the primary one's *semantics*, not just its signature. Where it cannot,
 it throws rather than silently accepting. The specification that proves the
 constraint runs against every implementation.
 
+**Another way a store can pass vacuously.** In Chronicle's `GetWindow`, absent
+filters and `EventSourceId.Unspecified`, `EventSourceType.Default`,
+`EventStreamType.All`, `EventStreamId.Default` or an empty event-type set leave
+the corresponding dimension unrestricted. Testing only for a non-null value
+can turn a sentinel into a filter that returns no rows. Seed events with ordinary
+IDs and types and run the same spec against every provider: absent filters and
+explicit unrestricted values must return the same expected events.
+
 ## 6. A fan-out that succeeded 29 times out of 36 and said "done"
 
 *The retired corpus propagation.*
