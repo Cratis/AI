@@ -26,4 +26,6 @@ For a shared gate, commit the team's selected completeness checks and `warningsA
 
 If the handoff is an agent capability manifest, require complete compilation and an explicit `agents` allowlist. An empty allowlist means no operations; a missing block is not permission to expose every command. Exporting that manifest is not executable-model admission or proof of backend authorization.
 
+For an unfamiliar warning or a failure in binding, [choose a repair from the reported scope and code](references/diagnostic-decisions.md) rather than disabling a gate.
+
 For example, changing both a blank-name rule and its expected message from `Name is required` to `Enter the author's name` may pass every model spec. It does not establish that the owner wants the new wording. [Revise the model](../cratis-screenplay-edit-workspace/SKILL.md) if needed; [hand off the slice](../cratis-screenplay-handoff-slice/SKILL.md) only after acceptance.

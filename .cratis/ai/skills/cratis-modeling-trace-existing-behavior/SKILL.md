@@ -28,6 +28,8 @@ Stay within the authorized system and material. A reconstruction from public mat
 | A successful submission | Look for the actual uniqueness or duplicate-request rule. One success proves neither. Distinguish authenticated identity from editable form data. |
 | Mock or seeded row | Treat the test as a hypothesis. Find the production path that could produce this state before proposing any history as `given`. |
 
+Match the evidence to the enforcement point. Preserve the observed refusal text in `then error` for a `validate` or `require` rule; for authorization use `authorize` and `then denied`. A unique index is a candidate for an append-time constraint: find **every** fact that sets or changes the value before writing the rule. After acceptance, compare only the bounded revision or traffic interval in question. Reopen a slice when the command, message, access rule, fact or returned field changed. Moving unchanged logic into a new file changes the evidence location, not necessarily the model.
+
 If static inspection leaves a gap and the owner proposes a generator or captured traffic, [check what the recovery tool may run or disclose](references/recovery-inputs.md) first.
 
 ## Example: compare Library registration and listing

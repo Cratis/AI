@@ -19,6 +19,8 @@ compatibility: Requires the Screenplay CLI.
 | Inferred | `RegisterAuthor` may have appended `AuthorRegistered` for the new author ID. Neither frame shows persistence or a history address. |
 | Unresolved | Neither frame shows a blank name. Ask what the librarian should see and whether the list changes. |
 
+For a draft generated from Arc source, [interpret C# generation losses](references/csharp.md) before replacing the original acceptance or privacy rules.
+
 ## When it goes off the usual path
 
 - **The question is about code or a difference between the model and the code:** [trace the existing behavior](../cratis-modeling-trace-existing-behavior/SKILL.md) instead.

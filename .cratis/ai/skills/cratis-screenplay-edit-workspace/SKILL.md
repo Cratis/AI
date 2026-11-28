@@ -20,6 +20,12 @@ Edit the application's actual model root; rehearse on a copy only when requested
 4. Obtain approval for this change set at the reviewed workspace and catalog revisions. Call `apply` with its `proposalId`, `expectedRevision` and `expectedCatalogRevision`.
 5. Call `open-workspace` again and run `screenplay model`.
 
+For a **declaration** rename with a stable semantic identity, the standalone `screenplay rename` also supports an explicit dotted declaration address, new name and model root. It is a write, not a preview. Confirm the address, kind, references, stored event name and authority first. On success the event's stored name is pinned and `.screenplay/identities.json` is updated. Exit 0 means renamed, 1 refused, 2 could not run. This declaration operation is not a substitute for the property proposal above.
+
+Compare the approved before and after folders with `screenplay diff before/model after/model --format json`. Exit 0 means a comparison ran, **not** that there were no breaking changes; 2 means it could not run. Check the reported matching mode: a move matched by persisted identity is different from removal plus addition matched by address. `screenplay export` returns 0 for an emitted artifact, 1 for a model or requested export that cannot be emitted and 2 for an invocation or input error. If identities disagree with the sources, preserve both, restore the reviewed names and redo the intended rename through identity-aware tooling; do not delete identity state to produce a clean export.
+
+For typed editing, discover actual tool names and input shapes with `tools/list`. Use read/inspection for diagnosis, a proposal for preview, and `apply` only for the reviewed change. Prefer a targeted repair over rewriting a file with dropped comments. Keep presentation layout, story order and executable behavior in separate reviewed changes. A valid proposal may still change the wrong thing.
+
 ## When it goes off the usual path
 
 - **Either revision changed:** reopen the workspace and review a fresh proposal. Don't transfer approval to it.
