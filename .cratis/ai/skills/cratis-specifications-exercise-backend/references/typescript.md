@@ -40,7 +40,7 @@ describe('when lending a book in the catalog', () => {
 ## Limits to design around
 
 - `shouldHaveAppendedEvent` passes when at least one event matches. It checks neither count nor order; assert those on `result.appendedEvents`.
-- `ChronicleCommandScenario` is in memory: it does **not** enforce constraints or concurrency and does not support aggregates. A uniqueness spec that passes there proves nothing; run it with `ChronicleKernelScenario`, which needs a kernel at `ARC_CHRONICLE_TEST_URL`.
+- `ChronicleCommandScenario` is in memory: it does **not** enforce constraints or concurrency and does not support aggregates. A uniqueness spec that passes there proves nothing; run it with `ChronicleKernelScenario`, which needs a running kernel. Pass `options.connectionString` or set `ARC_CHRONICLE_TEST_URL` as the fallback.
 - `given(Context, context => ...)` from `@cratis/arc.testing` creates one context for the whole `describe`. Act once in `beforeAll` and keep each `it` read-only.
 - `EventScenario`'s `when.forEventSource(id).events(a, b)` appends one atomic batch. The C# scenario appends sequentially, so do not port a partial-failure spec between them.
 - `ReactorScenario` rejects `replay()` and `redeliver()`; a repeated-delivery spec needs a running kernel.

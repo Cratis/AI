@@ -8,6 +8,6 @@ try (var scenario = new BlockingCommandScenario<OrderProduct>(module, OrderProdu
 }
 ```
 
-Assert the response with `shouldHaveResponse(Response.class)` when its value matters. Use `BlockingQueryScenario` for a snapshot. For an asynchronous contract `AsyncCommandScenario` takes a caller-owned coroutine scope and returns a `CompletionStage` from `execute`; await its completion before asserting.
+Obtain the typed response with `shouldHaveResponse(Response.class)`, then assert the relevant field on that returned object. The helper checks non-nullness and assignability, not field values. Use `BlockingQueryScenario` for a snapshot. For an asynchronous contract `AsyncCommandScenario` takes a caller-owned coroutine scope and returns a `CompletionStage` from `execute`; await its completion before asserting.
 
-For Chronicle appends use `io.cratis:chronicle-testing`: construct `new EventScenario("testing", "default")`, then wrap `scenario.getEventSequence()` in `io.cratis.chronicle.java.BlockingEventSequence`. Assert `append(sourceId, event).isSuccess()`. Test a reducer's decision directly in Java; use a running store for persistence or delivery rather than treating a direct call as a subscription test.
+For Chronicle appends use `io.cratis:chronicle-testing`: construct `new EventScenario("testing", "default")`, then wrap `scenario.getEventSequence()` in `io.cratis.chronicle.java.BlockingEventSequence`. Assert `append(sourceId, event).isSuccess()`. Java does not support the model-bound read-model scenario workflow. Test the reducer's decision directly; use a running kernel for constraint enforcement, projection execution, persistence or observer delivery.

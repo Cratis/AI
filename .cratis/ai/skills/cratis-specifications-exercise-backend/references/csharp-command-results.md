@@ -42,7 +42,6 @@ These return `Task`; await each one.
 | --- | --- |
 | `ShouldHaveAppendedEvent<TCommand, TEvent>(id, e => ...)` | The captured appends contain a `TEvent` for that source matching the predicate; use a fresh source or baseline to exclude seeded matches |
 | `ShouldNotHaveAppendedEvents()` | The last `Execute` appended nothing to any source |
-| `ShouldHaveAppendedEventsInOrder(...)` / `ShouldHaveAppendedEventsInAnyOrder(...)` | The last `Execute` appended exactly those events, in that order or in any order |
 | `ShouldHaveTailSequenceNumber(expected)` | The highest captured sequence number equals `expected`; numbering starts at 0, so one event gives 0 |
 
 Always pass the source ID: an event appended to the wrong source is the defect a returned object hides.

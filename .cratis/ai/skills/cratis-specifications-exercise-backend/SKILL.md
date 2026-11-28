@@ -8,9 +8,9 @@ compatibility: Requires the test runner the application already uses and the Arc
 
 Pick the harness by the guarantee the spec has to prove, not by the artifact's name:
 
-- **Pipeline scenario (default).** Choose it when the promise depends on binding, authorization, validation or commitment. It runs the real command or query pipeline in process.
-- **Model or reaction scenario.** Choose it when the promise is the row a projection or reducer produces, or the effect a reactor returns, from given events.
-- **Running store.** Choose it only when the promise is discovery, actual persistence or observer delivery. In-process scenarios replace those parts.
+- **Pipeline scenario (default).** Use it for authorization, validation and command or query outcomes exercised by the selected SDK. A recorded append proves what the command tried to write, not that a kernel would accept it.
+- **Model or reaction scenario.** Where the SDK provides one, use it to check the row a projection or reducer produces, or the effect a reactor returns, from given events.
+- **Running kernel or HTTP host.** Use a kernel for persistence, discovery, delivery, or any store guarantee the SDK substitute omits, such as constraint or concurrency enforcement. Use a hosted HTTP request for transport binding: passing a typed argument to the pipeline does not test JSON binding.
 
 A decision that can be invoked directly without the pipeline needs none of these.
 
@@ -20,8 +20,8 @@ Commit one spec per uncovered consequential rule, and add the accepted case only
 
 1. Seed only the history or state the rule depends on, before the action. Seed an unrelated record as well when the spec must tell earlier history from this command's work.
 2. Act once.
-3. On refusal, assert the specific reason (the rule, member, constraint or authorization) and that nothing was appended. A refusal alone passes when the caller was unauthorized or a required read model was missing, so the rule under test may never have run.
-4. On acceptance, assert the appended event with its source and values. A returned object alone misses a write addressed to the wrong source.
+3. On refusal, assert the specific reason (the rule, member, constraint or authorization). For an event-writing command also assert that nothing was appended. A refusal alone passes when the caller was unauthorized or a required read model was missing, so the rule under test may never have run.
+4. For an accepted event-writing command, assert the event, source and values. For a response-only command or query, assert the promised response fields or rows instead.
 5. Await every assertion that returns a task, future or promise. Otherwise the runner can finish before a failing assertion completes.
 6. For delivery, wait on the completion signal the SDK returns, never on a fixed sleep: a sleep cannot tell a slow observer from a failed one.
 
