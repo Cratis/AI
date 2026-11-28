@@ -6,7 +6,7 @@ paths:
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
-# TypeScript spec assertions in platform packages
+# TypeScript spec assertions
 
 Follow the adjacent specs: keep their assertion API, file extension (`.ts` or `.tsx`) and fixture. Add a `given` file only when multiple contexts share setup.
 
