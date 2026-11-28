@@ -34,6 +34,8 @@ Use Screenplay when `.cratis/ai.json` sets `mcpServers.screenplay.root`, the app
 - Verify consequential decisions, transformations and failures. Do not verify passthrough, getters or the framework itself.
 - Call the decision directly unless framework behavior such as binding, validation, authorization or projection is in question; then exercise it through the framework. Never do both for the same decision.
 - As a planning default, a behavior-neutral change needs no new case, a fix usually needs one regression case, and a small change needs one to three. Explain more than five cases or any new hosted test. These defaults never limit coverage of security, migration or replay, deterministic failure, redaction or resource limits.
+- For build/spec changes, time the cold full suite and focused folder loop; fix slowdowns in the same change. Target under a minute; keep coverage. Parallel specs need isolated state, ports, paths and names and no ordering assumptions. Never serialize or disable shared setup to hide isolation bugs.
+- Keep consumer-owned routing and service-boundary specs in PR CI. Retire a consumer assertion only if a named spec in the owning upstream repository fails when that consumer behavior breaks.
 - Run the smallest check that crosses the changed boundary. Trust its fresh result, not your own assessment. CI confirms afterwards; it is not the feedback loop.
 
 ## Report what actually ran

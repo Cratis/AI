@@ -1,6 +1,6 @@
 ---
 name: cratis-code-review
-description: Use when reviewing changed Cratis application code for architecture, style and specification coverage beyond compiler checks. Not for a focused security or scalability audit, or for scheduling review rounds.
+description: Use when reviewing changed Cratis application or platform code for architecture, style and specification coverage beyond compiler checks. Not for a focused security or scalability audit, or for scheduling review rounds.
 license: MIT
 ---
 
@@ -14,7 +14,7 @@ the axes a reviewer can judge.
 Review the **change**, not the file. A pre-existing violation in a line the
 change did not touch is a note, never a blocker.
 
-## Packages covered
+## Application packages covered
 
 | Package | Purpose |
 | --- | --- |
@@ -37,12 +37,18 @@ contract this file does not already state.
 
 ## Step 1 — Run the gates first
 
-A review that reports what the build already says is noise. Confirm the change
-builds clean in Debug and Release, its specifications pass, and lint and the
-TypeScript build are clean. Report a gate failure as the finding and stop —
-there is nothing to review under a red build.
+Use the `criticality-tiers` rule to select required gates for the changed
+inputs and their dependencies. Run applicable Debug and Release builds only for
+affected .NET inputs, lint and the TypeScript build only for affected TypeScript
+inputs, and existing specs when required by the tier. Stop and
+report a failed required gate as the finding.
 
 ## Step 2 — Architecture
+
+For platform or library code, follow the `framework` rule (in `cratis/engineering`):
+check the existing package layout and the impact on public contracts and consumers.
+Skip the application checklist below, including slice layout, and use the remaining
+review steps only where they apply to the changed code.
 
 - Each slice is its own folder, `<Module>/<Feature>/<Slice>/<Slice>.cs`, with the
   backend artifacts together. **No top-level `Features/` wrapper.**
@@ -106,9 +112,9 @@ there is nothing to review under a red build.
   vendor or hand-rolled modal.
 - No hard-coded hex or rgb colors — `--cratis-*` tokens only. No
   `!important` without a justifying comment.
-- Components live in the slice folder. No barrel `index.ts` that re-exports one
-  component, and no technical `hooks/` / `utils/` / `types/` grouping at feature
-  level.
+- In application slices, components live in the slice folder. No barrel `index.ts`
+  that re-exports one component, and no technical `hooks/` / `utils/` / `types/`
+  grouping at feature level.
 - The copyright header is on every file.
 
 ## Step 5 — Performance, in passing
@@ -181,6 +187,5 @@ from `cratis/engineering/core`.
 
 ## How it is proven
 
-The build, the specifications, lint and the TypeScript build are all green
-*before* the report is written, and the report names both what was reviewed and
-what was not.
+Every required gate for the tier and changed inputs is green before approval.
+The report names what was reviewed and what was not.

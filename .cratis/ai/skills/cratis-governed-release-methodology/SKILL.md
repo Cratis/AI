@@ -164,8 +164,9 @@ label, choose among:
 
 The test is **outward-facing effect, not file location**. A change under a
 source directory that only touches tests is not shippable; a one-line change to
-a shipped package's behavior is, however small. Documentation, CI workflows,
-test-only changes, and local tooling carry `no-release`.
+a shipped package's behavior is, however small. Internal documentation, CI workflows,
+tests and local tooling carry `no-release` when they are invisible to consumers.
+Treat [installed Cratis/AI corpus changes](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#cratisai-corpus-changes) as product changes.
 
 Follow the owning pull-request policy for breaking changes. In Cratis a
 `major` pull request requires an explicit human go-ahead for the breaking
