@@ -1,5 +1,7 @@
 # Decide what one reaction can promise
 
+For entity state or work that waits for a later fact or a person, use [state machines and workflows](statemachines-and-workflows.md).
+
 Start with one occurrence. An event reaction sees a recorded fact; its command may still have to decide whether acting is allowed **now**. A reaction is not by itself a lifecycle: use a state machine to follow an entity's lifecycle facts, or model a workflow when the process itself owns waits, deadlines and human work. A repeated entry can repeat its effects.
 
 **Whose authority?** Declare `runs as system` once directly on the reaction, not on an individual trigger. Its declared roles apply to the commands it invokes across triggers. It does not supply arbitrary user claims, change the original caller or turn a direct `produces` into an authorized command. Without the declaration the invocation has no caller in the reference evaluator. If two triggers need different privileges, separate their responsibilities rather than giving both the union of roles.

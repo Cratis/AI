@@ -6,3 +6,11 @@
 4. Follow an actual submission. A form layout describes fields, not how draft filter values become query arguments. Verify submit commits the expected arguments to the real query and that a later update reaches an observable screen without a second submit. A one-shot snapshot can be correct while the live subscription is missing. Passing a UI export or binding an admitted screen is not proof every gesture or layout works on the target.
 
 A collection filter narrows matching rows; it is not tenant isolation. `by` and supplied filters combine, while an omitted optional filter does not narrow. Passing `null` is not omitting a filter. A policy admits the caller and can see a query's `by` key, not its caller-supplied equality filters. Check cross-tenant denial on the backend rather than relying on a hidden filter or disabled control.
+
+## Design a screen in a scratch session
+
+When a Scene Design canvas is available, read its active catalogue and current screen revision first. Use only listed templates, slots, components, variants and tokens; bind only available query and command shapes. For an existing screen prefer a checked operation. After any operation, verify the applied result in the session before reporting a change; for a screen edit check the new revision. Variations and tweaks are suggestions until chosen, not applied screen revisions.
+
+On refusal, say what was refused and choose the nearest catalogue alternative that fits the intent. Retry only that valid operation against the current revision. Don't simulate free styling or off-system values through labels, markup or another property. If the catalogue lacks what the user needs, propose it to the design-system draft; the current screen keeps its approved design until the draft is reviewed and activated.
+
+For text that varies by locale, use [companion strings](localized-strings.md).

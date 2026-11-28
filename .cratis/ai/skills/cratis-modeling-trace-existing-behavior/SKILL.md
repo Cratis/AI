@@ -1,16 +1,20 @@
 ---
 name: cratis-modeling-trace-existing-behavior
-description: Use when an existing codebase needs a candidate event model or its implemented behavior must be compared with an agreed model. Not for inferring intent from a recording (use cratis-screenplay-recover-intent).
+description: Use when an existing application with source or shipped evidence needs a candidate event model, or its behavior must be compared with an agreed model. Not for inferring intent from a recording (use cratis-screenplay-recover-intent).
 ---
 
 # Trace one journey through existing code
 
-Let the user choose a journey with a start and a result, such as a librarian registering an author and finding the name in the Authors list. Both modes are read-only: report what you find without changing code, data or model. Use synthetic values. No running target is required; do not inspect production by default. For a recording alone, recover intent from the recording (`cratis-screenplay-recover-intent` skill in `cratis/screenplay`).
+Let the user choose a journey with a start and a result, such as a librarian registering an author and finding the name in the Authors list. Keep legacy intake read-only: report what you find without changing legacy code, data or model. Use synthetic values. No running target is required; do not inspect production by default. For a recording alone, recover intent from the recording (`cratis-screenplay-recover-intent` skill in `cratis/screenplay`).
 
 ## Choose the mode
 
 - **Reconstruct current behavior.** Without an agreed baseline, trace the journey as implemented. Propose candidate slices and business facts separately from the implementation. Do not claim that anything changed since an earlier revision.
 - **Compare with a baseline.** Identify the accepted examples or the named model revision, its acceptance status and the code revision being inspected. Note any included uncommitted changes. Compare the same actor, inputs, address and outcome on each side. If the actual code change range is known, use it to focus inspection, then follow affected callers and consumers beyond the diff. A difference does not decide which side should change.
+
+- **Reconstruct without source.** When shipped artifacts or captured interface evidence are all that is available, use [black-box intake and rebuild replay](references/blackbox-intake.md).
+
+On a later pass, [resume from a recorded evidence watermark](references/resuming-a-trace.md). Only when replacing the legacy system incrementally, use [side-car migration](references/side-car-migration.md).
 
 ## Follow the decision and its result
 

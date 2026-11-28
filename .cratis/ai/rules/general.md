@@ -17,7 +17,9 @@
 
 ## Approval is not execution
 
-An accepted model, plan or review approves a description. Permission to render, apply, deploy or change a running system is separate; ask for it explicitly. Having a tool is not permission either: sending repository data to a hosted service, changing MCP configuration and forcing a render over edited files each need their own explicit authority. Use Screenplay when the repository already has `.play` files under `model/` or the user asks for Screenplay or Stage. Otherwise work code-first from the event model's accepted examples; no Screenplay handoff is needed.
+An accepted model, plan or review approves a description. Permission to render, apply, deploy or change a running system is separate; ask for it explicitly. Having a tool is not permission either: sending repository data to a hosted service, changing MCP configuration and forcing a render over edited files each need their own explicit authority.
+
+Use Screenplay when `.cratis/ai.json` sets `mcpServers.screenplay.root`, the application already has `.play` source anywhere, or the user requests Screenplay or Stage. An MCP entry, profile or empty directory alone is not opt-in. If `.cratis/ai.json` sets `modelFirst.frozen: true` (optional `reason`), committed `.play` files are generated evidence. Edit or regenerate them only when the request names the path or model; skip them in generic regeneration and report it. When frozen or not opted in, work code-first from accepted examples.
 
 ## Protect tenants, data and secrets
 

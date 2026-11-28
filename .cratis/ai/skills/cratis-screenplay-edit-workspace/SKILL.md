@@ -31,6 +31,10 @@ For typed editing, discover actual tool names and input shapes with `tools/list`
 - **Either revision changed:** reopen the workspace and review a fresh proposal. Don't transfer approval to it.
 - **The connection dropped during apply:** call `workspace-state` before retrying. If it reports an interrupted operation, obtain approval and call `recover-workspace` with that `operationId` when rollback is safe.
 
+## Notes and storylines
+
+For review questions and ordered cross-slice narratives, use [model notes and storylines](references/model-notes.md). Keep these edits separate from behavior changes.
+
 ## Related skills
 
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) for the original model.

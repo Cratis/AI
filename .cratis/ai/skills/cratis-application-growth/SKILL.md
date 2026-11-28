@@ -16,8 +16,8 @@ check passes; do not start the next one before.
 
 ## 1. Decide
 
-1. Name the current stage and the signal that justifies the next, in the rule's terms. No signal, no move.
-2. A new application starts at stage 2 or 3 only for a rule-listed reason; otherwise stage 1.
+1. Name the current stage and the signal that justifies the next, using the [stage guide](references/stages.md#stages-and-promotion). No signal, no move.
+2. A new application starts at stage 2 or 3 only for a reason in the stage guide; otherwise stage 1.
 3. Read the accepted decision records that describe the current structure. If the target contradicts one,
    write the superseding record first; a record binds until then. See
    `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
@@ -28,7 +28,7 @@ Done when: the target is written and no accepted record contradicts it.
 
 ## 2. Guard before moving
 
-1. Add the architecture gates from the rule's *Gates* section as specs, in a project of their own.
+1. Add the [architecture gates](references/stages.md#architecture-gates) as specs in a project of their own.
 2. Record the current numbers as committed baselines: seams, `InternalsVisibleTo` grants, references between
    modules, platform-to-module references, folders without project or README, namespace/folder
    mismatches, frontend boundary violations.
@@ -39,12 +39,12 @@ Done when: the gates run in the normal spec pass and fail on a planted violation
 ## 3. Move, and only move
 
 Keep namespaces and assembly names while moving; moving a file changes no identity, a namespace change
-does (rule, *What a rename changes*).
+does (see [what a rename changes](references/stages.md#what-a-rename-changes-in-net)).
 
 | Move | Steps (each a separate commit; build and run specs after each) |
 | --- | --- |
 | **1 → 2** | Create the module folder, `git mv` the related feature folders under it, add its `README.md`. |
-| **2 → 3** | Create the module project and frontend package; `git mv` the module folder into them; reference only what the rule's layer table allows. Add the module declaration and register its routes, navigation and settings by convention. |
+| **2 → 3** | Create the module project and frontend package; `git mv` the module folder into them; reference only what the [layer table](references/stages.md#allowed-references) allows. Add the module declaration and register its routes, navigation and settings by convention. |
 | **3 → 4** | At the first cross-module need, create `<Module>.Contracts` in the owning module and point the consumer at it. Replace the direct reference; never keep both. |
 
 - `git mv` for files; no behavior change, rename or refactor in a move commit.

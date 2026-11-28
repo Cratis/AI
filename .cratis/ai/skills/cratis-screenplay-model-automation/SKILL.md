@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-automation
-description: Use when a modeler needs a Screenplay Automation reaction to a local fact, schedule or host signal. Not for importing external observations (use cratis-screenplay-model-translation).
+description: Use when a modeler needs a Screenplay Automation reaction to a local fact, schedule or host signal, or needs to model an entity lifecycle or durable workflow. Not for importing external observations (use cratis-screenplay-model-translation).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -104,6 +104,8 @@ Run `screenplay test model --format json` on the composed model. Require the com
 For work requested by a host rather than a calendar, [replace the schedule with a host trigger](references/host-trigger.md).
 
 Read [reaction boundaries](references/reaction-boundaries.md) if a decision depends on current state, an invocation can refuse, or a batch spans several effects. For a provider call, [choose the retry contract](references/external-effects.md) before modeling the result.
+
+If the decision is about [entity state or a durable process](references/statemachines-and-workflows.md), use a state machine or workflow instead of chaining reactions.
 
 ## When it goes off the usual path
 

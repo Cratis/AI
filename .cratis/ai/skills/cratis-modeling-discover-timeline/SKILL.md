@@ -15,6 +15,8 @@ If the starting point is code, [trace existing behavior](../cratis-modeling-trac
 
 Before calling the story complete, ask what else can start it, who can change their mind, what can fail or time out, and what happens on a repeat or after the apparent end. For each material branch, record a fact, a question, a deliberate exclusion or why it cannot occur. Separate stated rules from inference and assumptions. Preserve thresholds and deadlines verbatim with their source; present contradictions to the owner rather than averaging them.
 
+For a multi-person workshop or a tender/policy package, use [group and document intake](references/group-and-document-intake.md) before the handoff.
+
 ## Read back the timeline
 
 Keep it short: actor or trigger, intent, fact, address, observed result and unresolved branches. For example:

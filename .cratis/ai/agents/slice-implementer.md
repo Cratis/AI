@@ -20,4 +20,4 @@ Implement exactly one slice per run. Load the `cratis-platform-deliver-slice` sk
 
 Run builds and tests only inside your assigned worktree.
 
-Return the files changed, each check run with its result, and anything left open.
+Return the files changed, each check run with its result, the contract-to-code and code-to-contract inventory, the scenario-to-spec witness mapping, and any unmatched or open items.
