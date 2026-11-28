@@ -30,8 +30,8 @@ const graph = (['publicProfiles', 'engineeringProfiles'] as const).flatMap(secti
 const ids = graph.map(row => row[1]);
 // Approved direct target hashes in profile-ID order.
 const targets = `
-efd6e8b20d 3424fc5c5b 996c0dc754 367c34a4b6 cebf4a7593 59bacc7ee5 15f7e15351 f339643561
-f339643561 a716d1b5a4 f339643561 8f6f16be90 8504cc7fa3 88970eef00 dbf8545981 1db6707330
+efd6e8b20d 3424fc5c5b 996c0dc754 367c34a4b6 cebf4a7593 59bacc7ee5 15f7e15351 a5775ff45f
+a5775ff45f a716d1b5a4 f339643561 8f6f16be90 8504cc7fa3 88970eef00 dbf8545981 1db6707330
 8f6f16be90 0aa9e41e1b 2f1722b9ff - - 281c886cc8 6e66dd670c -
 3ca074c722 36aa92822d ce00067af7 3ca074c722 - ce00067af7 1bc7624553 ce00067af7
 - 843bd455c1 - - - - ff6866b8a7 -
@@ -64,8 +64,9 @@ const release = ['governed-release-methodology', 'platform-prepare-release-pr'];
 const core = ['arc-declare-command', 'chronicle-record-event', 'specifications-exercise-backend'];
 const startup = 'platform-start-application';
 const startupRoots = new Set([app, 'cratis', 'cratis/full']);
-const startupLanguages = new Set(['csharp', 'react', 'typescript']);
+const startupLanguages = new Set(['csharp', 'java', 'kotlin', 'react', 'typescript']);
 const restoredCapabilities: { profile: string; language: string; skills: string[] }[] = [
+    ...['java', 'kotlin'].map(language => ({ profile: `${app}/${language}`, language, skills: [startup] })),
     { profile: 'cratis/arc/identity', language: 'csharp', skills: ['arc-authorize-request'] },
     { profile: 'cratis/chronicle/core', language: 'go', skills: ['event-model-diagram', 'multi-service-local-orchestration'] },
     { profile: 'cratis/application/elixir', language: 'elixir', skills: ['observability'] },

@@ -388,6 +388,7 @@
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
+        "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [
@@ -427,6 +428,7 @@
         "cratis-chronicle-reduce-state",
         "cratis-chronicle-select-client",
         "cratis-fundamentals-name-value",
+        "cratis-platform-start-application",
         "cratis-specifications-exercise-backend"
       ],
       "languages": [

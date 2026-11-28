@@ -8,7 +8,7 @@ import type { InstalledFiles } from './installed-links.ts';
 export const sharedSkills = [
     ...'select-backend-sdk host-application declare-command invoke-command declare-operation validate-command expose-query page-query diagnose-live-query connect-storage authorize-request isolate-tenant generate-proxies'.split(' ').map(task => `cratis-arc-${task}`),
     ...'select-client connect-application record-event constrain-append protect-decision project-view reduce-state react-to-fact evolve-event protect-personal-data publish-contract inspect-observer'.split(' ').map(task => `cratis-chronicle-${task}`),
-    'cratis-fundamentals-name-value', 'cratis-specifications-exercise-backend',
+    'cratis-fundamentals-name-value', 'cratis-platform-start-application', 'cratis-specifications-exercise-backend',
 ];
 
 export function packageProblems(files: InstalledFiles, retired: ReadonlySet<string>): string[] {
