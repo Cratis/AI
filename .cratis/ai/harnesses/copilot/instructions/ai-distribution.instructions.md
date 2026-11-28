@@ -93,3 +93,19 @@ and roll back the same way — by package version where one exists, otherwise by
 reinstalling from a known-good source commit with `--source`. Never patch managed
 files under `.cratis/ai/`, generated adapters, or marketplace wrappers by hand;
 `cratis ai status` reports such drift and `update` refuses it without `--force`.
+
+## Audit a managed installation
+
+1. Run `cratis ai status` for managed-file drift. For each selected harness, inspect the managed adapter links recorded in `.cratis/ai.manifest.json` under `.claude/`, `.agents/`, `.github/`, `.pi/`, `.cursor/` and `.opencode/`, as applicable. Confirm each resolves to its intended target in `.cratis/ai/`. A dangling link is a setup fault, not drift in a managed file.
+2. Inspect the installed hook wiring and commands without executing them. Flag destructive or platform-specific commands and compare enforcement with the documented hook policy; a rule in prose is not proof that a hook runs.
+3. Compare installed rules, skills, agents and hooks with the inventory for the selected source, profiles, languages and harnesses. Report missing and stale entries separately. In all three checks, give the affected paths and smallest repair; change files only when asked.
+
+## Check release drift when maintaining the shared corpus
+
+For every product and native SDK row in the compatibility inventory, compare the recorded release with the latest published release from its registry or official release channel. Map the changed surface to the skills that teach it. Assign one result per row: **current**, **drifted** (name affected skills), **unknown** (registry or private source inaccessible), **not covered** (intentionally no skill), or **pinned-older** (an intentional older verification pin, such as the standalone Screenplay CI check). Do not report a pin or unavailable release as verified current.
+
+## Verify agent dispatch separately from installation
+
+Managed installs include canonical roles such as `browser-operator`, `code-reviewer` and `slice-implementer`. Pi and OpenCode adapters are generated role prompts, not a delegation tool. Keep supported agents; add `cratis/review` when review skills are needed, whether or not the harness dispatches the reviewer role. Before updating, use `cratis ai update --dry-run` to see which obsolete managed files and links will be removed; never delete a project-owned prompt just because an old corpus supplied one.
+
+For Pi delegation, the operator can provision an external loader with `pi install npm:@tintinweb/pi-subagents`. After restarting, check that the subagent tool and intended role are available; with approval, dispatch one read-only role on a disposable input and verify its separate result. Test any required parallel cap, chained handoff, local override or provider selection before relying on it. Cratis does not guarantee the old dispatch semantics with an external loader. When a reviewer cannot use a different provider family, report `single-provider`; never silently claim independence.

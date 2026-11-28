@@ -1,0 +1,6 @@
+# Recover a model from a bounded live walk
+
+1. Confirm authorization, environment, journeys, test identities and time/action budget before touching the system. Name the isolated sandbox for any executable. When unattended, assume read-only, not implicit permission. Stop for explicit approval before a write to the target, a walk beyond budget, running an executable or sending captures to a hosted model.
+2. Walk the agreed journeys and record the inputs and visible outcomes, including denials and empty states. Prefer synthetic data. Scrub secrets and personal data from captures before use. Follow the skill's observed/inferred/unresolved distinction; a matching screen does not prove a storage or authorization rule.
+3. Record the owner's **keep**, **change** or **remove** decision for each recovered slice. Carry kept slices forward and omit removed ones; re-synthesize only changed slices. Keep unresolved decisions explicit rather than filling them in from guesses.
+4. If authorized to run the candidate, validate the model and run the candidate in the named sandbox. Re-walk the same journeys with equivalent inputs and caller permissions. Record **pass**, **fail** (with the observed difference), or **not run** (with the reason) for each journey. Comparing frames with a model is inspection, not a fidelity run.

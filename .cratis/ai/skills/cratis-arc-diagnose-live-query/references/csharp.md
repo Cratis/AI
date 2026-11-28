@@ -30,14 +30,22 @@ Prerequisite: `curl`, `mongosh` and Node.js on the machine, and credentials for 
 
 ## Avoid in C#
 
-- Do not use `waitForFirstResult=true` for this probe; it stops after the first result.
+- Do not use `waitForFirstResult=true` to test delivery of subsequent updates; it is a one-shot request.
 - Do not use `/.cratis/queries/health` to check that the author document exists; it describes connections.
 - Do not require a delta on the first result. It is a snapshot; later delta deliveries need a stable `Id`.
 - Do not reconnect between registration and inspection; a new subscription starts with a fresh snapshot.
 
 ## Read the HTTP status of a one-shot request
 
-A plain GET against an observable query is a snapshot request, not a subscription.
+Use the status table below for `ISubject<T>` snapshots. A plain GET against an `IAsyncEnumerable<T>` query instead collects allowed values until enumeration completes; the first-result timeout does not bound it. Inspect live emissions over WebSocket instead.
+
+For a bounded wait on the first allowed value, set `waitForFirstResultTimeout` to a positive number of seconds. It defaults to 30 if omitted or invalid:
+
+```sh
+curl --include 'https://localhost:5001/api/features/authors/listing/all-authors?waitForFirstResult=true&waitForFirstResultTimeout=10'
+```
+
+Each poll or repeated wait starts the query pipeline again, including authorization and `Count()` for a paged `IQueryable` query. Long polling is not a sustained subscription.
 
 | Status | Meaning |
 | --- | --- |

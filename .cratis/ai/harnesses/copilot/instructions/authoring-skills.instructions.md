@@ -75,6 +75,10 @@ Put a repeatable mechanical operation in `scripts/` when a script removes repeat
 
 Prose does not enforce itself. A constraint that an analyzer, a lint, a hook or CI can check ships as that check, with at most a one-line pointer in a rule.
 
+## Optional routing and output evaluation
+
+In the shared corpus checkout, on request only, run the cases in `Evaluations/corpus-v2/skills/<skill>/trigger.json` and `evals.json` manually where supplied. Use the same harness and model in two isolated runs: one with the skill installed normally, one clean control without that skill or cached skill context. Keep other settings and sibling skills identical. Do not preload the skill for a routing test. Grade the expected route (including `sibling` near-misses) and the output assertions separately; report pass rates against the control. Never run these cases in CI or incur model charges by default. Share only sanitized scores and failure categories, not secrets, local paths or transcripts.
+
 ## Change together, then verify
 
 Change the skill, its `references/` and its entry in `profile-catalog.json` in one change. Regenerate the harness adapters after changing a rule; never edit a generated adapter. Then run:

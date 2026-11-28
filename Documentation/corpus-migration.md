@@ -25,14 +25,16 @@ Afterwards, change the selection in `.cratis/ai.json` to the profile that matche
 | --- | --- |
 | Skills organized by product reference area | One v2 platform skill per application task; specialist skills remain available through their profiles |
 | About seventy rules, most loaded every session | `rules/general.md` is the one-page core; other rules are scoped by profile or language and matching paths |
-| Agents, prompts and slash commands | Removed. Harness adapters for them are no longer created; update removes the ones the CLI created |
+| Agents, prompts and slash commands | Five roles remain in `.cratis/ai/agents/`: `browser-operator`, `code-reviewer`, `performance-reviewer`, `security-reviewer` and `slice-implementer`. Generated Pi and OpenCode role prompts in `.cratis/ai/harnesses/{pi,opencode}/agents/` require a harness subagent tool to delegate. Standalone prompts and slash commands no longer ship. |
 | Per-language walkthroughs for Elixir, Go, Java, Kotlin, Python and TypeScript services | `cratis-arc-select-backend-sdk` and `cratis-chronicle-select-client` explain SDK choice. The v2 walkthroughs use .NET and React; language profiles still carry specialized guidance |
 | Imported .NET skills (diagnostics, MSBuild, Orleans, performance, refactoring, testing, .NET 11 migration) | Available through the .NET engineering profiles; .NET 11 migration is a separate opt-in |
 | CodeScene, Playwright, Lens, Studio and content guidance | CodeScene, Lens, Studio and content skills are profile-scoped. The `codescene`, `playwright` and `screenplay` MCP servers are still added by their profiles |
 | `product-sync.json` and the product drift workflow | Removed. [Compatibility](./compatibility.md) lists the releases the skills were checked against |
-| Per-skill trigger and output evaluations | Removed. [Authoring skills](./authoring-skills.md) describes the review a skill gets instead |
+| Per-skill trigger and output evaluations | Automated evaluation no longer ships. Use the [optional case files](../Evaluations/corpus-v2/README.md) and the [manual comparison procedure](../.cratis/ai/rules/authoring-skills.md#optional-routing-and-output-evaluation). |
 
-To replace the removed `security-reviewer` agent, add `cratis/review` to your selection. It installs `cratis-security-review`, `cratis-code-review` and `cratis-performance-review`. If your repository's own rules dispatch `security-reviewer`, change them to load and apply the `cratis-security-review` skill, or keep your own copy of the agent if you need separate dispatch.
+Update removes obsolete managed files and links recorded in its installation manifest. This includes old `.cratis/ai/prompts/*.prompt.md` files, managed `.claude/prompts` and `.github/prompts` links, and per-prompt links under `.claude/commands/`, `.pi/prompts/`, `.cursor/commands/` and `.opencode/commands/`. It leaves project-owned files alone. Check the dry-run output for the exact paths in your repository.
+
+The `security-reviewer` agent still ships for separate dispatch. Add `cratis/review` to use the `cratis-security-review`, `cratis-code-review` and `cratis-performance-review` skills with or without those agents.
 
 Some earlier platform skill names no longer resolve. Use the v2 name for a replaced task; `cratis ai status` lists the installed skills, including specialist skills that kept their names.
 

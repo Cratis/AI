@@ -18,6 +18,8 @@ Two layers:
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 
+Claude’s `Stop` gate runs at the end of a turn and checks the working tree, which can differ from the staged changes; it is not a pre-commit hook.
+
 ### Inline interpreter policy
 
 Inline interpreter argv programs (`node -e`/`--eval`/`-p`/`--print`, Python `-c`, Ruby/Perl/Lua/

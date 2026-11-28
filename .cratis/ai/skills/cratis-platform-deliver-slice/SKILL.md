@@ -1,9 +1,11 @@
 ---
 name: cratis-platform-deliver-slice
-description: Use when an application author needs to implement the working outcome of an accepted slice across command, read model and screen. Not for invoking Stage generation (use cratis-stage-render-slice).
+description: Use when implementing an accepted full-stack slice across command, read model and screen, or coordinating delivery across several accepted slices. Not for invoking Stage generation (use cratis-stage-render-slice).
 ---
 
 # Register an author and show the new row
+
+Implement one slice at a time. If the request covers several accepted slices, [coordinate delivery](references/coordinate-slices.md) before starting implementation.
 
 For manual implementation, take the owner of the history and the accepted examples from the [event model](../cratis-modeling-design-event-model/SKILL.md) or from the Screenplay handoff (`cratis-screenplay-handoff-slice` skill in `cratis/screenplay`). An accepted Screenplay model does not require Stage generation.
 
