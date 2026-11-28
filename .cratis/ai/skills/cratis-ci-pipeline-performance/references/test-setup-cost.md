@@ -52,12 +52,11 @@ A fix belongs in the library that owns the setup, not in each consuming reposito
 
 ## Test each guarantee where it can break
 
-Apply the consumer coverage rules in `general` before moving or removing a check.
-The guidance below does not move consumer-owned routing or service-boundary specs
-out of PR CI.
+Follow the consumer-owned PR coverage, upstream case mapping and timing requirements
+in `verification-discipline.md` before relocating any check.
 
-- A suite that tests a dependency's semantics belongs in that dependency's own
-  repository. In a consumer, run it only when the dependency pin changes, or nightly.
+- A suite that tests only a dependency's semantics belongs in that dependency's own
+  repository. In a consumer, run that duplicate coverage only when the dependency pin changes, or nightly.
 - Check a wire or API shape with a committed snapshot and a diff, not a live
   integration run.
 - Mixed-version or upgrade matrices run nightly or before a release, not on every
@@ -65,9 +64,7 @@ out of PR CI.
 - Where a behavior is only meaningful in a deployed environment, prefer a
   post-deploy synthetic check plus unit specifications and contract snapshots over
   a pull-request integration environment.
-- Never remove the only check of a required guarantee; relocate it and say where it
-  now runs. Keep consumer routing and service-boundary regressions on PRs;
-  follow the shared `verification-discipline` rule before retiring an assertion.
+- Never remove the only check of a required guarantee; report where any relocated check now runs.
 
 ## Surface compile errors early
 

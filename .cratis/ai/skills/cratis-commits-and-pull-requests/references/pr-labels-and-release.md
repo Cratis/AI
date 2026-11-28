@@ -1,10 +1,6 @@
 # Select the release label
 
-Use exactly one of `major`, `minor`, `patch` or `no-release`. Use `no-release` only for changes with no release impact. Do not generalize an automated Dependabot exemption to ordinary PRs.
-
-## Issue references
-
-With release-action, end a bullet with `(#n)` only for a verified issue that the change fully delivers and is authorized to close. Use `(part of #n)` for partial delivery, `see #n` for related work, and no reference when there is no issue. Never substitute the PR number for the issue number.
+In repositories using Cratis release labels, choose exactly one: `major` for a breaking contract, `minor` for a compatible capability, `patch` for a compatible fix, or `no-release` for changes with no consumer release impact. Do not generalize an automated Dependabot exemption to ordinary PRs. Follow the [description policy](pr-description.md) for release-note content and issue references.
 
 ## Cratis/AI corpus changes
 

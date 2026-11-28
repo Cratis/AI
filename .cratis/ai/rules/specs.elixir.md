@@ -1,6 +1,8 @@
 ---
-applyTo: "**/for_*/**/*.exs, **/when_*/**/*.exs"
+applyTo: "**/for_*/**/*.exs, **/when_*/**/*.exs, **/mix.exs, **/test_helper.exs"
 paths:
+  - "**/mix.exs"
+  - "**/test_helper.exs"
   - "**/for_*/**/*.exs"
   - "**/when_*/**/*.exs"
 ---
@@ -11,13 +13,13 @@ Use ExUnit tests with native fixtures. For an Arc command exercise the pipeline 
 
 ## Discover colocated specs
 
-Use `.exs` scripts with no `_test` suffix in `for_*`. Mix compiles `.ex` modules, so these colocated scripts are not compiled into releases. Put reusable compiled case helpers in `test/support/*.ex` and include that directory only in `:test`. For a project adopting this layout on Mix 1.20, configure:
+Use `.exs` scripts with no `_test` suffix under `lib/<slice>/for_<unit>/`. Mix compiles `.ex` modules, so these colocated scripts are not compiled into releases. Put reusable compiled case helpers in `test/support/*.ex` and include that directory only in `:test`. For a project adopting this layout on Mix 1.19 or newer, configure:
 
 ```elixir
 # Entries in project/0
 elixirc_paths: elixirc_paths(Mix.env()),
 test_paths: ["lib"],
-test_load_filters: [~r{^lib/(?:.*/)?for_[^/]+/(?!given/).*\.exs$}],
+test_load_filters: [~r{^lib/(?!.*?/given/)(?!given/)(?:.*/)?for_[^/]+/.*\.exs$}],
 test_ignore_filters: [~r{/given/}, ~r{^lib/test_helper\.exs$}],
 
 # Module-level helpers
@@ -25,7 +27,7 @@ defp elixirc_paths(:test), do: ["lib", "test/support"]
 defp elixirc_paths(_), do: ["lib"]
 ```
 
-Put `ExUnit.start()` in `lib/test_helper.exs`, then load shared `given/*.exs` once with `Path.wildcard("lib/**/given/*.exs") |> Enum.sort() |> Enum.each(&Code.require_file/1)`. The filters operate on files found by `test_pattern`; remove a custom `_test`-only pattern. Preserve any legacy test paths and their load filters until migration is complete. Use the existing `test/` layout with `*_test.exs` where custom filters are unavailable. A script outside `for_*` is not loaded by this filter. Run `mix test` after a discovery change and account for every previously discovered test. Include `lib` and `test` scripts in the formatter inputs.
+Put `ExUnit.start()` in `lib/test_helper.exs`, then load shared `given/*.exs` once with `Path.wildcard("lib/**/given/*.exs") |> Enum.sort() |> Enum.each(&Code.require_file/1)`. Keep the default `test_pattern`; the load filter replaces the default `_test.exs` suffix check. Preserve any legacy test paths and their load filters until migration is complete. Use the existing `test/` layout with `*_test.exs` where custom filters are unavailable. A script outside `for_*` is not loaded by this filter. Run `mix test lib/<slice>/for_<unit>` with the real directory and require a nonzero count, then run `mix test` after a discovery change and account for every previously discovered test. Include `lib` and `test` scripts in the formatter inputs.
 
 ## Choose the boundary
 

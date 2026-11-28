@@ -5,9 +5,9 @@ description: Use when a platform maintainer needs a release-note PR body and int
 
 # Prepare the note a consumer will read
 
-Inspect the diff against the target branch and the repository's publishing workflow. Identify the affected caller and what changes for them. In a repository using Cratis release labels, choose **exactly one**: `major` for a breaking contract, `minor` for a compatible capability, `patch` for a compatible fix, or `no-release` when there is no consumer release. Do not combine a bump with `no-release`. For changes to the installed corpus, use the [Cratis/AI label guidance](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#cratisai-corpus-changes).
+Inspect the diff against the target branch and the repository's publishing workflow. Identify the affected caller and what changes for them. Choose the intent using the [release label policy](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md).
 
-Write the PR body as release notes, using the repository template and only applicable sections. For example:
+Write the PR body using the shared [description and issue-reference policy](../cratis-commits-and-pull-requests/references/pr-description.md). For example:
 
 ```markdown
 ## Fixed
@@ -15,7 +15,7 @@ Write the PR body as release notes, using the repository template and only appli
 - Empty author names now return a validation error instead of appearing to register successfully.
 ```
 
-State the migration for a breaking change. Follow the [PR-body preflight](../cratis-commits-and-pull-requests/references/pr-description.md), including the diff recheck, issue reference policy and checker for opted-in repositories. Preparing a note or label does not authorize a push, merge, dispatch or release. Leave a major for explicit human approval and human merge.
+Preparing a note or label does not authorize a push, merge, dispatch or release. Leave a major for explicit human approval and human merge.
 
 ## A green Publish run did not publish the change
 

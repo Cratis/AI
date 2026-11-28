@@ -11,7 +11,7 @@ test "rejects the missing title", %{arc: arc} do
 end
 ```
 
-For colocated specs without the `_test` suffix, follow “Discover colocated specs” in the `specs.elixir` rule.
+For colocated specs without the `_test` suffix, follow “Discover colocated specs” in the `specs.elixir` rule and require a nonzero test count from the focused directory.
 
 For an authorization rule use `principal(name, roles)` and `assert_forbidden` from `Cratis.Arc.Test`. For a query spec, call `Cratis.Arc.Test.query(arc, read_model, name, args)` with the scenario from the case and assert the returned rows. If setup already owns an isolated Chronicle client, build the scenario with `Cratis.Arc.Test.scenario(application, client)`; neither command nor query needs global configuration.
 

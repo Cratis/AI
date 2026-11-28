@@ -9,10 +9,10 @@
 
 - Start from the behavior the caller should see, and implement the smallest contract that delivers it.
 - Choose a skill by the task at hand. Check its nearest exclusion, and load a linked skill only when the work reaches that boundary.
-- Follow the repository's conventions and installed package versions over any example.
+- Examples yield to repository facts and installed package versions.
 - Fix incorrect behavior within the requested change; report unrelated defects separately.
 - Treat generated output as output: change the owning contract and regenerate.
-- Accepted project decisions and project rules bind this work. They may narrow this guidance but never weaken security or a gate.
+- Existing code or local instructions do not override corpus conventions. Only an accepted decision record naming the rule it replaces can do so, and it never relaxes security, framework or API contracts, or gates.
 - Settle a reversible choice from the repository's own evidence and report it. Ask only a necessary question, as one bounded question with a recommendation.
 
 ## Approval is not execution
@@ -31,7 +31,7 @@ Use Screenplay when `.cratis/ai.json` sets `mcpServers.screenplay.root`, the app
 
 ## Retrieve remote content
 
-- For exact CI logs, artifacts or API JSON, use terminal `curl -LsS` to follow redirects. Capture the body separately from `--write-out '%{http_code}'` and record curl's exit code before filtering locally with `head`, `grep` or `jq`. Do not let a filter's exit code stand in for the producer's. Use a page-fetch tool for summaries of rendered pages. Keep credentials and signed URLs out of logs and artifacts.
+- For exact CI logs, artifacts or API JSON, use terminal `curl -LsS` to follow redirects. Capture the body separately from `--write-out '%{http_code}'` and record curl's exit code before filtering locally with `head`, `grep` or `jq`. Do not let a filter's exit code stand in for the producer's. Use a page-fetch tool for summaries of rendered pages. Keep credentials, authorization headers and signed URL query strings out of displayed commands, transcripts, logs and artifacts.
 
 ## Verify what can go wrong
 

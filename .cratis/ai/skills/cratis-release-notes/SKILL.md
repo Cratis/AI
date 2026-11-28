@@ -50,7 +50,7 @@ one to add weight.
   `cratis-platform-prepare-release-pr` from `cratis/engineering`. No development
   write-up (no Overview, Verification or Test plan headings; put review notes
   and verification details in a PR comment); follow the
-  [issue reference policy](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#issue-references).
+  [issue reference policy](../cratis-commits-and-pull-requests/references/pr-description.md#issue-references).
   Never use `Closes`, `Fixes` or `Refs` before a number (also in bold or a link),
   and put no issue reference
   inside an HTML comment (release-action removes comments before publishing,

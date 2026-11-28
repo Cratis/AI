@@ -29,17 +29,13 @@ Done when: the target is written and no accepted record contradicts it.
 ## 2. Guard before moving
 
 1. Add the [architecture gates](references/stages.md#architecture-gates) as specs in a project of their own.
-2. Record the current numbers as committed baselines: seams, `InternalsVisibleTo` grants, references between
-   modules, platform-to-module references, folders without project or README, namespace/folder
-   mismatches, frontend boundary violations.
-3. Each gate fails when its baseline grows and asks for the baseline to shrink when coupling is removed.
+2. Commit current violation counts as baselines. Fail on an increase and shrink the baseline in the same change that removes a violation.
 
 Done when: the gates run in the normal spec pass and fail on a planted violation (add one grant, see red, remove it).
 
 ## 3. Move, and only move
 
-Keep namespaces and assembly names while moving; moving a file changes no identity, a namespace change
-does (see [what a rename changes](references/stages.md#what-a-rename-changes-in-net)).
+Keep namespaces and assembly names while moving. A path-only move leaves name-based identities intact; changing the namespace can change them. Inventory [affected identities](references/stages.md#what-a-rename-changes-in-net), then see the [rename window](references/rename-window.md).
 
 | Move | Steps (each a separate commit; build and run specs after each) |
 | --- | --- |
@@ -75,8 +71,7 @@ import from it, folder by folder. Each cluster that several modules use becomes 
 one purpose (shell and tenancy into the host or a `Tenancy.Contracts`, an engine into its own project
 with contracts); everything else moves into the module that owns it. Delete the project when it is empty.
 
-**Retiring a project that owns event types** removes those types: their stored events and registrations
-need an event-store plan before the project goes; use the `cratis-chronicle-evolve-event` skill (in `cratis/chronicle`).
+**Before retiring a project that owns persisted events**, preserve the types and their replay path. If registrations or stored events need to change, plan that migration separately with `cratis-chronicle-evolve-event` (in `cratis/chronicle`).
 
 Done when: the seam baseline and the module-reference baseline reach zero.
 
