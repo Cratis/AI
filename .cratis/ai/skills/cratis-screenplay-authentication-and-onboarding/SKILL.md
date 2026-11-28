@@ -107,4 +107,4 @@ keys using `cratis config --missing <path>`, which exits `5` when any key is abs
 - Modeling persona access and policy: [cratis-screenplay-model-interaction](../cratis-screenplay-model-interaction/SKILL.md).
 - Setting up the compiler: [cratis-screenplay-onboard-workspace](../cratis-screenplay-onboard-workspace/SKILL.md). Reviewing a revision: [cratis-screenplay-accept-model](../cratis-screenplay-accept-model/SKILL.md).
 - How AuthProxy, Ante and Herald consume the contract at runtime: `cratis-onboarding-runtime`.
-- Applying the HTTP authorization boundary in Arc: [cratis-arc-authorize-request](../cratis-arc-authorize-request/SKILL.md).
+- Applying the HTTP authorization boundary in Arc: the `cratis-arc-authorize-request` skill.

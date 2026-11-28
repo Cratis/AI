@@ -6,13 +6,13 @@ compatibility: Requires an Arc backend with the command already declared.
 
 # Validate a command before it runs
 
-Attach each rule to the field it checks, in a validator that belongs to the [command](../cratis-arc-declare-command/SKILL.md). The pipeline runs blocking validation before the handler, so a rejected command changes nothing. A separate validate request gives early feedback; it is not needed to enforce the rule.
+Attach each rule to the field it checks, in a validator that belongs to the command (the `cratis-arc-declare-command` skill, when installed). The pipeline runs blocking validation before the handler, so a rejected command changes nothing. A separate validate request gives early feedback; it is not needed to enforce the rule.
 
 Choose by what the rule needs:
 
 - **Only the input:** a field rule. This is the default.
 - **Current state, to refuse with a message:** let the validator take the decision model, and check both that it exists and that it relates to the entity being changed.
-- **An answer that must still hold when the event is appended:** a [protected model parameter](../cratis-chronicle-protect-decision/SKILL.md), not a database lookup.
+- **An answer that must still hold when the event is appended:** a protected model parameter (the `cratis-chronicle-protect-decision` skill, when installed), not a database lookup.
 
 ## Read the reference for the host
 
@@ -29,5 +29,5 @@ Execute the command through the pipeline with an invalid value: the result is in
 
 ## Related skills
 
-- [Declare the command](../cratis-arc-declare-command/SKILL.md)
-- [Constrain the append](../cratis-chronicle-constrain-append/SKILL.md)
+- Declare the command (the `cratis-arc-declare-command` skill, when installed)
+- Constrain the append (the `cratis-chronicle-constrain-append` skill, when installed)

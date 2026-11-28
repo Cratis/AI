@@ -14,6 +14,6 @@ If there is nothing yet to review, [design from the agreed timeline](../cratis-m
 
 Report findings in order of consequence. Name the affected element, distinguish observed results from inference, and explain which agreed outcome fails or how a concrete failure could occur. Give the smallest correction and the task that owns it.
 
-> **RegisterAuthor — blank name accepted.** The agreed example requires refusal with no append. The form blocks submission, but the supplied server request result and event history show a blank name accepted and recorded. A caller outside the form can therefore register an unnamed author. Keep the form feedback; [enforce the name rule on the server command](../cratis-arc-validate-command/SKILL.md).
+> **RegisterAuthor — blank name accepted.** The agreed example requires refusal with no append. The form blocks submission, but the supplied server request result and event history show a blank name accepted and recorded. A caller outside the form can therefore register an unnamed author. Keep the form feedback; enforce the name rule on the server command (the `cratis-arc-validate-command` skill, when installed).
 
 If intent, guard or destination is unknown, ask one question that would settle it. A suspicious name alone is not a finding. If nothing consequential emerges, report “no findings in the examined path” and name what was not examined. A review does not confer acceptance: report without editing, running mutations or requiring new specifications.

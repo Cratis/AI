@@ -40,7 +40,7 @@ generator copies into generated proxies. For Node server setup, use [declare the
   authorization or `denied(...)`.
 - A stored-state check tells you what was true when it ran. A rule that must hold
   under concurrency belongs at the storage boundary (for Chronicle, a constraint
-  or concurrency scope; see [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md)).
+  or concurrency scope; see the `cratis-chronicle-constrain-append` skill).
 
 ## Command rules — `CommandValidator`
 
@@ -291,7 +291,7 @@ describe('when validating a task with an empty title', given(a_task_registration
 ## Route near misses
 
 - Defining the Node command or query: [declare the command](../cratis-arc-declare-command/references/typescript.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/references/typescript.md).
-- Append-time uniqueness or concurrency: [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md).
+- Append-time uniqueness or concurrency: the `cratis-chronicle-constrain-append` skill.
 - The .NET validation shape: [cratis-arc-validate-command](../cratis-arc-validate-command/SKILL.md); Kotlin/Java:
   `cratis-arc-validation-kotlin` in `cratis/arc/client-kotlin`.
 

@@ -2,7 +2,7 @@
 
 Use a projection, the observer that maps events to the `Author` read model. That read model is the data the state view queries.
 
-1. In the backend project that references `Cratis.Arc` and `Cratis.Chronicle`, put `Author` beside the query that lists authors. Import `AuthorId` from [Name a domain value](../../cratis-fundamentals-name-value/SKILL.md) and `AuthorRegistered` from [Record an event](../../cratis-chronicle-record-event/SKILL.md).
+1. In the backend project that references `Cratis.Arc` and `Cratis.Chronicle`, put `Author` beside the query that lists authors. Import `AuthorId` from Name a domain value (the `cratis-fundamentals-name-value` skill, when installed) and `AuthorRegistered` from [Record an event](../../cratis-chronicle-record-event/SKILL.md).
 2. Put `[FromEvent<AuthorRegistered>]` on the record. Chronicle uses the event source ID as `Id`. Chronicle copies event properties to read-model properties with the same name, without an explicit mapping. Both `AuthorRegistered.Name` and `Author.Name` are `string`, so the value copies unchanged.
 3. Import `AuthorRemoved` from `Features/Authors/Removal/AuthorRemoved.cs` in [Reserve a name](../../cratis-chronicle-constrain-append/SKILL.md). Put `[RemovedWith<AuthorRemoved>]` on the record. When this event is appended, Chronicle removes the instance with that author ID.
 
@@ -31,7 +31,7 @@ Leave the listing active: `[Passive]` would compute by ID on demand instead of s
 
 ## Check removal by author ID
 
-One-off wiring check in a disposable namespace, not a committed spec of Chronicle removal. For an uncovered application mapping, use a [`ReadModelScenario<Author>`](../../cratis-specifications-exercise-backend/SKILL.md) instead.
+One-off wiring check in a disposable namespace, not a committed spec of Chronicle removal. For an uncovered application mapping, use a `ReadModelScenario<Author>` (the `cratis-specifications-exercise-backend` skill, when installed) instead.
 
 With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. With an `IEventStore eventStore` for that namespace, register Aster with `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));`. Check `result.IsSuccess`, then check `(await result.WaitForCompletion()).IsSuccess` (import `Cratis.Chronicle.Observation`). Repeat for Birch with a different ID. List `await eventStore.ReadModels.GetInstances<Author>()` and check both names and IDs. Append `new AuthorRemoved()` for Aster; check acceptance and completion the same way. List again and expect only Birch.
 
@@ -39,7 +39,7 @@ When the next value requires a computation over prior state that projection oper
 
 ## Related skills
 
-- [Expose the query](../../cratis-arc-expose-query/SKILL.md)
+- Expose the query (the `cratis-arc-expose-query` skill, when installed)
 
 ## Keep subscriptions, routing and mapping separate
 

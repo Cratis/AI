@@ -8,7 +8,7 @@ Wire telemetry once, prove spans and metrics reach a backend, and keep sensitive
 Sibling skills own adjacent ground:
 
 - **cratis-fundamentals-telemetry** declares generated metrics and spans (`[Counter]`, `[Span]`) and subscribes application meters. Use it for custom instruments.
-- For kernel storage, TLS and other deployment settings, use [cratis-chronicle-deploy-kernel](../../cratis-chronicle-deploy-kernel/SKILL.md).
+- For kernel storage, TLS and other deployment settings, use the `cratis-chronicle-deploy-kernel` skill.
 
 ## Setup (.NET)
 

@@ -1,6 +1,6 @@
 # Start an Arc host
 
-For an Arc-only ASP.NET Core host, pair `AddCratisArc()` with `UseCratisArc()`. For a host that also uses Chronicle, follow [Connect Chronicle](../../cratis-chronicle-connect-application/SKILL.md) instead.
+For an Arc-only ASP.NET Core host, pair `AddCratisArc()` with `UseCratisArc()`. For a host that also uses Chronicle, follow the connection steps in the `cratis-chronicle-connect-application` skill, when installed.
 
 In a `Microsoft.NET.Sdk.Web` project with `<ImplicitUsings>enable</ImplicitUsings>`, reference `Cratis.Arc`. Register Arc on the builder and activate it on the built application in `Program.cs` (top-level statements, no namespace).
 

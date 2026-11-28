@@ -44,7 +44,7 @@ A version is kept only when it marks a prerequisite. Before deleting one, decide
 
 - Aim for under 750 words in `SKILL.md`. Verification fails a body above 500 lines or 20,000 characters.
 - Put conditional detail in `references/`, one level deep, and name every reference file from `SKILL.md` with the condition for reading it. A reference above 100 lines opens with a `## Contents` list.
-- Link to another skill at the actual handoff with a relative path, `../cratis-<name>/SKILL.md`. Every profile that installs the linking skill must also install the target, or the link leaves the selection.
+- At the actual handoff, use a relative link such as `../cratis-<name>/SKILL.md` only if every profile and language selection that installs the source also installs the target; otherwise name the target skill in backticks without linking to it.
 - A skill never links or refers to a path that exists only in the corpus repository, such as its documentation, evaluations or verification sources. Installed skills are read without them.
 - Refer to a rule by name, in backticks, with the profile that installs it. Do not link to a rule from a skill: the rule may not be installed where the skill is.
 

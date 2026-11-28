@@ -43,7 +43,7 @@ For a combined Library host, merge `options.EndpointGroups.Assign("capabilities"
 
 ## Add a tool
 
-For a list, annotate the **method** on the existing [Author projection](../cratis-chronicle-project-view/SKILL.md) in `Features/Authors/Listing/Author.cs` (`Library.Features.Authors.Listing`). Import `Cratis.Arc.Mcp` and `MongoDB.Driver`, then add this method to `Author`:
+For a list, annotate the **method** on the existing Author projection (the `cratis-chronicle-project-view` skill, when installed) in `Features/Authors/Listing/Author.cs` (`Library.Features.Authors.Listing`). Import `Cratis.Arc.Mcp` and `MongoDB.Driver`, then add this method to `Author`:
 
 ```csharp
 [ExposeOverMcp("list_authors", Description = "Lists the library's authors.")]
@@ -51,7 +51,7 @@ public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collectio
     collection.Find(_ => true).ToList();
 ```
 
-For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on [RegisterAuthor](../cratis-arc-declare-command/SKILL.md).
+For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on RegisterAuthor (the `cratis-arc-declare-command` skill, when installed).
 
 Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. For an argument description on a command record parameter, use `[property: System.ComponentModel.Description("The author's display name")] string Name`.
 
@@ -80,7 +80,7 @@ In the result, expect `list_authors` and no `register_author`.
 
 ## Related skills
 
-- [Declare the command](../cratis-arc-declare-command/SKILL.md)
+- Declare the command (the `cratis-arc-declare-command` skill, when installed)
 - [Protect the operation](../cratis-arc-authorize-request/SKILL.md)
 
 ## Diagnose admission with the client credential

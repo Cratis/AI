@@ -8,4 +8,4 @@ Which skill owns each task next to stream and consistency design.
 - Reactions and work queues: [cratis-screenplay-model-automation](../../cratis-screenplay-model-automation/SKILL.md). External facts: [cratis-screenplay-model-translation](../../cratis-screenplay-model-translation/SKILL.md).
 - Observable specifications: [cratis-screenplay-specify-outcome](../../cratis-screenplay-specify-outcome/SKILL.md).
 - Reviewing a proposed model: [cratis-screenplay-accept-model](../../cratis-screenplay-accept-model/SKILL.md).
-- Rendering and determining what remains hand-written: [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md).
+- Rendering and determining what remains hand-written: the `cratis-stage-render-slice` skill.

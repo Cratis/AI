@@ -105,6 +105,6 @@ a custom `IEmailTransport` before `AddHerald`.
 
 ## Route near misses
 
-- Events, reactors and projections that call Herald: [cratis-chronicle-react-to-fact](../cratis-chronicle-react-to-fact/SKILL.md) and [cratis-chronicle-project-view](../cratis-chronicle-project-view/SKILL.md).
+- Events, reactors and projections that call Herald: the `cratis-chronicle-react-to-fact` skill and the `cratis-chronicle-project-view` skill.
 - Invitation tokens, the lobby and acceptance: `cratis-onboarding-runtime`.
-- Erasing personal data: [cratis-chronicle-protect-personal-data](../cratis-chronicle-protect-personal-data/SKILL.md).
+- Erasing personal data: the `cratis-chronicle-protect-personal-data` skill.

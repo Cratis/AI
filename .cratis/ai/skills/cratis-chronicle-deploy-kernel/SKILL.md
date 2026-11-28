@@ -20,7 +20,7 @@ curl -kf https://localhost:35000/health/live
 curl -kf https://localhost:35000/health/ready
 ```
 
-A connection refusal immediately after launch can mean the listener hasn't bound yet. Liveness returns 200 once it accepts requests; readiness can still return 503 during startup. Retry readiness before [connecting the application](../cratis-chronicle-connect-application/SKILL.md). `-k` is only for this loopback check of the generated certificate. After the test, `docker rm -f library-chronicle-dev` removes this disposable container; don't use it to reset a persistent store.
+A connection refusal immediately after launch can mean the listener hasn't bound yet. Liveness returns 200 once it accepts requests; readiness can still return 503 during startup. Retry readiness before connecting the application (the `cratis-chronicle-connect-application` skill, when installed). `-k` is only for this loopback check of the generated certificate. After the test, `docker rm -f library-chronicle-dev` removes this disposable container; don't use it to reset a persistent store.
 
 ## Shared deployment
 

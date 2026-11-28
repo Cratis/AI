@@ -50,6 +50,30 @@ describe('verify corpus', () => {
         assert.deepEqual(await failuresFor(() => undefined), []);
     });
 
+    const handoffs = [
+        { name: 'is present in every selection', composed: true, supported: undefined, filters: ['csharp', 'go'], failures: 0 },
+        { name: 'is present in the only supported language', composed: true, supported: ['csharp'], filters: ['csharp'], failures: 0 },
+        { name: 'exists only in another profile', composed: false, supported: undefined, filters: ['csharp', 'go'], failures: 1 },
+        { name: 'is filtered out under Go', composed: true, supported: ['csharp'], filters: ['csharp', 'go'], failures: 1 },
+        { name: 'is composed by Pi but not by the CLI', composed: true, supported: [], filters: ['csharp', 'go'], failures: 1 },
+    ];
+
+    for (const { name, composed, supported, filters, failures: expected } of handoffs) {
+        it(`checks a cross-skill link whose target ${name}`, async () => {
+            const failures = await failuresFor(files => {
+                const ids = ['cratis/application', 'cratis/follow-up'];
+                files['.cratis/ai/manifest.json'] = JSON.stringify({ profiles: ids, languages: filters });
+                files['.cratis/ai/profile-catalog.json'] = JSON.stringify({ publicProfiles: [
+                    { id: ids[0], composes: composed ? [ids[1]] : [], availableTargets: ['demo-skill'] },
+                    { id: ids[1], languages: supported, availableTargets: ['follow-up'] },
+                ] });
+                files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'Read [the follow-up](../follow-up/SKILL.md).');
+                files['.cratis/ai/skills/follow-up/SKILL.md'] = skill('follow-up', 'Use when completing a follow-up.');
+            });
+            assert.equal(failures.length, expected, failures.join('\n'));
+        });
+    }
+
     it('should accept a module version pin and unlabelled authoring cases', async () => {
         assert.deepEqual(await failuresFor(files => {
             files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'Run `go get github.com/cratis/arc.go@v0.1.4`.');

@@ -46,6 +46,6 @@ composite type only to carry flat parts: both hide the identity the model should
   `Decimal`) are refused STAGE-ESM-048; a decimal part can split `1.0` and `1.00`
   into two instances on replay. Choose a non-decimal key part.
   Semantic Host support does not imply specification-executor support for
-  multi-part keys. Check target admission with [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md).
+  multi-part keys. Check target admission with the `cratis-stage-render-slice` skill.
 
 Use [cratis-screenplay-declare-slice](../../cratis-screenplay-declare-slice/SKILL.md) for projection syntax.

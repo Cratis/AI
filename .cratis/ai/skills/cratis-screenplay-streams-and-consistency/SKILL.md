@@ -60,7 +60,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
      (`confirmsX == true`) standing in for a rule, and rules hidden in `handler` or
      implementation-hint prose. An unguarded materialized read is unsafe for a protected
      decision; that is not "read models never drive decisions". See
-     [cratis-chronicle-protect-decision](../cratis-chronicle-protect-decision/SKILL.md).
+     the `cratis-chronicle-protect-decision` skill.
 3. **Play the races and retries.** For each enforced or recorded rule write the concurrent case
    (two commands at once), the retry case (same request again after a lost reply) and the
    duplicate case (same intent, new id). State the outcome and which construct produces it.
@@ -75,7 +75,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
    and protected payload. A stream identity and an event's data subject may differ:
    trailing event-property `subject` records that lineage but is report-only
    (PLAY0270), not runtime propagation or generated C# `[Subject]`. Without a
-   supplied subject, the runtime defaults to the event source. For stored personal data, use [cratis-chronicle-protect-personal-data](../cratis-chronicle-protect-personal-data/SKILL.md).
+   supplied subject, the runtime defaults to the event source. For stored personal data, use the `cratis-chronicle-protect-personal-data` skill.
 5. **Plan evolution.** Read [event evolution](references/evolution.md) before editing stored
    contracts, for change classification, compatibility scenarios and enum-number safety.
    After release-baseline admission, revisions need `newGeneration`. The owning session handles identity-affecting edits using [cratis-screenplay-edit-workspace](../cratis-screenplay-edit-workspace/SKILL.md).

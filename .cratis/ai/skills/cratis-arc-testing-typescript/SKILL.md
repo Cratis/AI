@@ -26,7 +26,7 @@ with `given`), and `node:test` works too.
 | Stored events or an aggregate | `ChronicleKernelScenario` against a running kernel | n/a |
 
 Cover decision branches with fast direct specs and add scenario specs for the
-rules Arc enforces. Use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md) for Chronicle client setup.
+rules Arc enforces. Use the `cratis-chronicle-select-client` skill for Chronicle client setup.
 
 ## CommandScenario
 

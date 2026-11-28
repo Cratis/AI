@@ -24,9 +24,9 @@ For one registration event and a fixed refusal message, keep the attribute: its 
 
 ## Try the same name for two author IDs
 
-One-off wiring check, not a spec of Chronicle's constraint mechanism. For an uncovered application refusal, use the [existing backend fixture](../../cratis-specifications-exercise-backend/SKILL.md).
+One-off wiring check, not a spec of Chronicle's constraint mechanism. For an uncovered application refusal, use the existing backend fixture (the `cratis-specifications-exercise-backend` skill, when installed).
 
-Start in a disposable namespace with no claim on the name. Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
+Start in a disposable namespace with no claim on the name. Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from Name a domain value (the `cratis-fundamentals-name-value` skill, when installed). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
 
 ## When it goes off the usual path
 

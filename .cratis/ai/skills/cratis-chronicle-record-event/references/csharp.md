@@ -10,9 +10,9 @@ namespace Library.Features.Authors.Registration;
 [EventType] public record AuthorRegistered(string Name);
 ```
 
-1. For a writer, import `AuthorId` and `AuthorName` from [Name a domain value](../../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Keep the registration code in `Features/Authors/Registration/`.
+1. For a writer, import `AuthorId` and `AuthorName` from Name a domain value (the `cratis-fundamentals-name-value` skill, when installed). Reference `Cratis.Chronicle` in the backend. Keep the registration code in `Features/Authors/Registration/`.
 2. Mark the event `[EventType]`. The event-type ID is a plain string naming the schema, not the author. It defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
-3. Inside Arc, [return the fact from the handler](../../cratis-arc-declare-command/SKILL.md). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
+3. Inside Arc, return the fact from the handler (the `cratis-arc-declare-command` skill, when installed). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
 
 **Standalone writer only:**
 
@@ -42,7 +42,7 @@ The standalone writer is create-only: a freshly generated ID is not proof this h
 
 ## Read back the accepted registration
 
-One-off wiring check in a disposable namespace, not a committed spec of append or readback. For an uncovered command outcome, use the [backend scenario](../../cratis-specifications-exercise-backend/SKILL.md).
+One-off wiring check in a disposable namespace, not a committed spec of append or readback. For an uncovered command outcome, use the backend scenario (the `cratis-specifications-exercise-backend` skill, when installed).
 
 In a caller with the library's `IEventLog`, take the result from `var result = await new AuthorRegistry(eventLog).Register(authorId, new AuthorName("Aster"));`. Check `result.IsSuccess` before reporting success. On refusal inspect `result.ConstraintViolations`, `result.ConcurrencyViolation` and `result.Errors`. For an accepted registration, read only that author's registrations and match the returned position:
 
@@ -80,7 +80,7 @@ Use the stored occurrence time, not the lookup time. If another writer permits m
 - [Evolve an event](../../cratis-chronicle-evolve-event/SKILL.md) before changing a stored payload's shape.
 - [Protect personal data](../../cratis-chronicle-protect-personal-data/SKILL.md) before recording identifying member details.
 
-- [Return an event from an Arc command](../../cratis-arc-declare-command/SKILL.md)
+- Return an event from an Arc command (the `cratis-arc-declare-command` skill, when installed)
 - [Reserve an author's name](../../cratis-chronicle-constrain-append/SKILL.md)
 
 ## Decide whether another append is safe

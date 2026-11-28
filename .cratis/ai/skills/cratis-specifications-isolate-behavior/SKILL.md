@@ -15,7 +15,7 @@ public record BorrowBook(DateOnly BorrowedOn, bool ShortLoan)
 }
 ```
 
-Here `BookBorrowed` carries a `DateOnly DueOn`. Use the actual rule in the feature; don't introduce a rule just to test a handler. If `Handle` only copies input into the event, write no direct spec. If binding or commitment is itself a consequential promise, one [pipeline spec](../cratis-specifications-exercise-backend/SKILL.md) covers it.
+Here `BookBorrowed` carries a `DateOnly DueOn`. Use the actual rule in the feature; don't introduce a rule just to test a handler. If `Handle` only copies input into the event, write no direct spec. If binding or commitment is itself a consequential promise, one pipeline spec (the `cratis-specifications-exercise-backend` skill, when installed) covers it.
 
 ## Commit the spec at the decision
 

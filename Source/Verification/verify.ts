@@ -10,6 +10,8 @@ import { packageProblems, retiredSkills, sharedSkills } from './corpus-shape.ts'
 import { nativeRouteProblems } from './native-routes.ts';
 import { validateMcpServers } from './mcp-servers.ts';
 import { pluginManifestPath, pluginManifestProblems } from './plugin-manifest.ts';
+import type { Profile } from './profile-closure.ts';
+import { profileLinkProblems } from './profile-links.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
 import { danglingSkillReferences } from './skill-references.ts';
 import { brokenRelativeLinkProblems, referenceContentsProblems, skillBody, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
@@ -20,9 +22,9 @@ export interface CorpusReport {
     profiles: number;
 }
 
-interface Profile { id: string; composes?: string[]; availableTargets?: string[] }
 interface Catalog { publicProfiles?: Profile[]; engineeringProfiles?: Profile[] }
-interface Manifest { profiles?: string[]; profileCatalog?: string }
+interface Manifest { profiles?: string[]; profileCatalog?: string; languages?: string[] }
+interface ProfileSelections { profiles: Profile[]; languages: string[] }
 
 const corpusDirectory = '.cratis/ai';
 const evaluationDirectory = 'Evaluations/corpus-v2';
@@ -251,13 +253,13 @@ async function pluginProblems(corpus: Corpus): Promise<string[]> {
     return manifest === undefined ? problems : [...problems, ...pluginManifestProblems(manifest, marketplaces)];
 }
 
-/** The catalog's profile ids, with what the manifest and catalog get wrong about them reported into `failures`. */
-async function profileIds(corpus: Corpus, failures: string[]): Promise<string[]> {
+/** The catalog's selections, with what the manifest and catalog get wrong reported into `failures`. */
+async function profileSelections(corpus: Corpus, failures: string[]): Promise<ProfileSelections> {
     const manifest = await readJson<Manifest>(corpus, `${corpusDirectory}/manifest.json`, failures);
-    if (!manifest) return [];
+    if (!manifest) return { profiles: [], languages: [] };
     const catalog = await readJson<Catalog>(corpus, `${corpusDirectory}/${manifest.profileCatalog ?? 'profile-catalog.json'}`, failures);
     if (catalog) failures.push(...catalogProblems(manifest, catalog, corpus.skills));
-    return profilesOf(catalog).map(profile => profile.id);
+    return { profiles: profilesOf(catalog), languages: manifest.languages ?? [] };
 }
 
 async function ruleProblems(corpus: Corpus): Promise<string[]> {
@@ -275,12 +277,12 @@ async function serverProblems(corpus: ResolvedCorpus): Promise<string[]> {
     return servers === undefined ? problems : [...problems, ...validateMcpServers(servers, new Set(corpus.profiles))];
 }
 
-async function packagedSkillProblems(directory: string): Promise<string[]> {
+async function packagedSkillProblems(directory: string, { profiles, languages }: ProfileSelections): Promise<string[]> {
     const paths = await filesUnder(join(directory, 'skills')).catch(() => []);
     const installed = new Map(await Promise.all(paths.filter(path => !path.endsWith('/verification.json') && !path.includes('/evals/')).map(async path => [
         relative(directory, path).replaceAll('\\', '/'), path.endsWith('.md') ? await readFile(path, 'utf8') : '',
     ] as const)));
-    return [...packageProblems(installed, retiredSkills), ...installedLinkProblems(installed)];
+    return [...packageProblems(installed, retiredSkills), ...installedLinkProblems(installed), ...profileLinkProblems(installed, profiles, languages)];
 }
 
 /** The one static check of the shipped corpus at `.cratis/ai`: no model, no network, no generated state. */
@@ -291,9 +293,10 @@ export async function verifyCorpus(root: string): Promise<CorpusReport> {
 
     const source: Corpus = { root, directory, skills: await directories(join(directory, 'skills')) };
     if (source.skills.length === 0) failures.push(`${corpusDirectory}/skills contains no skills.`);
-    const corpus: ResolvedCorpus = { ...source, profiles: await profileIds(source, failures) };
+    const selections = await profileSelections(source, failures);
+    const corpus: ResolvedCorpus = { ...source, profiles: selections.profiles.map(profile => profile.id) };
     for (const name of corpus.skills) failures.push(...await skillProblems(corpus, name));
-    failures.push(...await packagedSkillProblems(directory));
+    failures.push(...await packagedSkillProblems(directory, selections));
     failures.push(...await ruleProblems(corpus), ...await serverProblems(corpus));
     failures.push(...await pluginProblems(corpus), ...await authoringInputProblems(corpus), ...await installFixtureProblems(corpus));
     return { failures, skills: corpus.skills.length, profiles: corpus.profiles.length };

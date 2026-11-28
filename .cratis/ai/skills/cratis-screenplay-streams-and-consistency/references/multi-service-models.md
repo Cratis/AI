@@ -168,7 +168,7 @@ Requires Screenplay 4.155.0 or later for `PLAY0687`; older compilers accept a mi
   consumer's `from "…"` origin.
 - Stage now renders bounded inbound source-event captures and outbound
   public-event projections; unsupported foreign/public/Translate uses retain
-  STAGE-ESM-032/033/024. Use [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md) to render admitted modules with `--scope` and identify refused scope. For a refused integration, gap-fill against the model using [cratis-chronicle-publish-contract](../../cratis-chronicle-publish-contract/SKILL.md).
+  STAGE-ESM-032/033/024. Use the `cratis-stage-render-slice` skill to render admitted modules with `--scope` and identify refused scope. For a refused integration, gap-fill against the model using the `cratis-chronicle-publish-contract` skill.
   A semantic Host's seeded foreign facts/local public appends are not proof of
   real cross-service delivery.
 - Each rendered scaffold carries its own single-kernel compose file with fixed host

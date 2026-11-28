@@ -9,7 +9,7 @@ compatibility: Requires @cratis/arc.react.mvvm, tsyringe, react-router-dom and r
 Keep simple presentation state in the view. Extract a view model when the search term and filtering decision need testing without React, or when presentation behavior needs an injected collaborator.
 
 1. Set `compilerOptions.experimentalDecorators` to `true` in `tsconfig.json`. In [main.tsx](../cratis-arc-react-bind-slice/SKILL.md), import `reflect-metadata` first, `MVVM` from `@cratis/arc.react.mvvm` and `BrowserRouter` from `react-router-dom`. Keep the existing providers and wrap the application shell inside `Arc`: `<Arc><MVVM><BrowserRouter><App /></BrowserRouter></MVVM></Arc>`. In `App.tsx`, import `AuthorSearch` from `./Features/Authors/Listing/AuthorSearch` and render it on the search screen. The bound view reads the router; don't replace the shell or its dialog registration.
-2. Put the search term and filter in `Features/Authors/Listing/AuthorSearchViewModel.ts`. `Author` and `AllAuthors` come from the slice's [generated proxy](../cratis-arc-generate-proxies/SKILL.md).
+2. Put the search term and filter in `Features/Authors/Listing/AuthorSearchViewModel.ts`. `Author` and `AllAuthors` come from the slice's generated proxy (the `cratis-arc-generate-proxies` skill, when installed).
 
 ```ts
 import { injectable } from 'tsyringe';
@@ -46,7 +46,7 @@ export const AuthorSearch = withViewModel(AuthorSearchViewModel, ({ viewModel })
 });
 ```
 
-Keep query loading and failure state in the bound view. Changing the search text or receiving a matching author should refresh the visible list. To check that interaction, [observe the rendered view](../cratis-specifications-observe-ui/SKILL.md); test a filtering decision by itself without mounting React.
+Keep query loading and failure state in the bound view. Changing the search text or receiving a matching author should refresh the visible list. To check that interaction, observe the rendered view (the `cratis-specifications-observe-ui` skill, when installed); test a filtering decision by itself without mounting React.
 
 For an existing `Catalogue` service instance `catalogue`, define and export `export const CatalogueToken = Symbol('Catalogue');` from the service module. Use `container.registerInstance(CatalogueToken, catalogue)` before mounting the view. Add `constructor(@inject(CatalogueToken) private readonly catalogue: Catalogue) {}` to the model, importing the shared token and service type from that module and `container` and `inject` from `tsyringe` where used.
 

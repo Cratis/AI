@@ -99,4 +99,4 @@ with its AuthProxy when the application has `authentication` and its own Ante wh
 - Sending the emails: `cratis-showrunner-herald`.
 - Box Office offers, seats and entitlements beyond the default offering: Showrunner's Box Office documentation; this corpus covers only starting a tenant on the default offering.
 - Ante used by a host product, not a Screenplay application: Ante's own documentation; this corpus does not cover it.
-- Chronicle itself in a cluster: [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).
+- Chronicle itself in a cluster: the `cratis-chronicle-deploy-kernel` skill.

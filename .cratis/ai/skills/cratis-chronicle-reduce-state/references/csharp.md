@@ -22,7 +22,7 @@ public record LoanDuration(int CompletedLoans, long TotalDays, decimal AverageDa
 }
 ```
 
-Default discovery recognizes the public static `Reduce` method on the model. No separate reducer registration or `Id` property is needed. Read `await eventStore.ReadModels.GetInstanceById<LoanDuration>(isbn.Value)` for that book, where `isbn.Value` is its string event source ID. To make this result available to a screen, [expose a query](../../cratis-arc-expose-query/SKILL.md).
+Default discovery recognizes the public static `Reduce` method on the model. No separate reducer registration or `Id` property is needed. Read `await eventStore.ReadModels.GetInstanceById<LoanDuration>(isbn.Value)` for that book, where `isbn.Value` is its string event source ID. To make this result available to a screen, expose a query (the `cratis-arc-expose-query` skill, when installed).
 
 ## Check the calculation
 

@@ -6,9 +6,9 @@ compatibility: Requires an Arc backend whose SDK supports command operations.
 
 # Run provider work before a command commits
 
-Choose a command operation when provider work must run before the [command](../cratis-arc-declare-command/SKILL.md) commits. The handler returns an immutable description of the work; Arc runs it and can run its compensation if the command fails without committing. Give both the same caller-supplied identifier, so a repeated attempt does not act twice and compensation can find its own work, including when the provider accepted the call but its acknowledgement was lost.
+Choose a command operation when provider work must run before the command (the `cratis-arc-declare-command` skill, when installed) commits. The handler returns an immutable description of the work; Arc runs it and can run its compensation if the command fails without committing. Give both the same caller-supplied identifier, so a repeated attempt does not act twice and compensation can find its own work, including when the provider accepted the call but its acknowledgement was lost.
 
-Use one operation per provider action. Work that cannot be undone, such as sending mail, belongs in [a reactor on the committed fact](../cratis-chronicle-react-to-fact/SKILL.md), deduplicated by the same identifier.
+Use one operation per provider action. Work that cannot be undone, such as sending mail, belongs in a reactor on the committed fact (the `cratis-chronicle-react-to-fact` skill, when installed), deduplicated by the same identifier.
 
 ## Read the reference for the host
 
@@ -23,7 +23,7 @@ In a pipeline scenario, make the provider call fail after it may have been accep
 ## Stop when
 
 - **Commit is unknown or mixed:** reconcile the event and provider state before reversing anything. A failed response is not proof that nothing committed.
-- **A committed outcome is wrong:** use [a corrective fact](../cratis-chronicle-evolve-event/SKILL.md) instead of compensating.
+- **A committed outcome is wrong:** use a corrective fact (the `cratis-chronicle-evolve-event` skill, when installed) instead of compensating.
 
 ## Avoid
 
@@ -32,8 +32,8 @@ In a pipeline scenario, make the provider call fail after it may have been accep
 
 ## Related skills
 
-- [Declare a command](../cratis-arc-declare-command/SKILL.md)
-- [React after commit](../cratis-chronicle-react-to-fact/SKILL.md)
+- Declare a command (the `cratis-arc-declare-command` skill, when installed)
+- React after commit (the `cratis-chronicle-react-to-fact` skill, when installed)
 
 For Elixir callers, read the [service boundary](references/elixir.md).
 

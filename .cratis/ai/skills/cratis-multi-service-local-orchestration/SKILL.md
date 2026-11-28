@@ -170,7 +170,7 @@ pinned port, use the host port the dashboard shows for the `grpc` endpoint.
 
 ## Route near misses
 
-- Contracts and subscriptions: [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md). Verifying delivery: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md).
+- Contracts and subscriptions: the `cratis-chronicle-publish-contract` skill. Verifying delivery: the `cratis-platform-verify-service-handoff` skill.
 - Kernel storage, TLS, certificates, clustering and production images: [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).
-- Bootstrapping one Arc service: [cratis-arc-host-application](../cratis-arc-host-application/SKILL.md); with Chronicle, use [cratis-chronicle-connect-application](../cratis-chronicle-connect-application/SKILL.md).
-- Rendering a service from its model: [cratis-stage-render-slice](../cratis-stage-render-slice/SKILL.md).
+- Bootstrapping one Arc service: the `cratis-arc-host-application` skill; with Chronicle, use the `cratis-chronicle-connect-application` skill.
+- Rendering a service from its model: the `cratis-stage-render-slice` skill.

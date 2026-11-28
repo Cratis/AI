@@ -178,7 +178,7 @@ Never let an external system's ids, codes or shapes become our domain vocabulary
 the edge, keep the external reference as a property when it is needed for correlation or dedup.
 Stage renders supported internal event-triggered Automation and bounded
 source-event capture/outbound Translate paths. Unsupported translation shapes
-remain gap-fill with the model as contract; check admission with [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md) rather than assuming that any foreign/public boundary renders.
+remain gap-fill with the model as contract; check admission with the `cratis-stage-render-slice` skill rather than assuming that any foreign/public boundary renders.
 
 ## Change data capture is not a domain event
 A row change captured from a database (CDC) says which columns changed, not why. Treat it as an
