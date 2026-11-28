@@ -34,6 +34,10 @@ Three false greens to rule out:
 - **Authorization refused first.** Pair a refusal with `ShouldBeAuthorized()` when the caller should have been allowed.
 - **The framework refused, not the rule.** For a constraint or concurrency rejection, assert the reason or the constraint name and that nothing was appended. Message text is presentation and changes; the reason and name are the contract. Check `Execute` as well as `Validate`: `Validate` runs the pipeline filters but skips `Provide()` and `Handle()`, so it cannot show what the command commits.
 
+### Prove a refusal from `Provide()`
+
+For example, if `Provide()` requires a reservation and returns `ValidationResult.Error("Reservation is missing")` when it cannot supply one, use a valid command and an authorized caller with no reservation. Call `Execute`, assert `ShouldBeAuthorized()` and `ShouldBeRejected("Reservation is missing")`, and await `ShouldNotHaveAppendedEvents()`. Leave the reservation available in the accepted case. An empty provider result alone is not a refusal: the pipeline can still resolve handler arguments from other sources.
+
 ## Assert what was appended
 
 These return `Task`; await each one.

@@ -10,11 +10,11 @@ Pick the harness by the guarantee the spec has to prove, not by the artifact's n
 
 - **Pipeline scenario (default).** Use it for authorization, validation and command or query outcomes exercised by the selected SDK. A recorded append proves what the command tried to write, not that a kernel would accept it.
 - **Model or reaction scenario.** Where the SDK provides one, use it to check the row a projection or reducer produces, or the effect a reactor returns, from given events.
-- **Running kernel or HTTP host.** Use a kernel for persistence, discovery, delivery, or any store guarantee the SDK substitute omits, such as constraint or concurrency enforcement. Use a hosted HTTP request for transport binding: passing a typed argument to the pipeline does not test JSON binding.
+- **Running kernel or HTTP host.** Use a kernel for persistence, discovery, delivery, or any store guarantee the SDK substitute omits, such as unsupported constraint shapes or concurrency rules. Use a hosted HTTP request for transport binding: passing a typed argument to the pipeline does not test JSON binding.
 
 A decision that can be invoked directly without the pipeline needs none of these.
 
-Commit one spec per uncovered consequential rule, and add the accepted case only when the handler decides something. See the case defaults under "Verify what can go wrong" in the `general` rule; do not repeat a decision that a direct spec already covers.
+Commit one spec per uncovered consequential rule, and add the accepted case only when the handler decides something. See the case defaults under "Verify what can go wrong" in the `general` rule; do not repeat a decision that a direct spec already covers. Use the `specs` rule to distinguish contract coverage from proposed cases.
 
 ## Write the spec
 
@@ -45,7 +45,7 @@ For C#, read one more reference only when its condition holds:
 - [references/csharp-command-results.md](references/csharp-command-results.md): the spec asserts why a command was refused, which events it appended, or needs a caller, a seeded read model or a generated value.
 - [references/csharp-decision-reads.md](references/csharp-decision-reads.md): the command claims uniqueness or guards against a concurrent writer.
 - [references/csharp-query-scenario.md](references/csharp-query-scenario.md): the promise belongs to a query, including an observable one.
-- [references/csharp-integration.md](references/csharp-integration.md): the promise is an append contract, a projected or reduced row, a reactor's effect, or needs a running store.
+- [references/csharp-integration.md](references/csharp-integration.md): choose proof per artifact when testing command wiring, an append contract, a projected or reduced row, a reactor’s effect or a running store.
 
 Python has no released application SDK or testing package, so no Python scenario exists. Test that boundary through a service written with a supported SDK; do not rebuild a harness from generated contracts.
 

@@ -46,3 +46,39 @@ describe('when lending a book in the catalog', () => {
 - `ReactorScenario` rejects `replay()` and `redeliver()`; a repeated-delivery spec needs a running kernel.
 
 For a plain service command, use `CommandScenario.for(Command, Validator)`, register the service instance on `scenario.services`, await `execute(values)`, assert the result and dispose the scenario. For an observable query collect a bounded number of emissions with a timeout; an unbounded subscription is not a completed test.
+
+## Test the Chronicle artifact directly
+
+Import these scenarios from `@cratis/chronicle/testing`. Use the application's event and artifact definitions; replace the names here with those from the slice.
+
+**Append.** Leave constraints enabled when checking acceptance. `@unique` and fluent `unique(...).on(Event, event => event.key)` support fixture-backed single keys (including schema-backed strings and booleans); fluent two- and three-property composites support the fixture-backed string, GUID and unformatted numeric shapes. Do not extrapolate to arbitrary Unicode, schemas or combinations. Run unsupported constraints and concurrency against a live kernel. `ChronicleCommandScenario` does not enforce constraints.
+
+```typescript
+const events = new EventScenario({ artifacts: { eventTypes: [BookAdded, BookRemoved] } });
+const result = await events.when.forEventSource('book-1').event(new BookAdded('Kindred'));
+result.isSuccess.should.be.true;
+```
+
+Use the option `constraints: 'disabled'` only when acceptance policy is outside the promise, not to turn an unsupported constraint into verified behavior.
+
+**Read model.** Reuse that scenario's accepted history; never combine `.observe(events)` with `given` seeding or call `observe` twice. Check absent and removed separately when that distinction matters.
+
+```typescript
+const books = new ReadModelScenario(BookStatus).observe(events);
+(await books.wasDeletedForEventSourceId('missing')).should.be.false;
+const removed = await events.when.forEventSource('book-1').event(new BookRemoved());
+removed.isSuccess.should.be.true;
+(await books.instanceForEventSourceId('book-1') === null).should.be.true;
+(await books.wasDeletedForEventSourceId('book-1')).should.be.true;
+```
+
+**Reactor.** Check a returned effect directly; it is recorded, not recursively appended or delivered.
+
+```typescript
+const reactor = new ReactorScenario(WelcomeReactor, {
+    artifacts: { eventTypes: [WelcomeRequested, WelcomeSent] },
+    constraints: 'disabled'
+});
+await reactor.when.forEventSource('customer-1').event(new WelcomeRequested('Ada'));
+reactor.shouldHaveProduced(WelcomeSent, event => event.name === 'Ada');
+```
