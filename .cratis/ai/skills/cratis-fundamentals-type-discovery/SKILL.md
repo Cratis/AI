@@ -14,7 +14,7 @@ startup, and every specification setup has to mirror the composition root.
 `IInstancesOf<T>` moves that knowledge into the implementation. Adding or
 removing one becomes a single-file change.
 
-## Verified product sources
+## Packages covered
 
 | Package | Purpose |
 | --- | --- |

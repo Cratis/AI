@@ -12,7 +12,7 @@ lives in the log forever and cannot be edited out. The event-sourcing section
 below is the one that is specific to this stack, and it is the one worth reading
 first.
 
-## Verified product sources
+## Packages covered
 
 | Package | Purpose |
 | --- | --- |

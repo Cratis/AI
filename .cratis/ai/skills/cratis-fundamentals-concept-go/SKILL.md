@@ -17,15 +17,10 @@ Use a defined type for each domain value, not a type alias that remains
 interchangeable with every UUID/string. Plain constructors are enough; adopting
 concepts does not require a dependency-injection container.
 
-## Verified product sources
+## Package covered
 
-| Product | Source checked |
-| --- | --- |
-| Fundamentals.Go (`github.com/cratis/fundamentals.go`) | `concepts/concept.go`, `concepts/uuid.go`, `concepts/uuid_dotnet.go`, `concepts/underlying.go`, `concepts/check_json.go`, `documentation_examples_test.go` |
-
-[Source](https://github.com/Cratis/Fundamentals.Go)
-is authoritative, not an older installation pin on a getting-started page.
-The root module is standard-library-only and requires Go 1.26.
+Fundamentals.Go (`github.com/cratis/fundamentals.go`), package `concepts`. The root
+module is standard-library-only and requires Go 1.26.
 
 ## Define and encode an identity
 

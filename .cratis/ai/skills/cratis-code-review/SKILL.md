@@ -14,7 +14,7 @@ the axes a reviewer can judge.
 Review the **change**, not the file. A pre-existing violation in a line the
 change did not touch is a note, never a blocker.
 
-## Verified product sources
+## Packages covered
 
 | Package | Purpose |
 | --- | --- |

@@ -16,7 +16,7 @@ entire history** — a cost that is invisible at development volumes and fatal a
 production ones. And **an event is permanent**, so an oversized event is a
 storage and replay cost that never goes away.
 
-## Verified product sources
+## Packages covered
 
 | Package | Purpose |
 | --- | --- |

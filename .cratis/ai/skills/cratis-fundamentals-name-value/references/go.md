@@ -8,4 +8,4 @@ type BookID string
 
 Keep `BookID` on the command. When passing it to Chronicle's `EventForSource`, convert it explicitly with `chronicle.EventSourceID(c.BookID)` as in `cratis-arc-declare-command`.
 
-Use `cratis-fundamentals-concept-go` when you need SDK concept recognition, for example for a UUID-backed identity. Do not add `ConceptValue` by itself: Arc rejects a concept declaration without the required text and JSON codecs when building the command pipeline.
+Use the `cratis-fundamentals-concept-go` skill (installed by the `cratis/fundamentals/go` profile) when you need SDK concept recognition, for example for a UUID-backed identity. Do not add `ConceptValue` by itself: Arc rejects a concept declaration without the required text and JSON codecs when building the command pipeline.

@@ -55,9 +55,11 @@ exact commands.
   mutation or values that must not be copied, and avoid public embedding that
   promotes dependency methods. Mark retired API with a `Deprecated:` paragraph
   naming the replacement.
-- Use named domain values instead of interchangeable primitives. Defined types
-  do not inherit codec methods; explicitly forward text/JSON codecs and test wire
-  formats. See `cratis-fundamentals-concept-go` when using Fundamentals.Go.
+- Use named domain values instead of interchangeable primitives. A defined
+  string or number type encodes natively; a type defined over a UUID or struct
+  does not inherit its codec methods, so forward text/JSON codecs explicitly and
+  test wire formats. For Fundamentals.Go concepts see the
+  `cratis-fundamentals-concept-go` skill (`cratis/fundamentals/go` profile).
 - Specify `Close` ownership, repeated-close behavior and use after close, and
   document concurrent-use guarantees for clients, handles and callbacks.
 - Use generics for meaningful type-safe reuse, not speculative abstraction; do not
