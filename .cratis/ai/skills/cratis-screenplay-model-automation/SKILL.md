@@ -103,7 +103,9 @@ Run `screenplay test model --format json` on the composed model. Require the com
 
 For work requested by a host rather than a calendar, [replace the schedule with a host trigger](references/host-trigger.md).
 
+Read [reaction boundaries](references/reaction-boundaries.md) if a decision depends on current state, an invocation can refuse, or a batch spans several effects. For a provider call, [choose the retry contract](references/external-effects.md) before modeling the result.
+
 ## When it goes off the usual path
 
 - **The command lives in another slice:** assert the handoff with `then invokes` here, and assert the command's events in its own slice. A specification runs only its own slice's follow-up behavior.
-- **A provider may have performed the effect before losing its reply:** retry with the same provider idempotency key and verify provider behavior separately. A unique request fact doesn't make an external effect exactly once.
+- **A provider may have performed the effect before losing its reply:** retry only if the provider contract permits it. Reuse the original key for an idempotent call; reconcile an uncertain non-repeatable call instead. A unique request fact doesn't make an external effect exactly once.

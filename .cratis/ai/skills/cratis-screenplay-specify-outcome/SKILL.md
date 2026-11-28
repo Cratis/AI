@@ -36,6 +36,8 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
 
 4. Run `screenplay test model --format json` from the application directory. Require each named scenario to pass; an unsupported outcome is unverified.
 
+If a fixture passes but the reported outcome is wrong, [choose the observable result](references/observable-result.md) before adding more givens.
+
 ## Arrange a stateful or authorized command
 
 Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run. This Lending example seeds stock directly. In a working app, acquisition supplies `LoanStockSet` and withdrawal supplies `BookWithdrawn`; those producers are omitted here. When composing it into Library, don't duplicate the root directive.

@@ -18,6 +18,8 @@ compatibility: Requires the Screenplay CLI.
 4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
 5. List the target checks for the implementer: Aster appears in the open list under the agreed ID; a blank name produces `Name is required` and no new row. Map each check to its accepted example. Leave execution pending.
 
+Order implementation by the accepted dependencies. A writer can be proven before the view that consumes its fact. Parallelize two slices only when their inputs, identities and contract are settled; record an unresolved producer as a dependency rather than mocking the final acceptance proof. Where an upstream change crosses services, include the receiver's local acceptance witness, not just a producer trace.
+
 ## Hand off to an HTTP client
 
 For a registration-only client, run `screenplay export model --scope Library.Authors.RegisterAuthor --format openapi --output api.json`. Omit `--scope` only when the client needs the full application contract. Under `paths`, locate the operations in scope. For each, include the HTTP method and path, `operationId`, and `x-screenplay-id` in the handoff.
