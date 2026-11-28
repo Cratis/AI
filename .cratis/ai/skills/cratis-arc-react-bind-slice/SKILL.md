@@ -47,27 +47,12 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 
 ## Execute an action without a form
 
-When the action already has its inputs, use the generated command hook in the component that owns the action. For example, import `RegisterAuthor` from the registration slice's generated module. Given an `id` and `name` for the draft, and a `setStatus` state setter, bind this handler to the registration gesture:
-
-```tsx
-const [register, setValues] = RegisterAuthor.use();
-async function registerAuthor() {
-    setValues({ id, name });
-    const result = await register.execute();
-    if (!result.isAuthorized) setStatus('Not authorized.');
-    else if (!result.isValid) setStatus(result.validationResults.map(v => v.message).join('; '));
-    else setStatus(result.isSuccess ? 'Registration submitted.' : 'Registration failed.');
-}
-```
-
-Render the status and keep failed input for correction. Read the updated list from the query, not the submitted command. When collecting the inputs in a dialog, use `cratis-components-submit-form` (in `cratis/components`) instead; it executes the command itself.
+When the action already has its inputs, use the generated command hook in the component that owns the action. Follow [command state and refusal](references/commands.md) to classify the result, keep failed input, and display safe feedback. Read the updated list from the query, not the submitted command. For a dialog that collects inputs, use `cratis-components-submit-form`; the dialog executes the command itself.
 
 ## Configure the host
 
 - For the same-origin Library host, omit `apiBasePath`: the generated routes already start with `/api`. Set it only for an additional deployment prefix, e.g. `apiBasePath="/library"` for `/library/api/...`. Route the live-query transport to the backend too: the default SSE hub uses `/.cratis/queries/sse` and its `/subscribe` and `/unsubscribe` endpoints, with the same deployment prefix when set.
 - For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
-
-- To show an editor-only control, import `RequireRole` from `@cratis/arc.react/identity`. Pass `roles={['catalog-editor']}` and distinguish `whileLoading` from `forbidden`. This is presentation only; enforce authorization on the backend command and query.
 
 ## When it goes off the usual path
 
@@ -84,6 +69,8 @@ Start with no rows, then register an author. The list should change without a pa
 - Check the user-visible result (`cratis-specifications-observe-ui` skill in `cratis/application/react`) if the binding changes a user journey.
 - For a standard query-backed table, use `cratis-components-display-list` from the Components profile.
 
-For command state and refusal, read [commands.md](references/commands.md).
+For identity and editor-only controls, read [identity.md](references/identity.md).
+
+For a manually owned screen specified by an accepted model, read [manual-screen.md](references/manual-screen.md).
 
 For loading, refusal and projection updates, read [query-state.md](references/query-state.md).

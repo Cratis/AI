@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-invoke-command
-description: Use when a developer needs to execute an existing Arc command from backend code, such as a service, job or import. Not for declaring the command (use cratis-arc-declare-command) or calling it from React (use cratis-arc-react-submit-command).
+description: Use when a developer needs to execute an existing Arc command from backend code, such as a service, job or import. Not for declaring the command (use cratis-arc-declare-command) or calling it from React (use cratis-arc-react-bind-slice for non-form actions, or cratis-components-submit-form for forms).
 compatibility: Requires an Arc backend with the command already declared.
 ---
 

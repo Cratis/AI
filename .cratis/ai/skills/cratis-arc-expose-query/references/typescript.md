@@ -2,7 +2,7 @@
 
 Export a `@readModel()` class and mark its **static** method `@query()`. Bind caller inputs with `argument()`, injected services with `service()` and execution options with `queryOptions()` where explicit descriptors are needed. An instance method is not a query. Use `T | undefined` for an optional argument, not an invented empty value. Keep credentials and tenant context out of the argument list.
 
-A finite query returns a value or promise; returning `undefined` successfully gives HTTP 200 without `data`. Let store failures propagate so an unavailable database does not look like a missing row. For live results return the scoped `collection.observe()` source, not a previously loaded list. For protected data use the typed read-model pipeline with the model and `subjectFor` configured, not raw Mongo documents. Intercept the exact top-level runtime model; a nested plain object is not automatically intercepted.
+A finite query returns a value or promise; returning `undefined` successfully gives HTTP 200 without `data`. Let store failures propagate so an unavailable database does not look like a missing row. For live results return the scoped `collection.observe()` source, not a previously loaded list. For protected Mongo reads, follow the release boundary below.
 
 | Stage | Diagnostic boundary |
 | --- | --- |
@@ -13,4 +13,17 @@ A finite query returns a value or promise; returning `undefined` successfully gi
 
 For Chronicle, an append acknowledges persistence, not projection catch-up. Use `ChronicleReadConsistency.Immediate` only for a passive model-bound projection; an active projection cannot be converted to an immediate read by setting the option.
 
-For a structured request send HTTP `QUERY` with a JSON object such as `{"arguments":{"id":"task-1"}}`; paging options travel alongside `arguments`, not inside it. Raw watcher `fullDocument` data for protected fields may still be ciphertext. Re-read through the released read model; do not forward raw changes to a client.
+For a structured request send HTTP `QUERY` with a JSON object such as `{"arguments":{"id":"task-1"}}`; paging options travel alongside `arguments`, not inside it.
+
+## Choose a safe protected Mongo result
+
+Use typed `MongoReadModels` with the `readModel` registered with `withChronicle`. Use `subjectFor` only if the document lacks a usable stored subject or key. Typed reads reject MongoDB `projection` options: return the complete document. Return it directly, in an array, or in `queryPage`; another wrapper (including `MongoReadModels.page()`'s `MongoPage`) fails release. Do not copy or map it before the release step.
+
+Release fails closed on a subject or tenant mismatch, undeclared fields, missing schema, or non-JSON driver values in model fields such as `ObjectId`, `Binary` or `Decimal128`. A nonempty `__subjects` (per-property subjects) cannot be released this way; read the model through `ChronicleReadModels`. Untyped `MongoReadModels` and `MongoDBWatcher.changes()` expose values as stored, including ciphertext: never forward those documents to a client. Re-read through the released model. Release is not authorization; filter by the verified caller separately.
+
+## Extend the result pipeline
+
+- Implement `QueryRenderer` with `canRender(value)` and `render(value, context, options)`. Register `@queryRenderer()` classes with `builder.add()` or discovery; alternatively register a scoped token and call `addQueryRenderer(token)` (`queryRenderers` on `ArcServer`). The first accepting renderer in registration order runs. For provider paging, use `queryPage` with the provider's authoritative total; the renderer owns paging and sorting.
+- After rendering, `ReadModelInterceptor` instances run in registration order for the exact runtime class declared by `model`. Implement `intercept(row)` to return a replacement, not mutate the original. Register `@readModelInterceptor()` classes the same way, or use a scoped token with `addReadModelInterceptor(token)` (`readModelInterceptors` on `ArcServer`). Arc intercepts top-level values, array items and page items. Both stages also run for observable results and their snapshots.
+
+Spec a query that returns a shared model instance: assert the transformed value reaches the consumer and the original still has its initial values. If two renderers accept the source, assert only the first renderer's result is served.

@@ -8,3 +8,5 @@ profile: application
 # Components
 
 Import controls from their package subpaths, not the configuration root. Give each controlled value one owner. Check the provider for rendering, structural styles for layout and the toast region for missing notifications. Check whether an icon prop expects a component type or a rendered node.
+
+Keep component-owned static styling in CSS and apply classes or documented parts. Reserve inline `style` for runtime-computed values such as pixel positions.

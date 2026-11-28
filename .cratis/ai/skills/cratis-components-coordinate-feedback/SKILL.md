@@ -69,7 +69,7 @@ Choose the shared busy dialog when the user must wait before continuing. Import 
 
 ## Related skills
 
-- For a one-off check, dismiss the confirmation in the existing story and confirm the author remains. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
+- For a one-off check, dismiss the confirmation in the existing story and confirm the author remains. Use [the UI observation skill](../cratis-specifications-observe-ui/SKILL.md) to exercise the interaction.
 
 - [Open a custom command dialog](../cratis-components-submit-form/SKILL.md)
 
