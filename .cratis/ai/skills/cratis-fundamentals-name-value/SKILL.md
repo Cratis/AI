@@ -1,53 +1,20 @@
 ---
 name: cratis-fundamentals-name-value
-description: Use when a developer needs a named C# domain value, a replacement for a primitive or a strongly typed Chronicle ID. Not for deciding whose history changes (use cratis-modeling-discover-timeline).
-compatibility: Requires the .NET SDK.
+description: Use when naming a scalar domain value or distinguishing an entity identity from its primitive representation. Not for choosing which entity owns history.
 ---
 
-# Declare an author name and author ID
+# Name and map a native value
 
-Give the scalar and the identity different types. An author name describes the author; an author ID addresses that author's history.
+Give each business identity its own name. Choose its owner before its representation: copy an issuer-owned key; generate only when your application owns creation.
 
-1. Name the type after the business value, not its representation.
-2. Declare an ordinary scalar as a record over `ConceptAs<T>`, including entity IDs that do not address event history. Use a structured record for a group of related fields, not a scalar concept with extra mutable properties.
-3. Use `EventSourceId<T>` only for an identity that addresses Chronicle history. Give the GUID-based identity a `New()` factory.
-4. Use `AuthorId` for `RegisterAuthor.Id` and `Author.Id`. Keep `Name` a `string` on `RegisterAuthor`, `AuthorRegistered` and `Author`. `AuthorName` is an in-process value; the [direct append service](../cratis-chronicle-record-event/SKILL.md) unwraps `name.Value`. Check the destination with `ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")` in a [backend spec](../cratis-specifications-exercise-backend/SKILL.md).
+- For an ASP.NET Core project, read [C#](references/csharp.md).
+- For a TypeScript package, read [TypeScript](references/typescript.md).
+- For a Kotlin module, read [Kotlin](references/kotlin.md).
+- For a Java module, read [Java](references/java.md).
+- For a Go module, read [Go](references/go.md).
 
-## Declare the Library types
+For an Elixir command or event identity, read [Elixir](references/elixir.md).
 
-In the Library backend, reference `Cratis.Fundamentals` for `ConceptAs<T>` and `Cratis.Chronicle` for `EventSourceId<T>`. Put these declarations in `Features/Authors/AuthorName.cs` and `Features/Authors/AuthorId.cs`, each in its own file:
+No [Python](references/python.md) Arc application recipe is verified. Keep the scalar wire contract and validate it at the owning service boundary.
 
-```csharp
-using Cratis.Concepts;
-
-namespace Library.Features.Authors;
-
-public record AuthorName(string Value) : ConceptAs<string>(Value);
-```
-
-```csharp
-using System;
-using Cratis.Chronicle.Events;
-
-namespace Library.Features.Authors;
-
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
-{
-    public static AuthorId New() => new(Guid.NewGuid());
-}
-```
-
-## When it goes off the usual path
-
-- **Two entities both use GUIDs:** give each its own concept. At the call site, accept `AuthorId` rather than `Guid` so passing a book's ID is a compile-time error. Convert wire text at the boundary, not in each handler.
-
-## Avoid
-
-- Don't use an unlabelled `Guid` for the command key; use `AuthorId`.
-- Keep the stable `AuthorId` separate from `Name`. A business constraint may make names unique without making them the history address.
-- For an invariant of `AuthorName`, use [concept validation](../cratis-arc-validate-command/SKILL.md). For this command's plain `string Name`, put the empty-name rule in `RegisterAuthorValidator` instead.
-
-## Related skills
-
-- [Discover the timeline](../cratis-modeling-discover-timeline/SKILL.md) to identify the thing that owns the history.
-- [Declare the command](../cratis-arc-declare-command/SKILL.md) once the request values are named.
+Round-trip through the production wire and storage codecs. Stop if the scalar becomes a wrapper object, loses precision or can no longer hydrate the named value.

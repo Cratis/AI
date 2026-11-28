@@ -16,7 +16,7 @@ need the model's `@field` declarations.
 | `@cratis/arc.mongodb` | `withMongoDB` | `mongodb@^6.21.0` | documents, change-stream observation |
 | `@cratis/arc.drizzle` | `withDrizzle` | `drizzle-orm` `^0.45.0`, `rxjs` | PostgreSQL, MySQL, SQLite tables |
 
-For query methods and argument binding, use [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md); this skill covers storage.
+For query methods and argument binding, use [cratis-arc-expose-query](../cratis-arc-expose-query/references/typescript.md); this skill covers storage.
 
 ## MongoDB
 

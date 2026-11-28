@@ -37,3 +37,7 @@ Take a restorable backup. On a disposable copy only, record the exact previous m
 Deploy the nullable change first. Backfill from an agreed source and verify there are no missing values, including rows created by older writers. Only then ship the non-null constraint. Review the rollout and restore procedure with the database owner; `Down` drops subtitles and is not a data backup.
 
 For a typed document reader with no relational schema change, [connect storage](../cratis-arc-connect-storage/SKILL.md) instead.
+
+## Verify the physical column
+
+Inspect the generated migration SQL on the selected provider. A geometry column is a database type; it does not install a CLR spatial converter. Likewise a PostgreSQL JSON helper can add database checks and indexing that a plain text column lacks. Exercise insertion and a native query after applying the migration, not just model construction.

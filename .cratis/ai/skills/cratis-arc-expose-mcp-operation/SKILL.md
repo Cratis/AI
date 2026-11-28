@@ -82,3 +82,9 @@ In the result, expect `list_authors` and no `register_author`.
 
 - [Declare the command](../cratis-arc-declare-command/SKILL.md)
 - [Protect the operation](../cratis-arc-authorize-request/SKILL.md)
+
+## Diagnose admission with the client credential
+
+Check startup first, then reachability of the capability listener and the mapped POST, then authentication, origin, tool listing and invocation. A public GET or a tool appearing under another profile proves none of these. Use `PatOnly` for a PAT, `OAuthOnly` for OAuth or `Combined` only when both are intended. Configure the public origin, resource and authorization servers from trusted deployment settings, never the incoming Host header. An absent Origin is not the same as a disallowed browser Origin.
+
+Publication installs no caller credential. Check the verified caller installation, allowed scopes and the PAT authority, issuance policy and recovery epoch separately. Development adapters do not bypass issuance. Each tool needs effective scopes; a write needs a recognized write scope. Enforce policy both when listing and when calling by name, including for custom server tools. A challenge means check credential kind and validity; a forbidden tool can instead mean insufficient scopes or operation policy. Retest both list and call with the actual client's profile and credential.

@@ -121,4 +121,4 @@ cancels the stage; callback-based `collect` does not deliver timeout callbacks.
 - Run real-store integration checks separately when the behavior depends on
   kernel constraints, persistence, transactions or change streams.
 
-For definition rather than tests, use [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) for commands, [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md) for queries and [cratis-arc-validation-kotlin](../cratis-arc-validation-kotlin/SKILL.md) for validation.
+For definition rather than tests, use [declare the command](../cratis-arc-declare-command/references/kotlin.md) for commands, [cratis-arc-expose-query](../cratis-arc-expose-query/references/kotlin.md) for queries and [cratis-arc-validation-kotlin](../cratis-arc-validation-kotlin/SKILL.md) for validation.
