@@ -27,6 +27,10 @@ An accepted model, plan or review approves a description. Permission to render, 
 - Do not reset, replay or delete shared state to make a check pass.
 - Before a destructive or bulk change, show the exact targets and the way to recover. Act only on explicit authority for that change, then reread the resulting state.
 
+## Retrieve remote content
+
+- For exact CI logs, artifacts or API JSON, use terminal `curl -LsS` to follow redirects. Capture the body separately from `--write-out '%{http_code}'` and record curl's exit code before filtering locally with `head`, `grep` or `jq`. Do not let a filter's exit code stand in for the producer's. Use a page-fetch tool for summaries of rendered pages. Keep credentials and signed URLs out of logs and artifacts.
+
 ## Verify what can go wrong
 
 - Verify consequential decisions, transformations and failures. Do not verify passthrough, getters or the framework itself.

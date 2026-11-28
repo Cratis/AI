@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-recover-intent
-description: Use when a modeler needs to recover candidate intent for an inherited application from a recording without assuming the observed behavior was accepted. Not for deciding an unobserved business rule (use cratis-modeling-discover-timeline).
+description: Use when a modeler needs to recover candidate intent for an inherited application from a recording or a bounded walk of a running system without assuming the observed behavior was accepted. Not for deciding an unobserved business rule (use cratis-modeling-discover-timeline).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -20,6 +20,10 @@ compatibility: Requires the Screenplay CLI.
 | Unresolved | Neither frame shows a blank name. Ask what the librarian should see and whether the list changes. |
 
 For a draft generated from Arc source, [interpret C# generation losses](references/csharp.md) before replacing the original acceptance or privacy rules.
+
+## Recover from a running system
+
+For a live application rather than an existing recording, follow the [bounded walk and fidelity check](references/running-system.md). Obtain authority before collecting evidence; a matching draft does not authorize execution.
 
 ## When it goes off the usual path
 
