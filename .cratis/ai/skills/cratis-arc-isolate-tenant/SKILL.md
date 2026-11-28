@@ -16,6 +16,6 @@ Read the recipe for the **server** handling the operation:
 - For a Go service, read [Go](references/go.md).
 - For an OTP application, read [Elixir](references/elixir.md).
 
-No [Python](references/python.md) Arc application tenancy recipe is verified. Call a supported service that owns membership checks and storage selection.
+For a Python caller, read [Python](references/python.md): no Arc application tenancy recipe is verified, so call a supported service that owns membership checks and storage selection.
 
 Prove both boundaries: a nonmember cannot run the operation, and authorized writes of the same ID with different values in two tenants return only the local value on each read. Stop before enabling the route if either check fails.

@@ -14,7 +14,7 @@ Pick the harness by the guarantee the spec has to prove, not by the artifact's n
 
 A decision that can be invoked directly without the pipeline needs none of these.
 
-Commit one spec per uncovered consequential rule, and add the accepted case only when the handler decides something. See the [case defaults](../../rules/general.md); do not repeat a decision that a direct spec already covers.
+Commit one spec per uncovered consequential rule, and add the accepted case only when the handler decides something. See the case defaults under "Verify what can go wrong" in the `general` rule; do not repeat a decision that a direct spec already covers.
 
 ## Write the spec
 

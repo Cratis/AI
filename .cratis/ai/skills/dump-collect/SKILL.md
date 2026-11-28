@@ -83,9 +83,9 @@ Based on the scenario identified in Step 1, read the relevant reference file:
 
 | Scenario | Reference |
 |----------|-----------|
-| CoreCLR app (any platform) | `references/coreclr-dumps.md` |
-| NativeAOT app (any platform) | `references/nativeaot-dumps.md` |
-| Any app in Docker or Kubernetes | `references/container-dumps.md` (then also load the runtime-specific reference) |
+| CoreCLR app (any platform) | [references/coreclr-dumps.md](references/coreclr-dumps.md) |
+| NativeAOT app (any platform) | [references/nativeaot-dumps.md](references/nativeaot-dumps.md) |
+| Any app in Docker or Kubernetes | [references/container-dumps.md](references/container-dumps.md) (then also load the runtime-specific reference) |
 
 ## Step 3 — Execute
 

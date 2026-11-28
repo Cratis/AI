@@ -109,8 +109,8 @@ After data is collected, recommend the appropriate tool for analysis. Do **not**
 
 ## Reference navigation
 
-- Read references/dotnet-monitor.md when working on dotnet monitor.
-- Read references/dotnet-trace-collect-linux.md when working on dotnet trace collect linux.
-- Read references/dotnet-trace-collect.md when working on dotnet trace collect.
-- Read references/perfcollect.md when working on perfcollect.
-- Read references/perfview.md when working on perfview.
+- Read [references/dotnet-monitor.md](references/dotnet-monitor.md) when working on dotnet monitor.
+- Read [references/dotnet-trace-collect-linux.md](references/dotnet-trace-collect-linux.md) when working on dotnet trace collect linux.
+- Read [references/dotnet-trace-collect.md](references/dotnet-trace-collect.md) when working on dotnet trace collect.
+- Read [references/perfcollect.md](references/perfcollect.md) when working on perfcollect.
+- Read [references/perfview.md](references/perfview.md) when working on perfview.

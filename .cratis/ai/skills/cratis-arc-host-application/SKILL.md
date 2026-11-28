@@ -14,6 +14,6 @@ Start with one finite query or command that needs no external store. Read the re
 - For a Go service, read [Go](references/go.md).
 - For an OTP application, read [Elixir](references/elixir.md).
 
-No released [Python](references/python.md) Arc host recipe is verified. Call a supported service over HTTP instead.
+For a Python caller, read [Python](references/python.md): no released Arc host recipe is verified, so call a supported service over HTTP instead.
 
 Call the registered route with its actual credentials and inputs. Stop when the response contains the expected application value: a listening port alone does not prove registration. If the route is missing, check registration and the configured prefix before changing business logic. This probe does not prove event delivery.

@@ -39,7 +39,7 @@ Scan C#/.NET code for performance anti-patterns and produce prioritized findings
 
 Resolve bundled paths from the directory that contains this `SKILL.md`, not from the user's workspace. Load this reference file first:
 
-- `references/critical-patterns.md`
+- [references/critical-patterns.md](references/critical-patterns.md)
 
 If a direct read fails, list this skill's `references/` directory once and retry only when the listing shows the expected file. Do not use workspace file or text search to locate the skill installation.
 
@@ -51,12 +51,12 @@ After detecting signals, load only the topic-specific references selected by sca
 
 - `critical-only`: No additional references (use only `critical-patterns.md`)
 - `standard` (default): Load references matching detected signals from this list:
-  - `references/async-patterns.md` — async/Task/ValueTask signals
-  - `references/memory-and-strings.md` — Span/Memory/string allocation signals
-  - `references/regex-patterns.md` — Regex signals
-  - `references/collections-and-linq.md` — Dictionary/List/LINQ signals
-  - `references/io-and-serialization.md` — JsonSerializer/HttpClient/Stream signals
-  - `references/structural-patterns.md` — always loaded (unsealed classes checked regardless)
+  - [references/async-patterns.md](references/async-patterns.md) — async/Task/ValueTask signals
+  - [references/memory-and-strings.md](references/memory-and-strings.md) — Span/Memory/string allocation signals
+  - [references/regex-patterns.md](references/regex-patterns.md) — Regex signals
+  - [references/collections-and-linq.md](references/collections-and-linq.md) — Dictionary/List/LINQ signals
+  - [references/io-and-serialization.md](references/io-and-serialization.md) — JsonSerializer/HttpClient/Stream signals
+  - [references/structural-patterns.md](references/structural-patterns.md) — always loaded (unsealed classes checked regardless)
 - `comprehensive`: Load all six topic-specific references above
 
 For coverage reporting, the selected references are `references/critical-patterns.md` plus only the topic-specific references selected above. If any selected reference remains unavailable after retry, use the inline recipes in Step 3 for the missing coverage. Include `Reference coverage: reduced; unavailable: <paths>; used inline recipes for missing references.` in the final report, with `<paths>` replaced by the missing relative paths of the selected references only.

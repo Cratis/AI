@@ -3,9 +3,10 @@
 
 import { markdownBlocks, markdownLinkDestinations } from './skill-structure.ts';
 
+// A route names the language, its stack or its project artifact.
 const artifact = {
-    csharp: /\.csproj\b/i, typescript: /package\.json\b/i, kotlin: /\.kts?\b|\bKotlin\b/i,
-    java: /\.java\b|\bJava\b/i, go: /go\.mod\b/i, elixir: /mix\.exs\b/i, python: /\bPython\b/i,
+    csharp: /\.csproj\b|C#|\.NET\b/i, typescript: /package\.json\b|\bTypeScript\b|\bNode\b/i, kotlin: /\.kts?\b|\bKotlin\b/i,
+    java: /\.java\b|\bJava\b/i, go: /go\.mod\b|\bGo\b/i, elixir: /mix\.exs\b|\bElixir\b|\bOTP\b/i, python: /\bPython\b/i,
 };
 
 const hostTags = new Set('c# cs csharp dotnet ts typescript tsx js javascript jsx mjs cjs mts cts kt kotlin kts java go golang ex exs elixir py python'.split(' '));
