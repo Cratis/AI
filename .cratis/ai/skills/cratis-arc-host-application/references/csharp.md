@@ -43,4 +43,3 @@ Run `dotnet run` from the host project directory. With the options above, reques
 - Do not omit either half of `AddCratisArc()` / `UseCratisArc()`.
 - Do not add a controller for a model-bound query; put the method on its read model.
 - When adding Chronicle, replace the Arc-only registration rather than registering Arc twice.
-
