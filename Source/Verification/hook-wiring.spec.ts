@@ -122,12 +122,12 @@ test('the scanner returns fixed advice only for small regular project sources', 
         assert.equal(result.status, 0);
         return result.stdout;
     };
-    writeFileSync(join(dir, 'untrusted.cs'), 'untrusted.AutoMap()');
+    for (const name of ['untrusted.cs', 'tls.pem.cs', 'generated.g.cs']) writeFileSync(join(dir, name), 'untrusted.AutoMap ()');
     const advice = scan('untrusted.cs');
     assert.match(advice, /AutoMap/);
     assert.doesNotMatch(advice, /untrusted/);
     symlinkSync('untrusted.cs', join(dir, 'linked.cs'));
-    for (const path of ['missing.cs', 'linked.cs']) assert.equal(scan(path), '');
+    for (const path of ['missing.cs', 'linked.cs', 'tls.pem.cs', 'generated.g.cs']) assert.equal(scan(path), '');
     assert.equal(scan('untrusted.cs', 'x'.repeat(16385)), '');
     writeFileSync(join(dir, 'untrusted.cs'), '.AutoMap()' + ' '.repeat(65536));
     assert.equal(scan('untrusted.cs'), '');
@@ -168,4 +168,16 @@ test('Claude advises on changed patterns without blocking edits', () => {
             assert.equal(Boolean(decision), content === changed, id);
         }
     } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+test('native reviewer allowlists grant only read and search', async () => {
+    const { generatePiAgents } = await import('../Harness.Setup/pi-agents.ts');
+    const { generateOpenCodeAgents } = await import('../Harness.Setup/opencode-agents.ts');
+    const corpus = join(root, '.cratis/ai');
+    for (const adapter of generatePiAgents(corpus).filter(a => a.source.endsWith('-reviewer.md'))) {
+        assert.match(adapter.content, /^tools: read, grep, find$/m);
+    }
+    for (const adapter of generateOpenCodeAgents(corpus).filter(a => a.source.endsWith('-reviewer.md'))) {
+        assert.deepEqual(adapter.content.split('permission:\n')[1].split('---')[0].trim().split('\n').map(s => s.trim()), ['"*": deny', 'read: allow', 'grep: allow', 'glob: allow']);
+    }
 });
