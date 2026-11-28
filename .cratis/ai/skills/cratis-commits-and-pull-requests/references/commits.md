@@ -116,4 +116,4 @@ Use separate worktrees for parallel changes. Merge related history; undo a deliv
 
 Run `git diff --name-only --cached`. Map staged C# files to their nearest `.csproj`, and staged TypeScript files to the nearest `package.json` with a test script. Run only the owning projects' specs using the repository's local verification procedure. Reuse a passing check only when it covered the exact, unchanged staged inputs. If the owner is unclear, report the gap rather than running the whole repository. For rule-only or documentation-only commits, run only the applicable content, link or corpus checks.
 
-The session-end Stop gate checks the working tree and can see different inputs; it is not a pre-commit hook.
+Claude’s `Stop` gate checks the working tree at turn end, not the staged set at commit time.
