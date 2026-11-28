@@ -89,11 +89,6 @@ function add(path: string, target: string, type: Link['type']): void {
     if (existing && (existing.target !== target || existing.type !== type)) throw new Error(`Conflicting integration plan for ${path}.`);
     links.set(path, { path, target, type });
 }
-function commands(directory: string): void {
-    for (const prompt of readdirSync(join(corpus, 'prompts')).filter(name => name.endsWith('.prompt.md')).sort()) {
-        add(`${directory}/${prompt.slice(0, -'.prompt.md'.length)}.md`, `../../.cratis/ai/prompts/${prompt}`, 'file');
-    }
-}
 function agents(directory: string, suffix = '.md'): void {
     for (const agent of readdirSync(join(corpus, 'agents')).filter(name => name.endsWith('.md')).sort()) {
         add(`${directory}/${agent.slice(0, -3)}${suffix}`, `../../.cratis/ai/agents/${agent}`, 'file');
@@ -106,27 +101,21 @@ add('.agents/skills', '../.cratis/ai/skills', 'dir');
 add('.claude/CLAUDE.md', '../.cratis/ai/rules/general.md', 'file');
 add('.claude/agents', '../.cratis/ai/agents', 'dir');
 add('.claude/hooks', '../.cratis/ai/hooks', 'dir');
-add('.claude/prompts', '../.cratis/ai/prompts', 'dir');
 add('.claude/rules', '../.cratis/ai/rules', 'dir');
 add('.claude/skills', '../.cratis/ai/skills', 'dir');
-commands('.claude/commands');
 add('.github/copilot-instructions.md', '../.cratis/ai/rules/general.md', 'file');
 add('.github/instructions', `../.cratis/ai/${copilotInstructionsDirectory}`, 'dir');
-add('.github/prompts', '../.cratis/ai/prompts', 'dir');
 add('.github/skills', '../.cratis/ai/skills', 'dir');
 agents('.github/agents', '.agent.md');
 add('.pi/agents', `../.cratis/ai/${piAgentsDirectory}`, 'dir');
 add('.pi/extensions', '../.cratis/ai/harnesses/pi/extensions', 'dir');
 add('.pi/skills', '../.cratis/ai/skills', 'dir');
-commands('.pi/prompts');
 add('.codex/hooks.json', '../.cratis/ai/harnesses/codex/hooks.json', 'file');
 add('.cursor/agents', '../.cratis/ai/agents', 'dir');
 add('.cursor/rules', '../.cratis/ai/harnesses/cursor/rules', 'dir');
 add('.cursor/skills', '../.cratis/ai/skills', 'dir');
-commands('.cursor/commands');
 add('.opencode/agents', `../.cratis/ai/${openCodeAgentsDirectory}`, 'dir');
 add('.opencode/skills', '../.cratis/ai/skills', 'dir');
-commands('.opencode/commands');
 
 /** A link that exists but may not be replaced: foreign content, with the migration and forced-overwrite exceptions. */
 function blocksLink(link: Link, path: SetupPath, migrateInstructions: boolean): boolean {

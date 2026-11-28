@@ -35,7 +35,7 @@ for_<TypeUnderTest>/
 ## Frameworks
 
 - [xUnit v3](https://xunit.net/docs/getting-started/v3/migration) is the house default for new and migrated spec projects, **run as the built executable**. Reference `Cratis.Specifications.XUnit.v3` **5.0** with `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`, and set `<OutputType>Exe</OutputType>` in the project. The package supplies the `Specification` base, convention lifecycle and `ShouldXxx` assertions; the namespace remains `Cratis.Specifications`. Its `Cratis.Specifications` dependency supplies `Catch` and `SpecificationMethods`.
-- 5.0 targets `net10.0` only. A spec project that must stay on net8.0/net9.0 stays on 4.x, and net48 on 3.x. A project that stays on xUnit v2 uses `Cratis.Specifications.XUnit`, with the same base and conventions.
+- Specifications 5.0–5.2 target `net10.0` only; 5.3.0 targets `net10.0` and `net11.0`. A spec project that must stay on net8.0/net9.0 stays on 4.x, and net48 on 3.x. A project that stays on xUnit v2 uses `Cratis.Specifications.XUnit`, with the same base and conventions.
 - `.NUnit`/`.NUnit5`, `.TUnit` and the experimental `.Runner` are alternatives for repositories already built on them.
 - [NSubstitute](https://nsubstitute.github.io/) for mocking collaborators.
 - Spec projects are named `<Source>.Specs`.
@@ -150,3 +150,5 @@ public decimal TotalCost => Items.Sum(i => i.Cost * i.Quantity * (1 + i.TaxRate)
 ```
 
 Also don't spec logging or trivial getters.
+
+For Chronicle integration specs, await the observer signal that proves the assertion’s precondition: `WaitTillActive`, `WaitTillSubscribed`, `WaitTillReachesEventSequenceNumber` or `WaitForState`. Readiness is not proof of processing a particular event.

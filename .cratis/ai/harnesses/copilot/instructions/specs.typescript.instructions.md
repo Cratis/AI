@@ -18,3 +18,5 @@ Follow the adjacent specs: keep their assertion API, file extension (`.ts` or `.
 Only in repositories that already use the strict `when_*.ts` convention: act once in `beforeEach`, start each `it` description with “should”, and make one Chai `.should` assertion per `it`. Elsewhere keep related observations together when that is the existing style; don't replace `expect` with `.should`.
 
 [general.md](../../../rules/general.md) decides whether a spec is needed and at which layer. This file covers assertion style only.
+
+Match the local runner’s includes: `when_*` can be a file or a directory. Where the suite uses `given(ContextClass, context => ...)`, keep that fixture rather than inventing a separate lifecycle.

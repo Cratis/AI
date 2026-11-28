@@ -326,3 +326,5 @@ public class ReactorSideEffectHandlers(IInstancesOf<IReactorSideEffectHandler> h
 
 - Use `async`/`await` for asynchronous programming.
 - Use `Task` and `Task<T>` for asynchronous methods.
+
+Chronicle projections map same-named properties by default. Remove redundant `.AutoMap()` calls, but keep an intentional re-enable after `.NoAutoMap()`.
