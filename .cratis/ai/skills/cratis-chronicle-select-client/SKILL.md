@@ -14,6 +14,6 @@ For application work, choose the client for the process that will append or obse
 - `.java`: [select the Java-facing JVM client](references/java.md).
 - `go.mod`: [distinguish standalone Go from an integrated host](references/go.md).
 - `mix.exs`: [select the Elixir client for supervised application work](references/elixir.md).
-- Python: there is no released application client. Call a service that owns the operation. For offline protocol tooling only, [check the matching contract wheel](references/python.md).
+- Python: there is no released application client. Call a service that owns the operation. For offline protocol tooling only, [build and check the matching contracts package](references/python.md).
 
 Use generated contracts alone only when inspecting or encoding wire messages. A message round trip proves the wire type loads; it does not start an observer. Before committing to an application client, exercise the required operation against the intended kernel in a disposable namespace. If it fails, resolve the client/kernel mismatch or delegate to a supported host; do not force an unrelated contracts version.

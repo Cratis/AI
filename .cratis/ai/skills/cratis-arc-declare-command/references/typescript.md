@@ -1,8 +1,11 @@
 # Bind the Node command handler
 
-Export a `@command()` class from the feature. Describe input properties with `@field` and keep injected services on the handler signature:
+Export a `@command()` class from the feature. Describe input properties with `@field` and keep injected services on the handler signature. `TaskId`, `TaskTitle` and the `Tasks` service are your application's types:
 
 ```typescript
+import { command } from '@cratis/arc.core';
+import { field } from '@cratis/fundamentals';
+
 @command()
 export class RegisterTask {
     @field(TaskId) id!: TaskId;
