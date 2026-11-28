@@ -26,3 +26,5 @@ First check whether the workflow actually enables batching. With release-action 
 3. If waiting is not acceptable, request an authorized manual Publish. In batch mode an empty version or `0.0.0` releases **all pending changes**, not just this fix. Check the entire pending set and obtain explicit human approval for a pending major. A hotfix merge run can fail against a pending major while a scheduled or unrelated merge run warns and leaves it pending. Don't edit the window, relabel another PR or dispatch a workflow just to clear the queue.
 
 If batching isn't enabled, don't apply the empty-version batch procedure. Follow that repository's actual trigger and inspect its release outputs instead.
+
+Check the [release label and notes policy](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md) before landing. After a hook change, remind installed consumers to run `cratis ai update`.

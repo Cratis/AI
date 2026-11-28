@@ -120,3 +120,5 @@ name-scoped filters, which is where structural changes break. Say which phases w
 - Modules deployed as separate services: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md) and [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md).
 - Superseding the structure's accepted records: `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
 - Verifying a slice against its model after a move: [cratis-platform-deliver-slice](../cratis-platform-deliver-slice/SKILL.md).
+
+The host composes modules; platform code knows none. For example, Billing owns invoicing; Orders consumes Billing.Contracts, not Billing implementation files through a compile include. Before moving namespaces, inventory persisted observer and model IDs; preserve identity or plan a verified migration before rollout.

@@ -138,7 +138,7 @@ exact commands.
 ## Adaptation and attribution
 
 This condensed rule adapts the repository-owned Go baseline at
-[Chronicle.Go v0.9.1](https://github.com/Cratis/Chronicle.Go/blob/v0.9.1/.cratis/ai/rules/go.md)
+[Chronicle.Go v0.28.2](https://github.com/Cratis/Chronicle.Go/blob/v0.28.2/.cratis/ai/rules/go.md)
 and [Arc.Go v0.1.1](https://github.com/Cratis/Arc.Go/blob/v0.1.1/.cratis/ai/rules/go.md),
 not their project paths or commands. The baseline's adapted readability,
 error-boundary, public-option and goroutine recommendations retain attribution:

@@ -108,3 +108,5 @@ Add integration specs for observer replay on redaction
 - Use `git add <specific files>` rather than `git add .` or `git add -A`. Only stage files that belong to the current logical unit.
 - Review `git diff --cached` before committing to verify nothing unrelated was staged.
 - If you realize mid-commit that unrelated changes are mixed in, unstage them and commit only the related subset.
+
+Use separate worktrees for parallel changes. Merge related history; undo a delivered change with revert rather than reset or rewrite.

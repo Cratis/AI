@@ -162,3 +162,5 @@ from the person who owns the risk; never downgrade it to advisory.
 The build and specifications are green before the report is written; each
 finding cites the file and line; and the report states explicitly which
 surfaces were and were not examined.
+
+Did any plaintext predate the protection? Check historic records, backups, exports and independently retained copies; marking new writes cannot erase those copies.

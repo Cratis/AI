@@ -157,3 +157,5 @@ The build and specifications are green before the report is written; each
 finding cites the file and line and states the scale at which it bites; and the
 report says plainly that it reviewed code shape rather than measured behavior,
 naming anything that would need a benchmark to settle.
+
+Provider-backed `AsQueryable()` is valid for a snapshot. Check that filtering and paging reach the provider before materialization; wrapping an already materialized list cannot restore translation. Use `Observe` for an observable query.

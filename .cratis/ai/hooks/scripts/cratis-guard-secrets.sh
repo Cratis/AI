@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # PreToolUse hook (Bash) — hard block on shell commands that print credentials into the transcript.
 #
-# secrets.md says a credential must never enter an agent transcript, and lists the command classes that
-# print one: full Kubernetes specs and secrets, the process environment, container inspection, secret-manager
+# The general rule (rules/general.md) says a credential must never enter an agent transcript. The command
+# classes that print one are full Kubernetes specs and secrets, the process environment, container inspection, secret-manager
 # reads and credential files. This guard is what enforces it: every simple command in the shell command is
 # found (quotes, $( ), backticks, subshells, pipelines, here-documents, `bash -c`, `eval`, `kubectl exec ... --`
 # and `docker exec`, and the wrappers sudo/env/timeout/xargs/rtk are looked through) and classified. A command
@@ -2302,7 +2302,7 @@ $findings
 EOF
     cat <<'EOF'
 
-secrets.md: a credential must never enter an agent transcript, and a transcript is saved, summarized and
+rules/general.md: a credential must never enter an agent transcript, and a transcript is saved, summarized and
 shared. Ask for the field you need (a jsonpath, custom-columns, -o name, a status field) and say which one;
 refer to a secret by name (secret/key, environment variable) in notes, briefs and messages, never by value.
 

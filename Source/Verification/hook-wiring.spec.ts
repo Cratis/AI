@@ -9,7 +9,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { chmodSync, copyFileSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -110,4 +110,25 @@ test('a wired guard still blocks when its script has lost the execute bit', () =
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+});
+
+test('the scanner returns fixed advice only for small regular project sources', t => {
+    const dir = realpathSync(mkdtempSync(join(tmpdir(), 'scanner-')));
+    t.after(() => rmSync(dir, { recursive: true, force: true }));
+    const script = join(root, '.cratis/ai/hooks/scripts/cratis-pattern-scan.sh');
+    const scan = (name: string, pad = '') => {
+        const input = JSON.stringify({ pad, tool_input: { file_path: join(dir, name) } });
+        const result = spawnSync('bash', [script], { input, env: { ...process.env, CLAUDE_PROJECT_DIR: dir }, encoding: 'utf8' });
+        assert.equal(result.status, 0);
+        return result.stdout;
+    };
+    writeFileSync(join(dir, 'untrusted.cs'), 'untrusted.AutoMap()');
+    const advice = scan('untrusted.cs');
+    assert.match(advice, /AutoMap/);
+    assert.doesNotMatch(advice, /untrusted/);
+    symlinkSync('untrusted.cs', join(dir, 'linked.cs'));
+    for (const path of ['missing.cs', 'linked.cs']) assert.equal(scan(path), '');
+    assert.equal(scan('untrusted.cs', 'x'.repeat(16385)), '');
+    writeFileSync(join(dir, 'untrusted.cs'), '.AutoMap()' + ' '.repeat(65536));
+    assert.equal(scan('untrusted.cs'), '');
 });
