@@ -1,19 +1,9 @@
-# Inspect the Go event contract
+# Select the Go module for the host
 
-With Go 1.26 or later, run `go mod init example.org/library` in an empty directory, then `go get github.com/cratis/chronicle.go@v0.17.0`. The module includes its own generated contracts. Save as `main.go`:
+For a standalone service using Go 1.26, add the application module in the service's module directory. For example:
 
-```go
-package main
-
-import (
-    "fmt"
-    "github.com/cratis/chronicle.go/contracts/eventtypes"
-)
-
-func main() {
-    event := &eventtypes.EventType{Id: "AuthorRegistered", Generation: 1}
-    fmt.Println(event.GetId(), event.GetGeneration())
-}
+```sh
+go get github.com/cratis/chronicle.go@v0.28.2
 ```
 
-`go run .` prints `AuthorRegistered 1` without reaching a kernel. Check the tagged module's stated kernel version before choosing it for your deployment. This offline check does not demonstrate support for decision reads. For the client's supported kernel, run its tagged `examples/getting-started` program against its matching development image to check a real append. If a real append loses its acknowledgement, reconcile with history before retrying; a transport error isn't a refusal.
+Inspect the resolved module graph: the client module, not just generated protocol types, should be available to the worker. If Arc owns the host, `github.com/cratis/arc.go/integrations/chronicle` is a separate module. No integration-module tag is available for the verified Arc release. Use the standalone client or defer integration until the host has a verified module/version pair. Do not assume the Arc root tag includes that nested module or force the standalone version into the integration. Verify the required operation against the intended kernel; Go module and kernel release numbers are not compatibility tests.

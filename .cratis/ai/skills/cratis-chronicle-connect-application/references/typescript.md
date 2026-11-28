@@ -1,0 +1,5 @@
+# Open a scoped Node store
+
+With `ChronicleOptions.development()` only for a loopback kernel, create `const client = new ChronicleClient(options)` and `const store = await client.getEventStore("library", "test")`. Include the built artifact modules in discovery before opening the store. Use validated TLS and deployment credentials outside development. Check a registered event in the selected namespace; release the client with `client.dispose()` when the owning service stops.
+
+For built JavaScript, configure `discoveryPatterns` for the emitted modules or import the artifacts explicitly. The default scan in a TypeScript process includes `.ts` and `.tsx` but excludes declarations, specs, tests, dependencies and built output; a plain JavaScript entry point has no default scan. Use compatible decorator and field metadata in the server build. The default connection string skips certificate validation: set `skipTlsValidation=false` when connecting outside loopback. Do not log a credential-bearing URL.

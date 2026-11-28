@@ -11,9 +11,7 @@ image/version and your harness's stdio registration shape, only when setup is
 requested. The registry identity is `io.github.Cratis/chronicle-mcp`, but
 the registry descriptor can lag the release; do not treat its version or image as an image pin.
 
-`cratis ai` only writes the Screenplay descriptor, not Chronicle or
-Studio.
-Do not add an unsupported descriptor to the corpus catalog.
+`cratis ai` installs complete, profile-selected descriptors for harnesses with a supported adapter. The corpus catalog includes Screenplay, CodeScene and Playwright, not Chronicle or Studio. Selecting a Chronicle profile does not launch this server. Native Pi registration is separate from those CLI harness adapters; confirm the configured server with `tools/list` before requesting a read.
 
 For unset connection values: explicit options → `CHRONICLE_CONNECTION_STRING`
 → active CLI context (`~/.cratis/config.json`) → development defaults

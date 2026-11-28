@@ -7,7 +7,7 @@ The kernel is configured separately from the application: application telemetry 
 
 ## Export
 
-The kernel's own setup (`AddChronicleTelemetry`) adds an OTLP exporter per signal only when `OTEL_EXPORTER_OTLP_ENDPOINT` or the per-signal endpoint is set. The kernel host calls it without a service name, so the resource `service.name` is always `Chronicle`: the setup applies it after the SDK defaults, so `OTEL_SERVICE_NAME` does not change it (the product docs list that variable; the source does not honour it). Tell kernel telemetry apart from the application's by that name, and confirm in your backend. The kernel subscribes the activity source `Cratis.Chronicle`, the meters `Cratis.Chronicle` and `Cratis.Chronicle.Federation`, and the `Microsoft.Orleans` and `Grpc.AspNetCore.Server` meters.
+The kernel's own setup (`AddChronicleTelemetry`) adds an OTLP exporter per signal only when `OTEL_EXPORTER_OTLP_ENDPOINT` or the per-signal endpoint is set. The kernel host calls it without a service name, so the resource `service.name` is always `Chronicle`: the setup applies it after the SDK defaults, so `OTEL_SERVICE_NAME` does not change it (the product docs list that variable; the source does not honour it). Tell kernel telemetry apart from the application's by that name, and confirm in your backend. The kernel subscribes the activity source `Cratis.Chronicle`, the `Cratis.Chronicle`, `Microsoft.Orleans` and `Grpc.AspNetCore.Server` meters.
 
 ## Options under `Telemetry`
 

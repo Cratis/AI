@@ -189,9 +189,6 @@ These two are Workbench-only; the CLI has no equivalent command.
   revision history and content hashes. It requires a reason and records the
   redaction itself. It does not reach backups, oplogs or already-forwarded events.
   Use redaction for content that should never have been appended.
-- `IEventSequence.VerifyContent` compares prepared content
-  after an ambiguous append, not an authorization to revise or retry blindly.
-  For the comparison outcomes, see `cratis-chronicle-cli-operations` in `cratis/cli`.
 - **Revise** rewrites an event's content. Its confirmation dialog enumerates the
   replayable observers that will be affected — read that list before confirming,
   because it is the blast radius.
@@ -199,6 +196,14 @@ These two are Workbench-only; the CLI has no equivalent command.
 Neither is the mechanism for a personal-data erasure request. Erasure is the
 kernel's key-destruction path, keyed by compliance subject, and it is a
 different operation with different scope.
+
+## Compare content after an ambiguous append
+
+If the caller lost the append response, compare the prepared event with the suspected stored event using the client’s `IEventSequence.VerifyContent`. This is a read, not a Workbench revision.
+
+- `Equal`: the complete released content matches. Do not append a second copy on the strength of the lost response.
+- `Different`: the type or content differs. Investigate which write occupies that position before deciding what to do.
+- `Unavailable`: the comparison could not be completed, for example after erasure. It establishes neither a duplicate nor a missing append. Stop rather than retrying or revising.
 
 ## Related
 
