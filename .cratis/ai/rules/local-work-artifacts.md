@@ -1,14 +1,5 @@
 ---
-applyTo: "**/.ai-work/**,**/.gitignore,**/*.sh,**/*.ps1,**/scripts/**,**/.github/workflows/**,**/.cratis/ai/hooks/**"
-paths:
-  - "**/.ai-work/**"
-  - "**/.gitignore"
-  - "**/*.sh"
-  - "**/*.ps1"
-  - "**/scripts/**"
-  - "**/.github/workflows/**"
-  - "**/.cratis/ai/hooks/**"
-profile: framework
+applyTo: "**/*"
 ---
 
 # Local AI work artifacts belong in `.ai-work/` only

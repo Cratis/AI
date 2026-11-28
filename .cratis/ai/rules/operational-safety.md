@@ -1,12 +1,5 @@
 ---
-applyTo: "**/*.sh,**/*.ps1,**/scripts/**,**/.github/workflows/**,**/.cratis/ai/hooks/**"
-paths:
-  - "**/*.sh"
-  - "**/*.ps1"
-  - "**/scripts/**"
-  - "**/.github/workflows/**"
-  - "**/.cratis/ai/hooks/**"
-profile: framework
+applyTo: "**/*"
 ---
 
 # Operational safety

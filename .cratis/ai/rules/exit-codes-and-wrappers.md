@@ -6,7 +6,6 @@ paths:
   - "**/scripts/**"
   - "**/.github/workflows/**"
   - "**/.cratis/ai/hooks/**"
-profile: framework
 ---
 
 # Exit codes and wrappers

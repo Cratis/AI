@@ -1,8 +1,8 @@
 ---
 applyTo: "**/*.stories.tsx"
+profile: application
 paths:
   - "**/*.stories.tsx"
-profile: cratis/components
 ---
 
 # Storybook Story Conventions

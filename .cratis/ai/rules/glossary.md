@@ -13,7 +13,6 @@ paths:
   - "**/*.play"
   - "**/Documentation/**/*.md"
   - "**/Documentation/**/*.mdx"
-profile: framework
 ---
 
 # Cratis Glossary

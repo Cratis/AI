@@ -1,5 +1,7 @@
 ---
-profile: framework
+applyTo: "**/*"
+paths:
+  - "**/*"
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
