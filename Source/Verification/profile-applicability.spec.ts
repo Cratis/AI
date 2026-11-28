@@ -30,15 +30,15 @@ const graph = (['publicProfiles', 'engineeringProfiles'] as const).flatMap(secti
 const ids = graph.map(row => row[1]);
 // Approved direct target hashes in profile-ID order.
 const targets = `
-efd6e8b20d caf43b025b 3c4996515f 6938a683aa cebf4a7593 09f51c2aec edf833f608 9a01d2647c
-9a01d2647c 87a4d4e7ab 79fc527a6f 43d2db935f 61ccb20157 301bea73c6 5bac36aa65 518a840887
+efd6e8b20d caf43b025b 3c4996515f 7c4b7a49e3 a3520cc9ee 09f51c2aec edf833f608 9a01d2647c
+9a01d2647c 83b49a61b9 79fc527a6f 43d2db935f 61ccb20157 301bea73c6 5bac36aa65 518a840887
 742cf55e6f 43d2db935f 5f82dc618c 5b2e1b69e3 5b2e1b69e3 015420d5d2 832ba866ca 5b2e1b69e3
 3ca074c722 ba6e0a1c00 840e0037c9 2eb64bd7ef 5b2e1b69e3 62c78c80fb b1ab20392b 94c314d2f8
 759d051ebf ae41268393 - 5b2e1b69e3 5b2e1b69e3 5b2e1b69e3 f350625213 8ebd2d4c89
 5b2e1b69e3 efa0b818ea 634d235944 27afc1e67d fbe77a29a5 28ff2d6afe 72a302477f c2c5bed659
-- 5fdd0c177f c104619d9c 5b2e1b69e3 9ef74c5749 fbea753318 eb1cd9be95 dc8fbd0866
-aaee798853 3ed21a8b13 29fc5dbb66 - - - - 5184982126
-efd6e8b20d - - - - - 9e49550745 cdec94282c
+- 8e0729db9d c104619d9c 2b60cb8dbe a52e5a7217 bcf2e3c847 9bdc3a71d6 1f01ab084e
+f3fa039061 d0aaea0c2a dcfa7c229e - - - - 5184982126
+efd6e8b20d f4310609ef a29813f291 a29813f291 a29813f291 a29813f291 9e49550745 cdec94282c
 e80c8ab9fd 01802ed9b3 01802ed9b3 01802ed9b3 01802ed9b3 01802ed9b3 01802ed9b3 d251031288
 46c86ba34b 26e63b3b48 a1e001f8a6 01802ed9b3 01802ed9b3 37d9fcdb78 01802ed9b3 7ca7b4ae3e
 172829aaee 7883182b2c b700fb255c bf6952cb17
@@ -59,6 +59,9 @@ test('catalog and offered targets match the approved plan', () => {
 const languages = ['csharp', 'typescript', 'kotlin', 'java', 'go', 'elixir', 'python', 'react', 'language-agnostic'];
 const app = 'cratis/application';
 const eng = 'cratis/engineering';
+const full = 'cratis/full';
+const deliverSlice = 'platform-deliver-slice';
+const sliceProfiles = [app, eng, full];
 const governedReleases = 'cratis/methodology/governed-releases';
 const release = ['governed-release-methodology', 'platform-prepare-release-pr'];
 const core = ['arc-declare-command', 'chronicle-record-event', 'specifications-exercise-backend'];
@@ -67,18 +70,17 @@ const reviewSkills = ['code-review', 'performance-review', 'security-review'];
 const arcCore = ['arc-declare-command', 'arc-declare-operation', 'arc-expose-mcp-operation', 'arc-generate-proxies'];
 const scenario = 'specifications-exercise-backend';
 const startup = 'platform-start-application';
-const startupRoots = new Set([app, 'cratis', 'cratis/full']);
+const startupRoots = new Set([app, 'cratis', full]);
 const startupLanguages = new Set(['csharp', 'java', 'kotlin', 'react', 'typescript']);
 const restoredCapabilities: { profile: string; language: string; skills: string[]; references?: string[] }[] = [
-    ...['java', 'kotlin'].map(language => ({ profile: `${app}/${language}`, language, skills: [startup, 'observability', 'platform-deliver-slice'] })),
+    ...['java', 'kotlin'].map(language => ({ profile: `${app}/${language}`, language, skills: [startup, 'observability'] })),
     ...['typescript', 'react'].map(language => ({ profile: `${app}/react`, language, skills: ['observability', 'application-growth'] })),
     ...['csharp', 'typescript', 'react', 'java', 'kotlin', 'elixir'].map(language => ({ profile: 'cratis/full', language, skills: ['observability'] })),
     { profile: app, language: '', skills: ['observability', 'application-growth'] },
     { profile: app, language: 'typescript', skills: ['arc-declare-operation', 'observability'], references: ['arc-declare-operation/typescript.md'] },
-    { profile: eng, language: 'csharp', skills: reviewSkills },
-    { profile: `${app}/csharp`, language: 'csharp', skills: ['application-growth', 'observability', 'platform-deliver-slice'] },
-    { profile: `${app}/elixir`, language: 'elixir', skills: ['observability', 'platform-deliver-slice'] },
-    { profile: `${app}/typescript`, language: 'typescript', skills: ['arc-declare-operation', 'observability', 'platform-deliver-slice'] },
+    { profile: `${app}/csharp`, language: 'csharp', skills: ['application-growth', 'observability'] },
+    { profile: `${app}/elixir`, language: 'elixir', skills: ['observability'] },
+    { profile: `${app}/typescript`, language: 'typescript', skills: ['arc-declare-operation', 'observability'] },
     { profile: 'cratis/arc', language: 'typescript', skills: ['arc-declare-operation'], references: ['arc-declare-operation/typescript.md'] },
     ...['core', 'ef-core', 'identity'].map(name => ({ profile: `cratis/arc/${name}`, language: 'csharp', skills: arcCore })),
     { profile: 'cratis/arc/identity', language: 'csharp', skills: ['arc-authorize-request', 'arc-isolate-tenant'] },
@@ -128,9 +130,14 @@ function goSpecialistProblems(profiles: string[], has: (name: string) => boolean
     });
 }
 
+function offersSliceImplementation(profiles: string[]): boolean {
+    return profiles.some(profile => startupRoots.has(profile) || profile === 'cratis/v2/application' ||
+        sliceProfiles.some(root => profile === root || profile.startsWith(`${root}/`)));
+}
+
 function purpose({ profiles, languages }: Selection, installed: string[]): string[] {
     const [profile] = profiles;
-    const expected = startupRoots.has(profile) ? [...core, 'platform-deliver-slice']
+    const expected = startupRoots.has(profile) ? core
         : profile === eng ? ['commits-and-pull-requests', 'platform-prepare-release-pr']
         : profile === `${app}/csharp` ? [...core, startup] : /^cratis\/arc(?:\/(?:csharp|go))?$/.test(profile) ? core.slice(0, 1)
         : profile === 'cratis/chronicle' ? core.slice(1, 2) : [];
@@ -139,7 +146,8 @@ function purpose({ profiles, languages }: Selection, installed: string[]): strin
     const supportsStartup = !languages.length || languages.some(language => startupLanguages.has(language));
     return [
         ...[...expected, ...reviewSkills, ...restored.flatMap(({ skills }) => skills)].filter(name => !has(name)).map(name => `missing ${name}`),
-        ...(profile === eng ? [...core, 'platform-deliver-slice', startup].filter(has).map(name => `unexpected ${name}`) : []),
+        ...(profile === eng && has(startup) ? [`unexpected ${startup}`] : []),
+        ...(offersSliceImplementation(profiles) && !has(deliverSlice) ? [`missing ${deliverSlice}`] : []),
         ...(startupRoots.has(profile) && has(startup) !== supportsStartup ? [`${supportsStartup ? 'missing' : 'unexpected'} ${startup}`] : []),
         ...(languages.join() === 'go' ? goSpecialistProblems(profiles, has) : []),
     ];
@@ -175,6 +183,10 @@ const matrix: Selection[] = [
     ...restoredCapabilities.filter(({ profile, language }, i) =>
         restoredCapabilities.findIndex(entry => entry.profile === profile && entry.language === language) === i)
         .map(({ profile, language }) => ({ profiles: [profile], languages: language ? [language] : [] })),
+    ...['csharp', 'elixir', 'java', 'kotlin', 'typescript'].map(language => ({
+        profiles: [`${full}/${language}`], languages: ['language-agnostic'],
+    })),
+    { profiles: [`${eng}/dotnet`], languages: ['csharp'] },
     { profiles: [governedReleases], languages: ['go'] },
     ...`arc/server-typescript,arc/react typescript
 application java,kotlin
@@ -274,8 +286,9 @@ for (const [label, selection] of labeledMatrix) {
         }
         const installedPaths = new Set(installed.Files.map(file => file.Destination));
         assert.deepEqual(reviewers.filter(agent => !installedPaths.has(`agents/${agent}.md`)), []);
-        if (restoredCapabilities.some(entry => profiles.includes(entry.profile) && languages.join() === entry.language && entry.skills.includes('platform-deliver-slice'))) {
+        if (offersSliceImplementation(profiles)) {
             assert.ok(installedPaths.has('agents/slice-implementer.md'));
+            assert.ok(names.includes(`cratis-${deliverSlice}`));
         }
         if (profiles[0] === 'cratis' || profiles[0] === governedReleases) {
             // v1 excludes this composed, empty-language profile under a language filter but honors an explicit root.
