@@ -12,9 +12,11 @@ Match generator options to the server before debugging the client:
 | `--skip-command-name-in-route` | `generatedApis.includeCommandNameInRoute: false` |
 | `--skip-query-name-in-route` | `generatedApis.includeQueryNameInRoute: false` |
 
-## Output options
+## Output for the consumer
 
-- `--type-mapping Shared.Money=@acme/money` reuses a shared type instead of generating it, emitting `import { Money } from '@acme/money';`. Use the namespace-qualified source declaration name. For CLR types, use the mapping in the C# reference instead.
-- `--skip-react-hooks` omits the React hooks for non-React or server-only consumers.
-- `--js-import-specifiers` emits `.js` extensions on local imports for ESM/NodeNext.
-- `--emit-interfaces` emits model interfaces instead of classes. Keep classes when consumers need decorators or hydration into model instances.
+| Flag | Use when |
+| --- | --- |
+| `--type-mapping Shared.Money=@acme/money` | Reuse a shared type instead of generating it. Use the namespace-qualified declaration name; this emits `import { Money } from '@acme/money';`. For CLR types, use the C# reference. |
+| `--js-import-specifiers` | Native Node ESM or NodeNext needs `.js` extensions on local imports. Leave it off for Vite and other bundlers. |
+| `--skip-react-hooks` | A server-only or non-React consumer needs client classes without the `@cratis/arc.react` import or static `use*`/`when` helpers. |
+| `--emit-interfaces` | Use interfaces instead of model classes. Leave it off when the client needs decorators or hydration into model instances. |

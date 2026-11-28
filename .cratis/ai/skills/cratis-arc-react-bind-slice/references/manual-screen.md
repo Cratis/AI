@@ -1,0 +1,10 @@
+# Implement a manually owned screen from an accepted model
+
+Use this only when the application owns the React screen. Do not edit Stage-managed output. Locate the accepted screen and form before writing JSX; if the task disagrees with the model, resolve that discrepancy before adding behavior.
+
+1. Map each screen declaration: data to the generated query hook or standard query-backed list, columns and summary fields to returned properties, actions to controls, and triggers to the matching gesture. Use the model's labels. Put command inputs on their matching field accessors; initialize values from the source the model names.
+2. Use the selected row for row-scoped inputs when the form opens. If the model populates via a keyed query, use the current selection or route key as declared, wait for that key's data, and seed the form once. Do not seed with another key's last result or let a late update overwrite a dirty draft. Keep derived-field logic explicit; report an unspecified derivation instead of guessing.
+3. Run a modeled submit interaction after form validation, in the order written. Its command action may have its own success and failure continuations. Keep success-only navigation or dialog close on the successful command path, not on click, on a completed request alone, or on a later query emission. The form shorthand `on submit navigate to` is a post-success continuation. Follow [command refusal guidance](commands.md) on failure.
+4. An `on event` interaction needs a verified event-delivery adapter for the event payload, subscription and teardown. An observable query delivers read-model updates, not domain event payloads. Report the interaction as blocked if the adapter is missing; do not invent one or approximate it with a query.
+
+Before finishing, reconcile both directions: list model declarations with no UI counterpart and UI controls, values or effects with no declaration. Explain blocked mappings; remove unmodeled behavior or get a model change accepted. Verify the selected-key change, submit refusal and success continuation from the user's point of view.

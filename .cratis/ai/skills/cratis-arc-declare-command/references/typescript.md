@@ -27,3 +27,28 @@ Use one explicit token or marker per injected parameter on `handle()` or `provid
 Do not rely on reflection for default or rest parameters: it stops counting at the first one. Prefer fixed named parameters over those signatures; generated bindings do not accept rest parameters. If generated metadata and explicit tokens do not cover the handler signature, `await builder.build()` can fail with `Unbound handle parameters on <Type>.handle`. Run the build at startup to exercise this check.
 
 When observers must see an append before the reply, `completionTimeoutMs` bounds the wait for every observer. A timeout can follow a committed append: do not repeat a non-idempotent command to fix a slow observer. Compensation has its own cooperative `commandCompensationTimeoutMs`; it does not revert a committed event. Use `eventSourceIdResponse` when the response is the history ID rather than the event itself.
+
+## Prepare inputs on the command instance
+
+An optional `provide()` runs on the same command instance after authorization and validation, before `handle()`. A plain return value is the first `handle()` argument, before injected services. For several prepared values, return `tuple(a, b)` and bind each handler parameter explicitly: `@inject(provided(A), commandContext(), provided(B))` supplies the two prepared instances by runtime type and the context between them. Use service tokens for injected services. On a command, use `@inject` only on `provide()` or `handle()`; the preparation method itself cannot consume a `provided(...)` token.
+
+Return `rejected(validation(...))` from `provide()` when the prepared record is missing: the caller receives 400 and `handle()` is not called. Prove both outcomes in the spec. Hand off severity and rejection details to “Reject from `provide()` or `handle()`” in `cratis-arc-validation-typescript`.
+
+## Route and protect returned events
+
+Return `eventForEventSourceId({ eventSourceId: otherId, event })` when an event belongs to a nondefault history. For a decision involving two histories, keep the exact server-observed `bigint` positions with the decision reads and return one scoped batch; do not sample the tails after `handle()`.
+
+```ts
+import { eventForEventSourceId, eventsWithConcurrencyScopes } from '@cratis/arc.chronicle';
+
+// From handle(), after deciding from the two observed histories:
+return eventsWithConcurrencyScopes([
+    eventForEventSourceId({ eventSourceId: originalId, event: originalEvent }),
+    eventForEventSourceId({ eventSourceId: otherId, event: otherEvent }),
+], {
+    [originalId]: { eventSourceId: true, sequenceNumber: observedOriginalPosition },
+    [otherId]: { eventSourceId: true, sequenceNumber: observedOtherPosition },
+});
+```
+
+Use `cratis-chronicle-protect-decision` for the design. With `ChronicleKernelScenario`, advance a guarded history after observation and assert that the stale-position refusal appends nothing from the batch to either history.

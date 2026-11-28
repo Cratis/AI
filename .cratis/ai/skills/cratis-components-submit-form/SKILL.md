@@ -48,14 +48,14 @@ export function AddAuthorButton() {
 
 Choose `StepperCommandDialog` when one command genuinely needs several stages. Import `{ StepperCommandDialog, StepperPanel }` from `@cratis/components/CommandDialog`. Replace both `CommandDialog` tags with `StepperCommandDialog`, and wrap each field group with `<StepperPanel header="Author details">…</StepperPanel>` using a distinct header per step. Next and Previous move between panels without executing; the final Submit runs the command only after validation across all steps. Verify that returning to fix a required field on an earlier step preserves the other inputs and enables one final submission.
 
-For editing, pass the selected ID and name to `show({ id, name })`. In the edit dialog, capture that opening's snapshot with `const [initialValues] = useState(() => ({ id, name }));`. Pass it to `CommandDialog` as above. `useDialog` unmounts the dialog on close, so the next opening starts with its own values.
+For editing, pass the selected ID and name to `show({ id, name })`. In the edit dialog, capture that opening's snapshot with `const [initialValues] = useState(() => ({ id, name }));`. Pass it to `CommandDialog` as above. `useDialog` unmounts the dialog on close, so the next opening starts with its own values. Pass `validateOnInit` when the prefilled values may be invalid and errors should appear on open.
 
 Read the generated command type before choosing field accessors; use its property names, not the labels shown in the dialog. Put required values already known to the caller in `initialValues`, not `onBeforeExecute` (validation runs first). For a `Date` property, choose `CalendarField` from `@cratis/components/CommandForm`; set `showTime` when the time is required. Put caller-owned post-save effects in `onSuccess`, not in a click or close handler.
 
 ## Avoid
 
 - Don't execute a second command when the dialog closes.
-- Don't put `CommandForm` inside `CommandDialog`; the dialog already contains the form.
+- Don't put `CommandForm` inside `CommandDialog`; the dialog already contains the form. To generate fields inside an existing form or dialog, use `AutoCommandFields` from `@cratis/components/CommandForm`; it adds fields, not a second form.
 
 ## When it goes off the usual path
 
@@ -63,7 +63,7 @@ Read the generated command type before choosing field accessors; use its propert
 - **Enter could activate confirmation on open:** import `{ DialogInitialFocus }` from `@cratis/components/Dialogs` and pass `initialFocus={DialogInitialFocus.Content}` to focus the title, then test that Enter there does not submit and Tab reaches the editable field.
 - **The command is refused:** keep the dialog open. A field violation needs a correction; denied authorization needs a caller with permission, not a different field value.
 
-For a one-off check in the existing edit story, type a new name, rerender the parent without closing the dialog, then submit. The command should carry the typed name and the original ID. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
+For a one-off check in the existing edit story, type a new name, rerender the parent without closing the dialog, then submit. The command should carry the typed name and the original ID. Use [the UI observation skill](../cratis-specifications-observe-ui/SKILL.md) to exercise the interaction.
 
 ## Related skills
 
