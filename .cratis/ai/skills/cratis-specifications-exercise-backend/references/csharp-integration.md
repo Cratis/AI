@@ -1,6 +1,22 @@
 # Prove appends, projected rows, reactions and delivery in C#
 
+## Contents
+
+- Choose proof per artifact
+- Prove an append contract
+- Prove a projected or reduced row
+- Prove a reactor's effect
+- Prove discovery, persistence or delivery
+
 `EventScenario`, `ReadModelScenario<T>` and `ReactorScenario<T>` come from `Cratis.Chronicle.Testing` and run in process without a server. None of them proves storage, transport, compliance or distributed replay; do not infer those from a green scenario.
+
+## Choose proof per artifact
+
+| Artifact | What to exercise | What must be distinct |
+| --- | --- | --- |
+| Command | Call a consequential decision directly; exercise the real command pipeline once for the accepted path. | One refused path per applicable pre-handler gate: authorization, validation and a refusing `Provide()`. Assert the specific reason and no append; see [command results](csharp-command-results.md). |
+| Constraint | Run the actual constraint in `EventScenario`. | Pair the violating input with the nearest non-violation; assert that the second case actually appends. |
+| Projection with a child join | Run the real definition in `ReadModelScenario<TReadModel>`. | Exercise the join with matching siblings and assert child-key isolation, not just a different root. |
 
 ## Prove an append contract
 
@@ -40,6 +56,9 @@ Cover these cases once each where they are meaningful, asserting concrete values
 | Sibling | A second source's instance is untouched |
 | Remove | The instance is gone |
 | Recreate | A later create after removal yields a fresh instance |
+| Child join | Update and remove the addressed child by its key; assert the matching siblings keep their keys and values. |
+
+Share an event sequence per read model; add a class when a removal or different key needs its own sequence, not for every mapped field.
 
 ## Prove a reactor's effect
 
@@ -69,7 +88,8 @@ Use the fixtures from `Cratis.Chronicle.XUnit.Integration.v3` for xUnit v3 (`Cra
 
 - `ChronicleInProcessFixture` hosts the kernel in the test process with MongoDB in a container. Start with it.
 - `ChronicleOutOfProcessFixture` runs the kernel in a separate container. Use it when the promise depends on the kernel being a separate process.
-- The kernel is shared across specs. Override `UsesPerContextMongoDBHost` to return `true` on an in-process fixture when a context needs its own isolated storage.
+- Register a consumer-owned xUnit collection: for an in-process suite, define `ChronicleCollection : ICollectionFixture<ChronicleInProcessFixture>` with `[CollectionDefinition(Name)]`, where `Name` is a constant unique to the collection. Put `[Collection(ChronicleCollection.Name)]` on the spec class. If using a custom fixture, register that type instead.
+- `UsesPerContextMongoDBHost` defaults to `false`. Override it on the in-process fixture when a context needs a fresh host and unique database prefix. The default storage configuration applies the prefix. If the client fixture overrides `GetStorageConfigurator`, pass its `DatabaseNamePrefix` to `WithMongoDB` as `databaseNamePrefix` so contexts do not share storage. One host per context adds startup cost; the switch does not isolate out-of-process or remote kernels.
 
 Derive the context from the integration `Specification<TFixture>(fixture)`, override `EventTypes` and `Reactors` to name what the context registers, and capture appends around the act:
 

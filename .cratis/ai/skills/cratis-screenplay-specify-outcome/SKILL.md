@@ -119,6 +119,8 @@ When a command records multiple facts, assert every new fact in the expected ord
 
 When only the input and expected values change across examples, [check one rule with named cases](references/named-cases.md).
 
+Before handing off, [account for every modeled command and view](references/coverage-worksheet.md).
+
 ## Carry the accepted examples into the application
 
 Reuse backend specs (`cratis-specifications-exercise-backend` skill in `cratis/application`); commit a case only for an uncovered consequential decision. Model tests don't prove the running slice (`cratis-platform-deliver-slice` skill in `cratis/application`).
@@ -127,7 +129,9 @@ Reuse backend specs (`cratis-specifications-exercise-backend` skill in `cratis/a
 
 - **Only a read is under test:** use the `ListingAster` specification in [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md): seed the fact, omit the action, and assert `then query AllAuthors exactly` with the expected row under `result`.
 - **The effect belongs to another slice:** move the effect assertion to the slice that owns it and seed the fact it reacts to. Verify the joined behavior in the running application.
-- **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass.
+- **A graph changes:** use [graph fixtures and assertions](references/graph-steps.md) for concrete node and edge identities.
+- **An invalid or unauthorized read is under test:** see [query rejection vs. absence](references/query-rejections.md).
+- **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass. For opaque bodies, [run with a host provider](references/host-body-execution.md) only if the host can enforce the execution limits.
 
 ## Avoid
 

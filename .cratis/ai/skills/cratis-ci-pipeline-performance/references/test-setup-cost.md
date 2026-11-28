@@ -65,7 +65,8 @@ A fix belongs in the library that owns the setup, not in each consuming reposito
   post-deploy synthetic check plus unit specifications and contract snapshots over
   a pull-request integration environment.
 - Never remove the only check of a required guarantee; relocate it and say where it
-  now runs.
+  now runs. Keep consumer routing and service-boundary regressions on PRs;
+  follow the shared `verification-discipline` rule before retiring an assertion.
 
 ## Surface compile errors early
 
