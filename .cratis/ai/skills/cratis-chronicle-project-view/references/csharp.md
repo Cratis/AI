@@ -21,7 +21,7 @@ namespace Library.Features.Authors.Listing;
 public record Author(AuthorId Id, string Name);
 ```
 
-Leave the listing active: `[Passive]` would compute by ID on demand instead of storing rows. For counts, use projection operators such as `[Increment<CopyAdded>, Decrement<BookBorrowed>] int Available`. A simple counter does not need a reducer. These operators see events, not transitions: a duplicate add or close drifts the value, and replay reproduces the drift. Refuse non-transitions in the producing command. Before shipping, compare the folded counter with the authoritative membership or open-state history.
+Leave the listing active: `[Passive]` would compute by ID on demand instead of storing rows. For counts, use projection operators such as `[Increment<CopyAdded>, Decrement<BookBorrowed>] int Available`. A simple counter does not need a reducer. These operators see events, not transitions: a duplicate add or close drifts the value, and replay reproduces the drift. Refuse non-transitions in the producing command. Before shipping, fold the authoritative membership or open-state history for the same key and assert that its count equals the projection counter after replay.
 
 ## When it goes off the usual path
 
