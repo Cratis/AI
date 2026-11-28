@@ -16,8 +16,8 @@ check passes; do not start the next one before.
 
 ## 1. Decide
 
-1. Name the current stage and the signal that justifies the next, in the rule's terms. No signal, no move.
-2. A new application starts at stage 2 or 3 only for a rule-listed reason; otherwise stage 1.
+1. Name the current stage and the present signal that justifies the next from [stages and gates](references/stages-and-gates.md). No signal, no move.
+2. For a new application, use that reference to choose a justified starting stage.
 3. Read the accepted decision records that describe the current structure. If the target contradicts one,
    write the superseding record first; a record binds until then. See
    `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
@@ -28,23 +28,19 @@ Done when: the target is written and no accepted record contradicts it.
 
 ## 2. Guard before moving
 
-1. Add the architecture gates from the rule's *Gates* section as specs, in a project of their own.
-2. Record the current numbers as committed baselines: seams, `InternalsVisibleTo` grants, references between
-   modules, platform-to-module references, folders without project or README, namespace/folder
-   mismatches, frontend boundary violations.
-3. Each gate fails when its baseline grows and asks for the baseline to shrink when coupling is removed.
+1. Add the [architecture gates](references/stages-and-gates.md#gates) as specs in a project of their own.
+2. Commit the current violation counts as baselines. Fail on an increase and shrink the baseline in the same change that removes a violation.
 
 Done when: the gates run in the normal spec pass and fail on a planted violation (add one grant, see red, remove it).
 
 ## 3. Move, and only move
 
-Keep namespaces and assembly names while moving; moving a file changes no identity, a namespace change
-does (rule, *What a rename changes*).
+Keep namespaces and assembly names while moving. A path-only move leaves name-based identities intact; changing the namespace can change them. See the [rename window](references/rename-window.md).
 
 | Move | Steps (each a separate commit; build and run specs after each) |
 | --- | --- |
 | **1 → 2** | Create the module folder, `git mv` the related feature folders under it, add its `README.md`. |
-| **2 → 3** | Create the module project and frontend package; `git mv` the module folder into them; reference only what the rule's layer table allows. Add the module declaration and register its routes, navigation and settings by convention. |
+| **2 → 3** | Create the module project and frontend package; `git mv` the module folder into them; follow the [allowed references](references/stages-and-gates.md#allowed-references). Add the module declaration and register its routes, navigation and settings by convention. |
 | **3 → 4** | At the first cross-module need, create `<Module>.Contracts` in the owning module and point the consumer at it. Replace the direct reference; never keep both. |
 
 - `git mv` for files; no behavior change, rename or refactor in a move commit.
@@ -75,8 +71,7 @@ import from it, folder by folder. Each cluster that several modules use becomes 
 one purpose (shell and tenancy into the host or a `Tenancy.Contracts`, an engine into its own project
 with contracts); everything else moves into the module that owns it. Delete the project when it is empty.
 
-**Retiring a project that owns event types** removes those types: their stored events and registrations
-need an event-store plan before the project goes; use the `cratis-chronicle-evolve-event` skill (in `cratis/chronicle`).
+**Before retiring a project that owns persisted events**, preserve the types and their replay path. If registrations or stored events need to change, plan that migration separately with `cratis-chronicle-evolve-event` (in `cratis/chronicle`).
 
 Done when: the seam baseline and the module-reference baseline reach zero.
 

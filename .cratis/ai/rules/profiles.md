@@ -74,5 +74,3 @@ A rule's frontmatter decides where it is installed and when it loads:
 ## Change the catalog
 
 Edit the canonical skill and its catalog entry in the Cratis AI repository, never a consuming repository's managed copy or a generated harness adapter. A skill that links to another skill needs that skill in every profile that installs the first, or the link leaves the selection. Plugin installs expose the whole skill tree and apply no profile, so check reachability through the catalog as well.
-
-Group a feature by capability, then behavior: `Features/<capability>/<slice>/`. A state change owns its command and accepted facts (command scenario); a state view owns its projection and query (read-model scenario); automation owns its reaction to a committed fact (delivery scenario); translation owns the boundary from an external message to local intent (adapter spec).
