@@ -25,7 +25,7 @@ Use the CLI release that filters Copilot instruction copies for profile-scoped C
 
 ## Native SDKs
 
-`cratis-arc-select-backend-sdk` and `cratis-chronicle-select-client` name these releases. Each SDK versions independently of the .NET packages and of `@cratis/arc`, the generated browser client. A row records what was checked; it does not claim feature parity with .NET or that the release is the newest.
+`cratis-arc-select-backend-sdk` and `cratis-chronicle-select-client` distinguish application clients from generated contracts. Each SDK versions independently of the .NET packages and of `@cratis/arc`, the generated browser client. A row records the release used in the guidance; it does not claim feature parity with .NET, kernel compatibility, or that the release is the newest. Use the contracts dependency declared by the application client, not a version taken from a separate contracts row.
 
 | SDK | Release | Package |
 | --- | --- | --- |
@@ -33,11 +33,15 @@ Use the CLI release that filters Copilot instruction copies for profile-scoped C
 | Arc for Java and Kotlin | 7.11.1 | Maven Central `io.cratis:arc-spring-boot-starter` |
 | Arc for Elixir | 1.4.10 | Hex `cratis_arc` |
 | Arc for Go | 0.1.4 | `github.com/cratis/arc.go` |
+| Chronicle application client for Node | 6.77.0 | npm `@cratis/chronicle` |
+| Chronicle application client for Java and Kotlin | 7.13.0 | Maven Central `io.cratis:chronicle` |
+| Chronicle application client for Elixir | 4.0.2 | Hex `cratis_chronicle` |
+| Chronicle application client for Go | 0.28.2 | `github.com/cratis/chronicle.go` |
 | Chronicle contracts for Java and Kotlin | 19.184.3 | Maven Central `io.cratis:chronicle-contracts` |
 | Chronicle contracts for Elixir | 19.184.3 | Hex `cratis_chronicle_contracts` |
 | Chronicle contracts for TypeScript | 19.184.3 | npm `@cratis/chronicle.contracts` |
 | Chronicle contracts for Python | 19.184.3 | `cratis-chronicle-contracts`, built from the Chronicle source at that tag; the release publishes no wheel |
-| Chronicle for Go | 0.17.0 | `github.com/cratis/chronicle.go`, used only as an offline generated-message example. Its kernel tests and decision support target Chronicle 19.153.0, so it is not checked against 19.184.3 |
+| Chronicle for Go (offline example only) | 0.17.0 | `github.com/cratis/chronicle.go`, used only as an offline generated-message example. Its kernel tests and decision support target Chronicle 19.153.0, so it is not checked against 19.184.3 |
 
 ## Standalone Screenplay tool
 

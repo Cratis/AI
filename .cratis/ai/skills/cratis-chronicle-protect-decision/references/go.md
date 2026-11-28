@@ -2,7 +2,16 @@
 
 In client v0.28.2, this path requires successful compatibility preflight with server `19.153.0` or `19.153.0-development` and protocol `19.153.0` exactly. A later server number is not sufficient. Do not skip compatibility checking to enable the operation.
 
-Register a supported event-source-keyed projection, begin a transaction against the same store's event log and retain its owner. With its participant `unit`, read:
+Register a supported event-source-keyed projection, begin a transaction against the same store's event log and retain its owner. Import the decision and transaction packages:
+
+```go
+import (
+	"github.com/cratis/chronicle.go/readmodels"
+	"github.com/cratis/chronicle.go/transactions"
+)
+```
+
+Inside the decision function, read with the transaction's participant `unit`:
 
 ```go
 reader := readmodels.DecisionsFor(store.ReadModels(), model)
