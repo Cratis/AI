@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Fixed patterns only. No configuration files, session cache or user text in output.
+guard="$(dirname "$0")/cratis-guard-secrets.sh"
 [[ ${CRATIS_HOOKS_SKIP_SCAN:-} == 1 ]] && exit 0
 python3 -I -c '
-import json, os, re, stat, sys
+import json, os, re, shlex, stat, subprocess, sys
 from pathlib import Path
 
 def scan():
@@ -16,6 +17,9 @@ def scan():
     if not parts or file.suffix not in (".cs", ".tsx", ".ts"): return
     if any(p.startswith(".") or re.search(r"secret|credential|password|token|private.?key|(^|[._-])env($|[._-])", p, re.I) or p.lower() in {"node_modules", "bin", "obj", "dist", "wwwroot"} for p in parts): return
     # Walk from a pinned directory descriptor. Never follow any child symlink.
+    if file.name.lower().endswith(".g.cs"): return
+    check = json.dumps({"cwd": str(root), "tool_input": {"command": "cat -- " + shlex.quote(str(file))}})
+    if subprocess.run(["bash", sys.argv[1]], input=check.encode(), cwd=root, env=dict(os.environ, CRATIS_HOOKS_ALLOW_SECRET_READS="0"), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1).returncode: return
     flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
     fd = os.open(root, flags | os.O_DIRECTORY)
     try:
@@ -35,9 +39,9 @@ def scan():
         if "[Command" in text and re.search(r"(?:Handle|Provide)\s*\([^)]{0,1024}IEventLog", text): messages.append("Return command events through the append pipeline (ARCCHR0007).")
         if "Microsoft.AspNetCore.Mvc" in text and re.search(r":\s*ControllerBase\b", text): messages.append("Prefer model-bound slices unless this endpoint requires a controller.")
         if "[ReadModel" in text and "[Route(" in text: messages.append("Use Path for a custom model-bound route; Route applies to controllers.")
-        if ".AutoMap(" in text and "NoAutoMap" not in text: messages.append("AutoMap is redundant unless re-enabling mapping after NoAutoMap.")
+        if re.search(r"\.AutoMap\s*\(", text) and "NoAutoMap" not in text: messages.append("AutoMap is redundant unless re-enabling mapping after NoAutoMap.")
     elif re.search(r"from\s+[\x27\x22]primereact/dialog[\x27\x22]", text): messages.append("For Cratis Components 4 use the Dialogs subpath unless deliberately using PrimeReact.")
     if messages: print(json.dumps({"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"Advisory: " + " ".join(messages)}}))
 try: scan()
 except Exception: pass
-' 2>/dev/null || :
+' "$guard" 2>/dev/null || :
