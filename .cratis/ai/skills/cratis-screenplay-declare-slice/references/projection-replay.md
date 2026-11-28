@@ -16,3 +16,16 @@ Use a reducer when computing the next state needs the prior state at the event-s
 If the question is about a path through relationships rather than the latest keyed document, start from the consumer's traversal. For example, “which authors can this librarian reach through a shared branch?” needs nodes with stable keys and directed edges with named endpoints. Project facts that add or remove the relevant nodes and edges; use `match` and `return` in the graph query to populate the ordinary result model. Test graph state separately from the returned rows. Do not apply document `children` or `join` syntax to a graph projection. Read models and graphs have separate default sinks. Declare a named sink at application scope only for intentional placement, use the correct kind, and verify the host has bound it. A sink name is not a connection string or proof of deployment.
 
 A passing final snapshot alone can hide a spurious intermediate row. Assert the first incorrect transition and its key, then inspect the mapping that selected it before changing the query.
+
+## Dynamic dictionary keys
+
+For a dictionary on an application-code read model, put the dynamic key at the end of the target. For example, use `slot` on both events so the second fact removes the entry the first one wrote:
+
+```play
+from SlotAssigned key $eventSourceId
+  slots.$eventContent.slot = series
+from SlotDropped key $eventSourceId
+  remove slots.$eventContent.slot
+```
+
+A missing entry is a no-op. Use `remove`, not `clear`, for dynamic keys. Event content, event context and `$causedBy.subject` can supply the key; prefer subject to mutable display names for identity. Screenplay has no dictionary type: a dynamic key on a modeled read-model property warns (`PLAY0962`), and the reference evaluator does not execute these lines (`PLAY0268`). Verify support in the target and prove update and removal there.

@@ -1,0 +1,5 @@
+# Group and document intake
+
+**Workshop:** Name a facilitator to guide the rounds, a scribe to record facts and unresolved questions, and a decision owner to resolve them. Use the timeline steps: facts first, then order, then triggers, information and exceptions. At the end of each round, play it back to the decision owner; correct it or log the disagreement with an owner and next question. Keep one running unresolved list rather than treating silence as agreement.
+
+**Document package:** Make a fact ledger for a tender, policy or requirements package. Give each fact an ID, a document and section locator, and certainty (**stated**, **inferred** or **assumed**). Follow the discovery guidance on verbatim thresholds; link contradictory rows by ID. Before design handoff give every row a disposition: **modeled in** (name the timeline step or slice), **excluded deliberately** (record the owner's reason), or **open** (name the decision needed and owner). An open row does not become a modeled rule.

@@ -53,7 +53,7 @@ If the command returns `registeredAuthorId`, pass it to the destination with `wi
 
 For conditional actions, the first matching `when` wins. An `otherwise` branch is not a way to run a row action with no row. A change handler should act on the changed item, not the previous selection. A visibility guard is never the command's authorization policy.
 
-A template with typed slots describes the repeated structure: the implementing screen supplies its own data and actions, respecting slot cardinality. A performer-backed query similarly declares an interface, not a second portable implementation. Preserve its inputs, result cardinality and policy; find provider evidence for its parameters rather than inferring them from the screen's dependency alone.
+A template with typed slots describes the repeated structure: the implementing screen supplies its own data and actions, respecting slot cardinality. A performer-backed query similarly declares an interface, not a second portable implementation. Preserve its inputs, result cardinality and policy; find provider evidence for its parameters rather than inferring them from the screen's dependency alone. For a C# attachment, see [snapshot and live performer bodies](references/csharp-performers.md).
 
 For a decision that generates an identifier, attaches code, or compares time-sensitive inputs, [choose the command contract](references/decision-inputs.md) before you bind the form.
 
@@ -77,7 +77,7 @@ The form inherits the module gate, not a screen gate. Gating only `AddAuthor` an
 
 Hide gated screens and actions when the gate is closed or unresolved. Keep any existing command permission check; availability doesn't grant permission. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add, run the command or read the list, and that a caller inside the audience without permission is still denied.
 
-If the same screen renders differently across profiles, [trace the shell and data provision](references/shell-and-data.md) before editing the component or adding a second command.
+If the same screen renders differently across profiles, [trace the shell and data provision](references/shell-and-data.md) before editing the component or adding a second command. For locale-dependent text, [write companion strings](references/localized-strings.md).
 
 For an opt-in Scene web form that collects query arguments, [wire the TypeScript host](references/typescript.md). The component is not portable Screenplay form syntax; on other targets bind the actual query through the host's own form.
 
