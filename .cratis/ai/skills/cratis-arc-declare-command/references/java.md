@@ -19,3 +19,9 @@ If the decision depends on a particular observed position, return `CompletionSta
 For an alternate event target construct `new EventForEventSourceId(otherId, event)` rather than changing the entire command key. Keep a provision step in a public `provide` method when state is needed before handling; consume the prepared value without reading it again.
 
 Use `CommandProvidedValues.of(first, second)` when `provide` returns multiple values. Each assignable handler parameter consumes its match once. With Chronicle installed a `Pair<AuthorId, AuthorRegistered>` can carry the response ID and event together: `return new Pair<>(id, new AuthorRegistered(name));`. The caller receives the ID; verify the event separately.
+
+## Return a collection of events
+
+Return `List.of(new TaskRenamed(previousTitle, title), new TaskRenamed(previousCopyTitle, title))` to target the record's `@CommandKey` for both events, or wrap an event with `new EventForEventSourceId(copyId, event)` to target a different history. A mixed plain/routed list must contain only events; a non-event member makes it invalid, with no partial append.
+
+With the Chronicle transaction installed, awaited nested commands stage events under the outer command. Only outer success commits them; refusal or failure in either command discards the staged batch. A `constraintViolation` names a business constraint; a `concurrencyViolation` means the expected history position was stale.

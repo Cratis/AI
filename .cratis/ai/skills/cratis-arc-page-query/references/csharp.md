@@ -31,6 +31,13 @@ If some fields are masked, reject unauthorized sorts before Arc orders the rows:
 
 ## What Arc pages and what it does not
 
+| Shape | Request sort | Unknown field | Page order on ties |
+| --- | --- | --- | --- |
+| `IQueryable<T>` | Replaces the query's `OrderBy` | HTTP 500 if it reaches the renderer; allow-list fields in the `IQueryFilter` above | No automatic tie-breaker; offer a unique sort key |
+| MongoDB `collection.Observe(...)` | Uses the mapped BSON element name | Falls back to no requested sort | `_id` ascending breaks ties and orders unsorted pages |
+
+For each shape, request an unknown field and a nonunique field across two pages. Verify rejection by the query filter for `IQueryable<T>` and use a unique requested field for its deterministic paging check; do not assert a tied order Arc never promised. With MongoDB, assert the `_id` fallback and tie order with unchanged data.
+
 - **`IQueryable<T>`** is counted, sorted, skipped and taken by Arc, in the database when the provider can translate it. Calling `AsQueryable()` on a list that is already loaded pages only that list; it does not reduce the read.
 - **A materialized collection or an arbitrary `ISubject<IEnumerable<T>>`** is not sliced: a subject that emits 100 items emits 100 whatever page was requested.
 - **MongoDB `collection.Observe(...)`** applies the request's sort and page in the database and keeps the total current. `ObserveSingle()` and `ObserveById()` do not page.

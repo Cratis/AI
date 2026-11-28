@@ -46,6 +46,21 @@ A plain GET against an observable query is a snapshot request, not a subscriptio
 | 500 | The source failed or completed before an allowed result. |
 | 403 | A guard denied the value. |
 
+Prefer SSE. If a buffering proxy prevents streaming, use repeated `GET ...?waitForFirstResult=true&waitForFirstResultTimeout=<seconds>` as a long-poll fallback. Cancel the in-flight request and stop polling when the caller leaves. Each request reruns authorization and the count for a paged query; pace the loop because the first result may be a snapshot returned immediately, not a change notification.
+
 ## Direct stream or hub
 
 The direct SSE request above subscribes to one query. The browser normally uses the multiplexed hub, where opening `/.cratis/queries/sse` subscribes to nothing: each query is added with a POST to `/.cratis/queries/sse/subscribe` and removed with `/.cratis/queries/sse/unsubscribe`. A direct stream that works therefore does not prove the hub subscription was made. The hub sends keep-alive pings; a stream that ends silently while idle points at a proxy timeout, whereas a terminal unsuccessful result is the server's answer.
+
+## Date-sensitive observable queries
+
+With Arc 22.138.0 or later (`Cratis.Arc.Calendar`), inject `IApplicationCalendar` for calendar reads at a supplied instant. For live results, create a `ClockBoundaryContext` with `await boundaries.Begin(tenant, operationZone, token)` on `IClockBoundaries` for the subscription. Observe candidates without a date predicate tied to the clock; otherwise tomorrow's matches may never enter the source. For a “due today” list:
+
+```csharp
+return candidates.ReevaluateAtBoundaries(context, (items, reading) =>
+    new ClockEvaluation<DueItem[]>(
+        items.Where(item => item.DueDate == reading.Today).ToArray(),
+        LocalDateChanges.NextLocalDateChange(reading.Zone, reading.Instant)));
+```
+
+Use a zone-aware deadline, strictly after `reading.Instant` (or null for no further boundary); adding 24 hours is not a local date change across DST. In a spec, advance the registered `FakeTimeProvider` across local midnight and assert that the subscription emits the new list without a database write.

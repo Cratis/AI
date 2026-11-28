@@ -48,4 +48,4 @@ Expect `null` for a missing group, an empty list for an existing group with no m
 
 - **Route:** Arc derives the route. To set it, put `[Path("/api/authors")]` (`Cratis.Arc.Queries.ModelBound`) on the query method; not ASP.NET `[Route]`, which a model-bound query does not read.
 - **Per-caller transformation:** implement `IInterceptReadModel<Author>` to format or resolve values after the query selected the rows. An interceptor sees only delivered rows, so it cannot rebuild totals and does not replace authorization or owner-scoped selection.
-- **Time:** an observable emits when stored data changes. A view whose content depends on the clock does not emit when time passes; emit at the boundary explicitly or let the client ask again.
+- **Time:** an observable emits when stored data changes. For a view that must also emit when time passes, see "Date-sensitive observable queries" in `cratis-arc-diagnose-live-query`.

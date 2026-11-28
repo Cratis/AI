@@ -50,4 +50,27 @@ Use `AddCratis` / `UseCratis` for the combined host, not a second Chronicle regi
 
 Availability is distinct from authorization. Ask about the same part with the same arguments as execution. Suspension takes precedence over audience entitlement. If the host cannot evaluate availability, report a retryable evaluation failure, not permission or a permanent denial.
 
-Turning MVC endpoints off at runtime is not removing MVC from a trimmed/AOT publication. Exercise the published artifact with application JSON metadata registered before serializer options freeze. Expose the embedded event-model viewer only when intended for that deployment.
+`builder.AddCratisArc(configureBuilder: arc => arc.WithoutControllers())` disables MVC endpoints at runtime; set the MSBuild property `CratisArcControllersSupport=false` to remove controller support for a trimmed or AOT publication. During configuration, call `options.AddJsonTypeInfoResolver(AppJsonContext.Default)` with the application's source-generated `System.Text.Json` context, before serializer options freeze. Include closed `CommandResult<TResponse>` types for typed command responses in that context. Run the published artifact and execute a typed-response command; assert the response deserializes with its expected data. Expose the embedded event-model viewer only when intended for that deployment.
+
+## Declare availability
+
+Use `Cratis.Arc.Availability` for typed gates. For a feature whose application context supplies a `Vessel` with `HasReported`, declare the shared block and scope in the feature's namespace:
+
+```csharp
+public class Plus : Audience;
+
+public class DataQuality : AvailabilityBlock
+{
+    protected override IReadOnlyList<AvailabilityTerm> Lines =>
+        [For<Plus>(), When.On<Vessel>(v => v.HasReported).IsTrue()];
+}
+
+[Available<DataQuality>]
+public class FeatureAvailability : AvailabilityScope;
+
+[Command]
+[AvailableFor<Plus>]
+public record ResetScore(VesselId Vessel);
+```
+
+Use `[AvailableWhen<HasPaidInvoice>]` when a gate needs an application implementation of `IAvailabilityCondition`. Each attribute is one line and every line must hold. Verify that a missing audience or unmet condition closes the gate.
