@@ -150,14 +150,12 @@ test('Claude advises on changed patterns without blocking edits', () => {
     assert.doesNotMatch('Read', matcher);
     const command = entry.hooks.find(h => h.command.includes('cratis-pattern-scan.sh'))!.command;
     const scripts = '.cratis/ai/hooks/scripts';
-    const patterns = readFileSync(join(root, scripts, 'cratis-patterns.json'));
-    assert.ok(patterns.length <= 3000);
     const base = join(root, '.ai-work');
     mkdirSync(base, { recursive: true });
     const cwd = mkdtempSync(join(base, 'patterns-'));
     try {
         mkdirSync(join(cwd, scripts), { recursive: true });
-        for (const name of ['cratis-pattern-scan.sh', 'cratis-patterns.json', 'hook-lib.sh']) copyFileSync(join(root, scripts, name), join(cwd, scripts, name));
+        for (const name of ['cratis-pattern-scan.sh', 'cratis-guard-secrets.sh', 'hook-lib.sh']) copyFileSync(join(root, scripts, name), join(cwd, scripts, name));
         for (const [id, file, changed, benign] of advisoryFixtures) for (const content of [changed, benign]) {
             const path = join(cwd, file);
             writeFileSync(path, content + '\n');
