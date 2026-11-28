@@ -47,3 +47,5 @@ Add these props only if the host supplies the corresponding operations:
 ## Related skills
 
 - If the host owns the subscriptions, use `cratis-arc-react-bind-slice` from the Arc React profile. Pass `topicsStatus` and `messagesStatus` to `ChatSidebar`; an access denial or failed query is not an empty conversation.
+
+Attach message actions with `actions` and host content with `renderMessageExtra`. Retain existing history through loading or failure; do not keep showing it when access is denied.

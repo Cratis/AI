@@ -85,3 +85,7 @@ Use `.author-admin [data-cratis-part='header-content'] { font-weight: 600; }` fo
 ## Related skills
 
 - For the complete host setup, use `cratis-arc-react-bind-slice` from the Arc React profile.
+
+For a renderer-specific requirement rather than a color change, read [Select an adapter](references/renderer-adapters.md).
+
+If controls have no layout, check CSS before changing JSX: import tokens, then structural styles (or base plus the area sheets, including DataPage for split details), then the baseline theme or product CSS. JS imports do not load those styles. Target documented parts, not guessed DOM class names; a typed `pt` key is not necessarily the DOM marker. Normal unlayered CSS overrides layered rules. The provider configures messages and icons, not CSS themes.

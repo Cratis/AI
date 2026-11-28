@@ -62,3 +62,5 @@ export function AuthorDocument({ initial, schema, save }: { initial: Json; schem
 ## Related skills
 
 - [Bind a known command field](../cratis-components-submit-form/SKILL.md)
+
+For editing and cancelling a controlled schema, read [controlled-editor.md](references/controlled-editor.md).

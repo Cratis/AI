@@ -70,3 +70,7 @@ For a one-off check in the existing edit story, type a new name, rerender the pa
 - [Choose a control](../cratis-components-choose-control/SKILL.md) for a known field; [edit schema-defined data](../cratis-components-edit-schema-data/SKILL.md) when the fields are determined at runtime.
 
 - [Confirm an action](../cratis-components-coordinate-feedback/SKILL.md)
+
+For one submission across several steps, read [wizard.md](references/wizard.md).
+
+For confirming a command without double close, read [confirmation.md](references/confirmation.md).

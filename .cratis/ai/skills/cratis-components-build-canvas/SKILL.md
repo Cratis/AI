@@ -41,3 +41,5 @@ Pan or zoom: the book should move with the board. Tab to its button and activate
 ## Related skills
 
 - [Add contextual board tools](../cratis-components-compose-toolbar/SKILL.md)
+
+`initialPan` and `initialZoom` are starting values. Use the ready `CanvasHandle` for later navigation in world coordinates. Observe camera transforms separately from edits to items: panning must not dirty a diagram. Include the Pixi peer even when the item content is DOM.

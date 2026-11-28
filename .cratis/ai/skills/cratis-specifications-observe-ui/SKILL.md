@@ -55,3 +55,5 @@ export async function verifyKeyboardRegistration(page, name) {
 ```
 
 If the dialog cannot be found after Enter, inspect the trigger's accessible name and check the document body for a portal before changing the component. The story does not submit a command. For server refusal, [exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) with the same invalid input.
+
+A Storybook build compiles a play function; only an interaction runner that executes it proves the behavior. Use its instrumented assertions. Keep command refusal and draft-retention tests in the application runner; reserve the browser interaction for a consequence that needs a browser, such as focus return.

@@ -1,50 +1,52 @@
 ---
 name: cratis-specifications-exercise-backend
 description: Use when a backend author needs to check which event an Arc command appends, why it refuses input, or which row Chronicle projects. Not for a decision invoked without the pipeline (use cratis-specifications-isolate-behavior).
-compatibility: Requires the .NET SDK, the Cratis Specifications xUnit v3 adapter and the testing packages matching the application's Arc or Chronicle versions.
+compatibility: Requires the test runner the application already uses and the Arc or Chronicle testing package released for its SDK, at the versions the application references.
 ---
 
 # Test the backend promise at its owner
 
-Use a command scenario when the promise depends on binding, authorization, validation or commitment. For a row mapping, use a read-model scenario instead. Reserve a running store for behavior that depends on discovery, actual persistence or observer delivery.
+Pick the harness by the guarantee the spec has to prove, not by the artifact's name:
 
-Commit one spec per uncovered consequential rule. Add the accepted case only when the handler decides something. See the [case defaults](../../rules/general.md); don't duplicate a decision already covered directly.
+- **Pipeline scenario (default).** Use it for authorization, validation and command or query outcomes exercised by the selected SDK. A recorded append proves what the command tried to write, not that a kernel would accept it.
+- **Model or reaction scenario.** Where the SDK provides one, use it to check the row a projection or reducer produces, or the effect a reactor returns, from given events.
+- **Running kernel or HTTP host.** Use a kernel for persistence, discovery, delivery, or any store guarantee the SDK substitute omits, such as constraint or concurrency enforcement. Use a hosted HTTP request for transport binding: passing a typed argument to the pipeline does not test JSON binding.
 
-## Reject an empty author name
+A decision that can be invoked directly without the pipeline needs none of these.
 
-Reference the application, `Cratis.Arc.Chronicle.Testing`, `Cratis.Specifications.XUnit.v3` and the repository's xUnit v3 test setup in the spec project. This example assumes `RegisterAuthor` takes the source ID and name, and its validator rejects an empty name with `Name is required`. Seed another registration to distinguish earlier history from this command's work.
+Commit one spec per uncovered consequential rule, and add the accepted case only when the handler decides something. See the [case defaults](../../rules/general.md); do not repeat a decision that a direct spec already covers.
 
-```csharp
-using System.Threading.Tasks;
-using Cratis.Arc.Chronicle.Testing.Commands;
-using Cratis.Arc.Commands;
-using Cratis.Arc.Testing.Commands;
-using Cratis.Specifications;
-using Library.Features.Authors;
-using Library.Features.Authors.Registration;
-using Xunit;
+## Write the spec
 
-namespace Library.Specs.for_RegisterAuthor;
+1. Seed only the history or state the rule depends on, before the action. Seed an unrelated record as well when the spec must tell earlier history from this command's work.
+2. Act once.
+3. On refusal, assert the specific reason (the rule, member, constraint or authorization). For an event-writing command also assert that nothing was appended. A refusal alone passes when the caller was unauthorized or a required read model was missing, so the rule under test may never have run.
+4. For an accepted event-writing command, assert the event, source and values. For a response-only command or query, assert the promised response fields or rows instead.
+5. Await every assertion that returns a task, future or promise. Otherwise the runner can finish before a failing assertion completes.
+6. For delivery, wait on the completion signal the SDK returns, never on a fixed sleep: a sleep cannot tell a slow observer from a failed one.
 
-public class when_submitting_an_empty_name : Specification
-{
-    readonly CommandScenario<RegisterAuthor> _scenario = new();
-    CommandResult _result = null!;
+The spec is done when it fails after the rule is removed and passes when the rule is restored.
 
-    void Establish() => _scenario.Given.ForEventSource(AuthorId.New()).Events(new AuthorRegistered("Aster"));
-    async Task Because() => _result = await _scenario.Execute(new RegisterAuthor(AuthorId.New(), ""));
-    void Destroy() => _scenario.Dispose();
+## Read the reference for the application's SDK
 
-    [Fact] public void should_refuse_registration() => _result.ShouldNotBeSuccessful();
-    [Fact] public void should_explain_the_refusal() => _result.ShouldHaveValidationErrorFor("Name is required");
-    [Fact] public async Task should_not_append_an_event() => await _scenario.ShouldNotHaveAppendedEvents();
-}
-```
+Each reference names the packages, one worked example and the limits of that SDK's harness. Read only the one for the artifact in the application, and do not adapt another language's reference: the scenario APIs differ.
 
-If the handler decides which author receives the event, exercise that accepted case once with the requested `id` and `"Aster"`. Check `result.ShouldBeSuccessful()` and await `scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")`. Checking only a returned object would miss a write addressed to the wrong author. If a refusal test passes because authorization rejected the caller, it hasn't checked the name rule: inspect the structured reason.
+| Artifact | Read |
+| --- | --- |
+| `*.csproj`, `*.cs` | [references/csharp.md](references/csharp.md) |
+| Node server `package.json`, `*.ts` | [references/typescript.md](references/typescript.md) |
+| `*.kt` | [references/kotlin.md](references/kotlin.md) |
+| `*.java` | [references/java.md](references/java.md) |
+| `go.mod`, `*.go` | [references/go.md](references/go.md) |
+| `mix.exs`, `*.ex` | [references/elixir.md](references/elixir.md) |
 
-## Check the projected row instead
+For C#, read one more reference only when its condition holds:
 
-With `Cratis.Chronicle.Testing`, create a `ReadModelScenario<Author>` for the application's projection. Apply `await scenario.Given.ForEventSource(id).Events(new AuthorRegistered("Aster"));` once. Require `scenario.Instance` to have that ID and name, then dispose the scenario during cleanup. That proves the mapping, not the live subscription.
+- [references/csharp-command-results.md](references/csharp-command-results.md): the spec asserts why a command was refused, which events it appended, or needs a caller, a seeded read model or a generated value.
+- [references/csharp-decision-reads.md](references/csharp-decision-reads.md): the command claims uniqueness or guards against a concurrent writer.
+- [references/csharp-query-scenario.md](references/csharp-query-scenario.md): the promise belongs to a query, including an observable one.
+- [references/csharp-integration.md](references/csharp-integration.md): the promise is an append contract, a projected or reduced row, a reactor's effect, or needs a running store.
 
-For a delivery promise, use an isolated running store with the projection registered. Check the append result first, await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`), require successful observation and query the stored row by the same ID. A fixed sleep cannot distinguish a slow observer from a failed one. When a query also filters by caller, check the returned IDs as that caller; the stored row alone cannot prove visibility.
+Python has no released application SDK or testing package, so no Python scenario exists. Test that boundary through a service written with a supported SDK; do not rebuild a harness from generated contracts.
+
+A React component that renders the result is a different task from a Node server; this skill does not cover it.

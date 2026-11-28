@@ -80,3 +80,7 @@ Start with no rows, then register an author. The list should change without a pa
 - [Separate the view model](../cratis-arc-react-separate-view-model/SKILL.md) when presentation state belongs outside the component.
 - [Check the user-visible result](../cratis-specifications-observe-ui/SKILL.md) if the binding changes a user journey.
 - For a standard query-backed table, use `cratis-components-display-list` from the Components profile.
+
+For command state and refusal, read [commands.md](references/commands.md).
+
+For loading, refusal and projection updates, read [query-state.md](references/query-state.md).

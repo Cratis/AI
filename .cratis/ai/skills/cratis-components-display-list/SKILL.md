@@ -49,3 +49,5 @@ By default, search and column filters match only the loaded page. Set `globalFil
 - [Explore data](../cratis-components-explore-data/SKILL.md) when readers need to group records by category or browse dated versions of one record.
 
 - [Confirm a row action](../cratis-components-coordinate-feedback/SKILL.md)
+
+For server paging and selection, read [server-query.md](references/server-query.md).
