@@ -1,90 +1,19 @@
 ---
 name: cratis-chronicle-record-event
-description: Use when a maintainer needs to declare a Chronicle event type, append a fact with IEventLog or inspect the accepted event. Not for returning an event from an Arc command (use cratis-arc-declare-command).
-compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
+description: Use when declaring a Chronicle event, appending it from a standalone writer or checking its accepted position. Not for returning a fact from an Arc command (use cratis-arc-declare-command).
+compatibility: A supported application client and access to the intended kernel.
 ---
 
-# Append an author registration
+# Append a fact to its intended history
 
-Declare the fact in the registration feature. This is all the event declaration needs:
+Choose the stable event type and generation, source key and target sequence before writing. The source identifies the history; a correlation ID identifies a workflow, not a business entity. Keep the payload a fact about the past.
 
-```csharp
-using Cratis.Chronicle.Events;
+- C# (`.csproj`): [declare and check the C# event](references/csharp.md).
+- Node server (`package.json`): [append a registered Node event](references/typescript.md).
+- Kotlin (`.kt`): [append from a Kotlin coroutine](references/kotlin.md).
+- Java (`.java`): [append through the Java facade](references/java.md).
+- Go (`go.mod`): [register and append the Go value](references/go.md).
+- Elixir (`mix.exs`): [inspect the detailed Elixir result](references/elixir.md).
+- Python has no released application client: [submit an intent from Python](references/python.md).
 
-namespace Library.Features.Authors.Registration;
-
-[EventType] public record AuthorRegistered(string Name);
-```
-
-1. For a writer, import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Keep the registration code in `Features/Authors/Registration/`.
-2. Mark the event `[EventType]`. The event-type ID is a plain string naming the schema, not the author. It defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
-3. Inside Arc, [return the fact from the handler](../cratis-arc-declare-command/SKILL.md). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
-
-**Standalone writer only:**
-
-```csharp
-// Features/Authors/Registration/AuthorRegistry.cs
-using Cratis.Chronicle.Events;
-using Cratis.Chronicle.EventSequences;
-using Cratis.Chronicle.EventSequences.Concurrency;
-using Library.Features.Authors;
-
-namespace Library.Features.Authors.Registration;
-
-public class AuthorRegistry(IEventLog eventLog)
-{
-    public Task<AppendResult> Register(AuthorId authorId, AuthorName name)
-    {
-        var unused = new ConcurrencyScopeBuilder()
-            .ExpectingNoMatchingEvent()
-            .WithEventSourceId(authorId)
-            .Build();
-        return eventLog.Append(authorId, new AuthorRegistered(name.Value), concurrencyScope: unused);
-    }
-}
-```
-
-The standalone writer is create-only: a freshly generated ID is not proof this history is unused. Its append condition checks for any prior event at that ID. If names must also be unique across authors, [add that constraint separately](../cratis-chronicle-constrain-append/SKILL.md).
-
-## Read back the accepted registration
-
-One-off wiring check in a disposable namespace, not a committed spec of append or readback. For an uncovered command outcome, use the [backend scenario](../cratis-specifications-exercise-backend/SKILL.md).
-
-In a caller with the library's `IEventLog`, take the result from `var result = await new AuthorRegistry(eventLog).Register(authorId, new AuthorName("Aster"));`. Check `result.IsSuccess` before reporting success. On refusal inspect `result.ConstraintViolations`, `result.ConcurrencyViolation` and `result.Errors`. For an accepted registration, read only that author's registrations and match the returned position:
-
-```csharp
-var registrations = await eventLog.GetForEventSourceIdAndEventTypes(
-    authorId, [typeof(AuthorRegistered).GetEventType()]);
-var stored = registrations.Single(e => e.Context.SequenceNumber == result.SequenceNumber);
-var name = ((AuthorRegistered)stored.Content).Name;
-var registeredAt = stored.Context.Occurred;
-```
-
-## Read when an existing author registered
-
-For a read-only lookup by `authorId`, query `IEventLog` for that author and the `AuthorRegistered` event type. Do not call `Register` to obtain a sequence number. If the slice allows one registration per author ID, add this method to `AuthorRegistry`. It returns the stored occurrence time or no timestamp when the author has not registered:
-
-```csharp
-public async Task<DateTimeOffset?> GetRegistrationTime(AuthorId authorId)
-{
-    var registrations = await eventLog.GetForEventSourceIdAndEventTypes(
-        authorId, [typeof(AuthorRegistered).GetEventType()]);
-    var stored = registrations.SingleOrDefault();
-    return stored?.Context.Occurred;
-}
-```
-
-Use the stored occurrence time, not the lookup time. If another writer permits multiple registrations per source, select the intended registration by sequence number instead of taking the single result.
-
-## When it goes off the usual path
-
-- **The create-only append was refused:** inspect `result.ConcurrencyViolation` and read `await eventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` before deciding whether to report an existing author or try again.
-- **The original outcome needs correcting:** append a correcting fact for that event source and preserve the original. Don't edit it in the event log.
-
-## Related skills
-
-- [Evolve an event](../cratis-chronicle-evolve-event/SKILL.md) before changing a stored payload's shape.
-- [Protect personal data](../cratis-chronicle-protect-personal-data/SKILL.md) before recording identifying member details.
-
-- [Return an event from an Arc command](../cratis-arc-declare-command/SKILL.md)
-- [Reserve an author's name](../cratis-chronicle-constrain-append/SKILL.md)
+In a disposable namespace verify the accepted type, source and content by reading its sequence. Acceptance does not prove downstream delivery. For a confirmed refusal report the structured reason; after a lost response reconcile the original attempt before resubmitting. A new source key or idempotency key is a different write.

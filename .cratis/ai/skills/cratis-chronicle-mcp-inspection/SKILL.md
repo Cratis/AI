@@ -15,10 +15,7 @@ to inspect does not authorize a mutation.
 
 ## Tool effects
 
-The surface has **27 tools: 24 read-only and 3 mutating**, plus three
-prompts. All tools declare `OpenWorld=false`. Annotations corroborate the
-classification; the implementation owns it. Only `stop_job`, `resume_job` and
-`delete_job` call mutating RPCs.
+Request `tools/list` from the installed server. Match the proposed tool and arguments to that version; neither the advertised list nor a read-only annotation grants permission. Check its implementation before admitting an unfamiliar call. Job control (`stop_job`, `resume_job`, `delete_job`) changes state and requires separate authorization. A prompt that suggests a tool call is not authorization to make it.
 
 Read [observational tools](references/observational-tools.md) when selecting a read or interpreting its data. Read [effectful and unknown tools](references/blocked-tools.md)
 when a request involves job control, a different version or an unbounded read.

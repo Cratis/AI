@@ -58,9 +58,7 @@ fresh temporary workspace with the fixture's selected profiles/languages; the
 invoking repository is unchanged. It is **not** a security sandbox: fixture
 commands and harnesses still have host tools/authentication. Trust the source,
 request the intended session/budget, and keep transcripts off unless needed.
-The default fixture root is the conformance folder under the repository’s evaluations folder.
-`--fixtures` overrides
-it, `--fixture` selects names, and `--harnesses claude,codex` narrows adapters.
+The default fixture root is `conformance` inside the selected corpus's `Evaluations` directory, not the caller's working directory. `--fixtures` overrides that root; `--fixture` selects names, and `--harnesses claude,codex` narrows adapters.
 `--output json` is this command's structured format, not proof of a passing run.
 
 Requires 3.100.0 for install-only CI without a harness, credentials or model quota:

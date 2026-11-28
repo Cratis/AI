@@ -8,6 +8,8 @@ compatibility: Docker, curl, and a Chronicle image release matching the applicat
 
 For a disposable workstation, use the development image. For shared environments, use the production image: the development build generates certificates, provides development credentials and can bundle an unauthenticated database. Changing the environment name does not change the build.
 
+If the kernel opens the wrong store, refuses writes during an index rebuild, or loses writer ownership, [check storage configuration and ownership](references/storage.md). If a webhook registers but the receiver sees no event, [verify delivery and quarantine probes](references/webhooks.md).
+
 ## Local development
 
 Use a fresh container name and free loopback port. The full development image includes MongoDB; no database port needs publishing. This example deliberately uses disposable container storage:

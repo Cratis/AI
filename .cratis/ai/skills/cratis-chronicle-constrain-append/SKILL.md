@@ -1,47 +1,19 @@
 ---
 name: cratis-chronicle-constrain-append
-description: Use when a maintainer needs to enforce or release a uniqueness constraint at Chronicle append time across competing writers. Not for protecting an earlier command decision (use cratis-chronicle-protect-decision).
-compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
+description: Use when enforcing or releasing a uniqueness claim at Chronicle append time across competing writers. Not for protecting a decision over previously read state (use cratis-chronicle-protect-decision).
+compatibility: A supported application client and access to the intended kernel.
 ---
 
-# Reject duplicate author names when appending a registration
+# Enforce uniqueness where the competing writes commit
 
-1. In `Features/Authors/Registration/AuthorRegistered.cs`, extend the event from [Record an event](../cratis-chronicle-record-event/SKILL.md) to declare the unique constraint on its **string** parameter. Reference `Cratis.Chronicle` and import `Cratis.Chronicle.Events.Constraints`:
+Name the claim, the event fields it covers, the comparison rules and the event that releases it. A preflight query can improve feedback but cannot reserve a value. Register the constraint before accepting writes.
 
-```csharp
-[property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name
-```
+- C# (`.csproj`): [define the C# claim and removal event](references/csharp.md).
+- Node server (`package.json`): [define the Node constraint](references/typescript.md).
+- Kotlin (`.kt`): [define the Kotlin rule](references/kotlin.md).
+- Java (`.java`): [name the Java properties explicitly](references/java.md).
+- Go (`go.mod`): [build and register the Go constraint](references/go.md).
+- Elixir (`mix.exs`): [declare the Elixir constraint module](references/elixir.md).
+- Python has no released application client: [keep the claim in the owning service](references/python.md).
 
-2. `AuthorRegistered` stores the Library name as a `string`. At the append boundary, unwrap the in-process `AuthorName` with `new AuthorRegistered(name.Value)`.
-3. Declare the removal event once, in its own feature. Name the reservation it releases:
-
-```csharp
-// Features/Authors/Removal/AuthorRemoved.cs
-using Cratis.Chronicle.Events;
-using Cratis.Chronicle.Events.Constraints;
-
-namespace Library.Features.Authors.Removal;
-
-[EventType, RemoveConstraint("UniqueAuthorName")]
-public record AuthorRemoved;
-```
-
-For one registration event and a fixed refusal message, keep the attribute: its explicit `name` already gives callers a stable identifier. If the refusal must follow the current culture, use the `IConstraint` builder below even for one event. Omit the rename clause, keep `WithName("UniqueAuthorName")`, and add `.WithMessage(_ => Messages.AuthorNameMustBeUnique)` to the unique rule, where `Messages.AuthorNameMustBeUnique` reads your localized resource when the message is requested.
-
-## Try the same name for two author IDs
-
-One-off wiring check, not a spec of Chronicle's constraint mechanism. For an uncovered application refusal, use the [existing backend fixture](../cratis-specifications-exercise-backend/SKILL.md).
-
-Start in a disposable namespace with no claim on the name. Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
-
-## When it goes off the usual path
-
-- **Registration and a later rename must claim names in the same reservation:** replace the `Unique` property attribute and `RemoveConstraint` release with one declarative rule. In a class implementing `IConstraint` from `Cratis.Chronicle.Events.Constraints`, add `public void Define(IConstraintBuilder builder) => builder.Unique(u => u.WithName("UniqueAuthorName").On<AuthorRegistered>(e => e.Name).On<AuthorRenamed>(e => e.Name).RemovedWith<AuthorRemoved>());`. Here the additional fact is `[EventType] public record AuthorRenamed(string Name);`. Check that a rename to a different author's name is refused and that removal releases the claim.
-- **The same source must not record an event type twice:** put `[Unique]` directly on that event record, not on a property. Append two occurrences for one source and check the second is refused. Keep the property rule if names must also be unique across sources.
-
-By default, `UniqueConstraintMode.PerEventSource` retains the source's current claim. Choose `Mode = UniqueConstraintMode.PerValue` on the property constraint when earlier values must stay reserved after that source claims another one. The append applies the constraint within one store, namespace and event sequence. Don't rely on query-before-append; two writers can both pass that check.
-
-## Related skills
-
-- [Record the registration](../cratis-chronicle-record-event/SKILL.md)
-- [Protect a command decision](../cratis-chronicle-protect-decision/SKILL.md)
+In a disposable namespace claim the same value from two different sources. Inspect the named collision and confirm the refused source gained no event. Then release the original claim using the declared removal event and prove the second source can acquire it. During an index rebuild, wait for readiness rather than disabling uniqueness.
